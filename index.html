@@ -1479,15 +1479,29 @@ button[type="submit"],
 <div id="encrypted-chat-container" class="topic-chat-container" style="display: none; position: absolute; z-index: 1002; top: 10vh;">
   <div class="chat-topic-chat-container"  onclick="event.stopPropagation();">
 
-    <textarea class="toolbar-column" type="text" id="encrypted-chat-private-key" placeholder="Private Key"
-    onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-    ></textarea>
+    <form id="loginForm">
+
+
+
+    <input type="password"
+      name="password" 
+      autocomplete="current-password"
+      class="toolbar-column"
+      id="encrypted-chat-private-key"
+      placeholder="Private Key"
+      required
+    ></input>
 
     <div style="display: flex; align-items: center;">
 
-      <textarea class="toolbar-column" type="text" id="encrypted-chat-topic-id" placeholder="Domain/Topic ID"
-      onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-      ></textarea>
+      <input type="text"
+      name="username" 
+      autocomplete="username"
+      class="toolbar-column"
+      id="encrypted-chat-topic-id"
+      placeholder="Domain/Topic ID"
+      required
+      ></input>
 
       <div style="display: flex; align-items: center;">
         <button id="load-msgs-from-encrypted-chat" class="toolbar-column-btns" style="margin-left: 1vw; width: 20vw;">Load
@@ -1498,6 +1512,7 @@ button[type="submit"],
         </button>
      </div> 
     </div>
+  </form>
 
     <div id="options-from-encrypted-chat" style="display: none;">
 
@@ -2260,14 +2275,12 @@ function trackOpacity() {
             }
 
             } else {
-              console.log('Crosshair element not found');
             }
           }
         }, 500); // Check every 500ms
 
         setTimeout(() => {
           if (!toolbarload) {
-            console.log('Timeout reached, clearing interval');
             clearInterval(checkOpacity);
           }
         }, 300000); // Stop after 30 seconds if not completed
@@ -2325,6 +2338,46 @@ async function loadProfile(accountId, balance) {
 };
 
 loader.updateProgress();
+
+    const form = document.getElementById('loginForm');
+    const usernameInput = document.getElementById('encrypted-chat-topic-id');
+    const passwordInput = document.getElementById('encrypted-chat-private-key');
+    
+
+    window.addEventListener('load', () => {
+    const savedUser = localStorage.getItem('savedUsername');
+    const savedPass = localStorage.getItem('savedPassword');
+
+    if (savedUser) usernameInput.value = savedUser;
+    if (savedPass) passwordInput.value = savedPass;
+  });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+
+    if (username && password) {
+      localStorage.setItem('savedUsername', username);
+      localStorage.setItem('savedPassword', password);
+
+      alert('Credentials saved! Browser will autocomplete on next visit.');
+    }
+  });
+
+  usernameInput.addEventListener('input', () => {
+    if (!usernameInput.hasAttribute('autocomplete')) {
+      usernameInput.setAttribute('autocomplete', 'username');
+    }
+  });
+
+  passwordInput.addEventListener('input', () => {
+    if (!passwordInput.hasAttribute('autocomplete')) {
+      passwordInput.setAttribute('autocomplete', 'current-password');
+    }
+  });
+
 
 
 const sodium = window.sodium;
