@@ -2488,7 +2488,7 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
 
     try{
       const publicKey = parsePublicKey(PublicKeyContainer.value);
-      if (publicKey.length < 20) {
+      if (publicKey.length < 20 || privateKey.length > 10) {
 
         for (let index = messages.length - 1; index >= 0; index--) {
         const message = result.messages[index];
@@ -2498,7 +2498,14 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
         }
         if (parsedMessage.publicKey && (topicAdmin.length === 0 || topicAdmin.includes(message.payer))) {
           PublicKeyContainer.innerHTML = parsedMessage.publicKey;
-          break;
+          const messagesContainer = document.getElementById("messages-from-encrypted-chat");
+          const topicSpinnerChat = `
+          <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+            <span style="margin-left: 1vw;">Loaded Public Key for topic ${topicId}</span>
+          </div>`;
+          messagesContainer.innerHTML = topicSpinnerChat;
+          adjustTextareaHeight(messagesContainer);
+          return;
         }
       }
       }
