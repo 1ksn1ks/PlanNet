@@ -839,7 +839,7 @@ button[type="submit"],
 
 <button id="copy-coordinates" class="copy-coordinates"></button>
 
-<div id="crosshair"></div>
+<div id="crosshair" style="display: none;"></div>
 
 <div style="display: flex; position: fixed; top: 6.5vh; left: 0; z-index: 1006;">
   <button id="main-toggle-btn" class="options-and-topic" style="margin-left: 0.3vh;">OPTIONS
@@ -1361,12 +1361,12 @@ button[type="submit"],
 
 <div class="flex-container">
   <div id="wallet-section">
-    <button id="connect-wallet-btn">Connect Wallet
+    <button id="connect-wallet-btn">Create Wallet
     </button>
     <button id="disconnect-wallet-btn">Disconnect
     </button>
     <div class="account-info">
-    <div id="account-id" style="margin-left: 0.3vh;"></div>
+    <div id="account-id" style="margin-left: 0.5vh;"></div>
     </div>
   </div>
 </div>
@@ -1525,6 +1525,9 @@ button[type="submit"],
     ></textarea>
 
     <button id="load-msgs-from-ids-encrypted-chat-button" class="toolbar-column-btns">^ Load Messages From ^
+    </button>
+
+    <button id="stack-encrypted-chat-public-key-button" class="toolbar-column-btns">Pin Public Key
     </button>
 
   </div>
@@ -2074,7 +2077,7 @@ async function extractTopicId() {
     }
   }
 
-  const loadColumn = document.getElementById("load-column");
+    const loadColumn = document.getElementById("load-column");
     loadColumn.style.display = "block";
     const inputarea = document.getElementById("input-field");
     inputarea.value = '';
@@ -2213,27 +2216,81 @@ const ufoLoader = new THREE.GLTFLoader();
 ufoLoader.setDRACOLoader(dracoLoader);
 let currentUfoModel = null;
 let timeoutForToolbarLoad = true;
+let initialload = false;
+let toolbarload = false;
+
+function trackOpacity() {
+  const host = document.querySelector('wcm-modal');
+  if (host) {
+    const shadowRoot = host.shadowRoot;
+    if (shadowRoot) {
+      const targetDiv = shadowRoot.querySelector('#wcm-modal');
+      if (targetDiv) {
+        const checkOpacity = 
+        setInterval(() => {
+          const opacity = window.getComputedStyle(targetDiv).opacity;
+          const crosshair = document.getElementById("crosshair");
+          if (opacity === '1') {
+            initialload = true;
+            if (crosshair) {
+              crosshair.style.display = "none";
+            } else {
+              console.log('Crosshair element not found');
+            }
+          }
+
+          if (opacity === '0') { // Ensure string comparison
+
+            if (initialload === true) {
+
+            if (toolbarload === false) {
+        extractTopicId();
+        handleAllMessages();
+        const toolbarLoad = document.getElementById("toolbar-load");
+        toolbarLoad.replaceWith(toolbarLoad.cloneNode(true));
+        const newToolbarLoad = document.getElementById("toolbar-load");
+        newToolbarLoad.addEventListener("click", debounce(async () => {
+            await handleAllMessages();
+        }, 500));
+        if (crosshair) {
+          crosshair.style.display = "block";
+        toolbarload = true;
+              }
+
+            }
+
+            } else {
+              console.log('Crosshair element not found');
+            }
+          }
+        }, 500); // Check every 500ms
+
+        setTimeout(() => {
+          if (!toolbarload) {
+            console.log('Timeout reached, clearing interval');
+            clearInterval(checkOpacity);
+          }
+        }, 30000); // Stop after 30 seconds if not completed
+      } else {
+        setTimeout(trackOpacity, 100);
+      }
+    } else {
+      setTimeout(trackOpacity, 100);
+    }
+  } else {
+    setTimeout(trackOpacity, 100);
+  }
+}
+
+trackOpacity(); // Start the process
+
 
 async function updateAccountInfo(accountId, balance) {
   document.getElementById("connect-wallet-btn").style.display ="block";
   document.getElementById("disconnect-wallet-btn").style.display ="none";
-  document.getElementById("account-id").textContent = ``;
-  document.getElementById("crosshair").style.display = "block";
-  document.getElementById("connect-wallet-btn").addEventListener("click", () => {
-    document.getElementById("crosshair").style.display = "none";
-    setTimeout(() => {
-        document.getElementById("crosshair").style.display = "block";
-    }, 15000);
-  });
+  document.getElementById("account-id").textContent = `NO ID (mail is optional)`;
   connectWallet();
-  extractTopicId();
-  handleAllMessages();
-  const toolbarLoad = document.getElementById("toolbar-load");
-  toolbarLoad.replaceWith(toolbarLoad.cloneNode(true));
-  const newToolbarLoad = document.getElementById("toolbar-load");
-  newToolbarLoad.addEventListener("click", debounce(async () => {
-      await handleAllMessages();
-  }, 500));
+
   return;
 };
 
@@ -2241,7 +2298,6 @@ async function loadProfile(accountId, balance) {
   document.getElementById("account-id").textContent = `Acc: ${accountId}`;
   document.getElementById("connect-wallet-btn").style.display = "none";
   document.getElementById("disconnect-wallet-btn").style.display ="block";
-  document.getElementById("crosshair").style.display = "block";
   globalAccountId = accountId;
   const profileObjectUrl = await loadProfileObject();
   const profileObjectCrosshair = await loadProfileCrosshair();
@@ -2315,29 +2371,6 @@ async function decryptMessage(encryptedData, recipientPrivateKey) {
   return sodium.to_string(decrypted);
 }
 
-async function a() {
-  try {
-    const publicKeyHex = '302a300506032b65700321009eac2996306ae12c68a876a88cbea209e69d60ffddc3386738157bd526d2fd1d';
-    const privateKeyHex = '302e020100300506032b65700422042058110c84febccc97ec4eb34995690a1b9f20f7e743e45cdf1bbea6b2420a59fc';
-
-    const publicKey = parsePublicKey(publicKeyHex);
-    const privateKey = parsePrivateKey(privateKeyHex);
-
-    const message = 'Secret message!';
-
-    const encrypted = await encryptMessage(message, publicKey);
-    console.log('Encrypted:', encrypted);
-
-    const decrypted = await decryptMessage(encrypted, privateKey);
-    console.log('Decrypted:', decrypted);
-  } catch (error) {
-    console.error('Error:', error.message);
-  }
-}
-
-a();
-
-
 document.getElementById("post-msg-encrypted-chat").addEventListener("click", async () => {
   try {
     let userInput = document.getElementById("encrypted-chat-topic-id").value.toLowerCase();
@@ -2369,12 +2402,11 @@ document.getElementById("post-msg-encrypted-chat").addEventListener("click", asy
   }
 });
 
-
-document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click", async () => {
+document.getElementById("stack-encrypted-chat-public-key-button").addEventListener("click", async () => {
   try {
     let userInput = document.getElementById("encrypted-chat-topic-id").value.toLowerCase();
+    let publicKey = document.getElementById("encrypted-chat-public-key").value;
     let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
-    const PrivateKey = parsePrivateKey(document.getElementById("encrypted-chat-private-key").value);
     let topicId;
 
     if (domainEntry && domainEntry.lastMessage) {
@@ -2383,19 +2415,42 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
       topicId = userInput;
     }
 
+    const messageobject = {
+      publicKey: publicKey
+    };
+    const message = JSON.stringify(messageobject);
+    const receipt = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, message);
+    console.log('Receipt:', receipt);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+});
+
+
+document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("encrypted-chat-topic-id").value.toLowerCase();
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+    if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
     
     const messagesContainer = document.getElementById("messages-from-encrypted-chat");
     const topicSpinnerChat = `
-    <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 1vh; padding-bottom: 1vh;">
+    <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
       <div id="topicspinnerchat"></div>
        <span style="margin-left: 1vw;">Loading messages from ${topicId}</span>
       </div>`;
     messagesContainer.innerHTML = topicSpinnerChat;
     adjustTextareaHeight(messagesContainer);
 
+    const topicAdmin = [];
     try {
     const topicInfo = await sdk.getTopicInfo(topicId);
-          const topicAdmin = [];
           const memo = topicInfo.memo;
 
           // Split the memo by commas
@@ -2412,7 +2467,7 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
     } catch (error) {
       const messagesContainer = document.getElementById("messages-from-encrypted-chat");
       const topicSpinnerChat = `
-      <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 1vh; padding-bottom: 1vh;">
+      <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
         <span style="margin-left: 1vw;">Invalid Topic ID</span>
       </div>`;
       messagesContainer.innerHTML = topicSpinnerChat;
@@ -2420,13 +2475,42 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
       console.error("Error getting topic info:", error);
       return;
     }
-
     const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
 
     if (!result || !Array.isArray(result.messages)) {
       console.log("No messages found or result is not an array.");
       return [];
     }
+
+    const messages = result.messages;
+
+    const PublicKeyContainer = document.getElementById("encrypted-chat-public-key");
+
+    try{
+      const publicKey = parsePublicKey(PublicKeyContainer.value);
+      if (publicKey.length < 20) {
+
+        for (let index = messages.length - 1; index >= 0; index--) {
+        const message = result.messages[index];
+        let parsedMessage = message;
+        if (typeof message === 'string') {
+          parsedMessage = JSON.parse(message);
+        }
+        if (parsedMessage.publicKey && (topicAdmin.length === 0 || topicAdmin.includes(message.payer))) {
+          PublicKeyContainer.innerHTML = parsedMessage.publicKey;
+          break;
+        }
+      }
+      }
+    }catch (error) {
+      const PublicKeySpinnerChat = `No public key found`;
+      PublicKeyContainer.innerHTML = '';
+      PublicKeyContainer.innerHTML = PublicKeySpinnerChat;
+      adjustTextareaHeight(PublicKeyContainer);
+      console.error("Error getting public key:", error);
+      return;
+    }
+
 
     const profilePictures = await loadProfilePicture(); // Load profile pictures
     const usernames = await loadUsername(); // Load usernames
@@ -2509,13 +2593,16 @@ for (let index = 0; index < result.messages.length; index++) {
     if (payerHasNFT && parsedMessage.encryptedMessage) {
       const userMessage = parsedMessage.encryptedMessage;
 
+      const PrivateKey = parsePrivateKey(document.getElementById("encrypted-chat-private-key").value);
+
+
   let decryptedMessage = null;
   try {
       decryptedMessage = await decryptMessage(userMessage, PrivateKey);
   } catch (error) {
     const messagesContainer = document.getElementById("messages-from-encrypted-chat");
     const topicSpinnerChat = `
-        <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 1vh; padding-bottom: 1vh;">
+        <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
           <span style="margin-left: 1vw;">Invalid Private Key</span>
         </div>`;
     messagesContainer.innerHTML = topicSpinnerChat;
@@ -2626,7 +2713,10 @@ if (payer !== previousPayer) {
   messagesContainer.innerHTML = allMessages;
 
   if (allMessages.length === 0) {
-    messagesContainer.innerHTML = 'no messages found';
+    messagesContainer.innerHTML =  `<div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+       <span style="margin-left: 1vw;">No messages found</span>
+      </div>`;
+      return;
   }
   
   adjustTextareaHeight(messagesContainer);
@@ -2635,9 +2725,9 @@ if (payer !== previousPayer) {
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
   } catch (error) {
-    const messagesContainer = document.getElementById('messages-from-topic-chat');
+    const messagesContainer = document.getElementById('messages-from-encrypted-chat');
     messagesContainer.innerHTML = 
-    `<div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 1vh; padding-bottom: 1vh;">
+    `<div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
        <span style="margin-left: 1vw;">Invalid Topic ID</span>
       </div>`;
     adjustTextareaHeight(messagesContainer);
@@ -3090,7 +3180,7 @@ document.getElementById("button4").addEventListener("click", async () => {
 });
 
 document.getElementById('go-to-top-msgs').addEventListener('click', function() {
-  const container = document.getElementById('topic-chat-container');
+  const container = document.getElementById('chat-container');
   container.scrollTop = 0;
 });
 
@@ -3115,15 +3205,18 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
     
     const messagesContainer = document.getElementById("messages-from-topic-chat");
     const topicSpinnerChat = `
-    <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 1vh; padding-bottom: 1vh;">
+    <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
       <div id="topicspinnerchat"></div>
        <span style="margin-left: 1vw;">Loading messages from ${topicId}</span>
       </div>`;
     messagesContainer.innerHTML = topicSpinnerChat;
     adjustTextareaHeight(messagesContainer);
 
+
+    const topicAdmin = [];
+
+    try{
     const topicInfo = await sdk.getTopicInfo(topicId);
-          const topicAdmin = [];
           const memo = topicInfo.memo;
 
           // Split the memo by commas
@@ -3137,6 +3230,15 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
               topicAdmin.push(part);
             }
           });
+        } catch (error){
+              const messagesContainer = document.getElementById('messages-from-topic-chat');
+              messagesContainer.innerHTML = 
+              `<div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+                <span style="margin-left: 1vw;">Invalid Topic ID</span>
+                </div>`;
+              adjustTextareaHeight(messagesContainer);
+              return;
+        }
 
     const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
 
@@ -3151,7 +3253,7 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
     const topic2pic = await loadTOPIC2PIC();
 
 
-    let allMessages = ''; // Initialize an empty string to hold all messages
+    let allMessages = ''; 
 
     let previousPayer = null; // Track the previous payer
 
@@ -3328,8 +3430,14 @@ if (payer !== previousPayer) {
   messagesContainer.innerHTML = allMessages;
 
   if (allMessages.length === 0) {
-    messagesContainer.innerHTML = 'no messages found';
-  }
+    const messagesContainer = document.getElementById('messages-from-topic-chat');
+
+    messagesContainer.innerHTML = 
+     `<div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+       <span style="margin-left: 1vw;">No messages found</span>
+      </div>`; 
+    return;
+    }
   
   adjustTextareaHeight(messagesContainer);
 
@@ -3337,12 +3445,7 @@ if (payer !== previousPayer) {
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
   } catch (error) {
-    const messagesContainer = document.getElementById('messages-from-topic-chat');
-    messagesContainer.innerHTML = 
-    `<div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 1vh; padding-bottom: 1vh;">
-       <span style="margin-left: 1vw;">Invalid Topic ID</span>
-      </div>`;
-    adjustTextareaHeight(messagesContainer);
+
     console.error("Error setting rules:", error);
   }
 });
@@ -3786,8 +3889,10 @@ async function main() {
 
 main();
 
+document.getElementById("connect-wallet-btn").addEventListener("click", () => {
+  window.open("https://wallet.hashpack.app", "_blank");
+});
 
-document.getElementById("connect-wallet-btn").addEventListener("click", connectWallet);
 document.getElementById("disconnect-wallet-btn").addEventListener("click", disconnectWallet);
 
 
@@ -3825,7 +3930,6 @@ document.getElementById("submit-button-Create_New_Topic").addEventListener("clic
     document.getElementById("input-field-5").value = createdTopicId;
     document.getElementById("input-field-2-0").value = createdTopicId;
     document.getElementById("input-field-3-0").value = createdTopicId;
-    document.getElementById("input-field").value = createdTopicId;
     } catch (error) {
     console.error("Error creating topic:", error);
   }
@@ -4064,15 +4168,34 @@ window.loadTOPIC4PIC = async function(payer) {
     const accountTOPIC2PIC = await loadTOPIC2PIC();
 
     if (!accountTOPIC2PIC[payer] || !accountTOPIC2PIC[payer].topic2pic) {
-      return {};
+      activePolygonPopups.forEach((popup) => popup.remove());
+    activeMarkerPopups.forEach((popup) => popup.remove());
+    CloseALL();
+    const loadColumn = document.getElementById("load-column");
+    loadColumn.style.display = "block";
+    OpenToggleToolbar();
+    const inputarea = document.getElementById("input-field");
+    inputarea.value = '';
+    const loaded_text_area = document.getElementById("loaded-topics");
+    loaded_text_area.value = '';
+    const topicSpinnerChat = `
+    <div style="display: flex; justify-content: left; align-items: left; padding-top: 1vh; padding-bottom: 1vh;">
+       <span style="margin-left: 1vw;">User has not set any topics, it can be done by going to OPTIONS > TOOLABR > EDIT > add Topic ID and press TOPIC2PIC<br><br>
+       U can also stack multiple by going to OPTIONS > TOOLBAR > Stack Topic IDs (include one into TOPIC2PIC and then u stack them onto that one)</span>
+      </div>`;
+    loaded_text_area.innerHTML = topicSpinnerChat;
+    adjustTextareaHeight(loaded_text_area);
+    console.error("Error getting topic info:", error);
+    return;
     }
 
     const topicId = accountTOPIC2PIC[payer].topic2pic;
     const topicIdStr = topicId[0];
-    const topicInfo = await window.HashinalsWalletConnectSDK.getTopicInfo(topicIdStr);
     const topicAdmin = [];
-    const memo = topicInfo.memo;
 
+    try{
+    const topicInfo = await window.HashinalsWalletConnectSDK.getTopicInfo(topicIdStr);
+    const memo = topicInfo.memo;
     const parts = memo.split(',');
     let hasRules = false;
     parts.forEach(part => {
@@ -4081,6 +4204,18 @@ window.loadTOPIC4PIC = async function(payer) {
         hasRules = true;
       }
     });
+    }catch (error){
+    const loaded_text_area = document.getElementById("loaded-topics");
+    loaded_text_area.value = '';
+    const topicSpinnerChat = `
+    <div style="display: flex; justify-content: left; align-items: left; padding-top: 1vh; padding-bottom: 1vh;">
+       <span style="margin-left: 1vw;">Invalid Topic ID</span>
+      </div>`;
+    loaded_text_area.innerHTML = topicSpinnerChat;
+    adjustTextareaHeight(loaded_text_area);
+    console.error("Error getting topic info:", error);
+    return;
+    }
 
     const result = await window.HashinalsWalletConnectSDK.getMessages(topicIdStr);
 
@@ -4155,6 +4290,9 @@ window.loadTOPIC4PIC = async function(payer) {
       return idA - idB;
     });
 
+    const usernames = await loadUsername();
+    const username = usernames[payer]?.username;
+
     activePolygonPopups.forEach((popup) => popup.remove());
     activeMarkerPopups.forEach((popup) => popup.remove());
     CloseALL();
@@ -4165,7 +4303,7 @@ window.loadTOPIC4PIC = async function(payer) {
     inputarea.value = '';
     const loaded_text_area = document.getElementById("loaded-topics");
     loaded_text_area.innerHTML = '';
-    loaded_text_area.innerHTML = globalLoadedTopicIdsWithNames.join('<br>');
+    loaded_text_area.innerHTML = 'User ' + payer + ' ' + username + '<br><br>' + globalLoadedTopicIdsWithNames.join('<br>');
     adjustTextareaHeight(loaded_text_area);
 
     return { loadedTopicIdsWithNames };
@@ -4213,7 +4351,39 @@ async function handleAllMessages() {
       topicId = userInput || initialTopicId;
     }
 
-    const result = await sdk.getMessages(topicId);
+
+
+    const topicAdmin = [];
+
+try{
+    const topicInfo = await sdk.getTopicInfo(topicId);
+          const memo = topicInfo.memo;
+
+          // Split the memo by commas
+          const parts = memo.split(',');
+
+          // Iterate over each part
+          parts.forEach(part => {
+            // Check if the part starts with "0.0."
+            if (part.startsWith("0.0.")) {
+              // Add it to the topicAdmin array
+              topicAdmin.push(part);
+              hasRules = true;
+            }
+          });
+        }catch (error){
+          const loaded_text_area = document.getElementById("loaded-topics");
+    loaded_text_area.value = '';
+    const topicSpinnerChat = `
+    <div style="display: flex; justify-content: left; align-items: left; padding-top: 1vh; padding-bottom: 1vh;">
+       <span style="margin-left: 1vw;">Invalid Topic ID</span>
+      </div>`;
+    loaded_text_area.innerHTML = topicSpinnerChat;
+    adjustTextareaHeight(loaded_text_area);
+    console.error("Error getting topic info:", error);
+    return;
+        }
+
 
     globalLoadedTopicIdsWithNames = [];
     let addedTopics = [];
@@ -4229,6 +4399,11 @@ async function handleAllMessages() {
       </div>`;
     loaded_text_area.innerHTML = topicSpinnerChat;
     adjustTextareaHeight(loaded_text_area);
+
+
+
+    const result = await sdk.getMessages(topicId);
+
 
     let hasMoreThanOneTopic = false;
 
@@ -4254,22 +4429,8 @@ async function handleAllMessages() {
       }
     });
 
-    const topicInfo = await sdk.getTopicInfo(topicId);
-          const topicAdmin = [];
-          const memo = topicInfo.memo;
 
-          // Split the memo by commas
-          const parts = memo.split(',');
 
-          // Iterate over each part
-          parts.forEach(part => {
-            // Check if the part starts with "0.0."
-            if (part.startsWith("0.0.")) {
-              // Add it to the topicAdmin array
-              topicAdmin.push(part);
-              hasRules = true;
-            }
-          });
 
     const topicActions = new Map();
 
@@ -7047,7 +7208,7 @@ event.stopPropagation();
             const hexColorUsername = document.getElementById('color-picker-popup-username').value;
             const hexColorTitles = document.getElementById('color-picker-popup-titles').value;
             const hexColorText = document.getElementById('color-picker-popup-text').value;
-            const popupFontSize = Math.min(parseInt(document.getElementById("popup-font-size3").value) || 0.5, 10);
+            const popupFontSize = Math.min(parseInt(document.getElementById("popup-font-size").value) || 0.5, 10);
 
             const messageData = {
                 data: {
@@ -7094,7 +7255,6 @@ async function loadProfilePopup() {
 
         // Check if the last message has valid data
         if (lastMessage && lastMessage.data) {
-            console.log(lastMessage.data);
             // Extract relevant data and clamp to max 255
             const { colorBorder, colorNumber, colorClose, colorUsername, colorAccid, colorText, colorTitles, popupFontSize } = lastMessage.data;
 
