@@ -2497,12 +2497,14 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
 
     const PublicKeyContainer = document.getElementById("encrypted-chat-public-key");
     let PrivateKeyContainer = document.getElementById("encrypted-chat-private-key");
-    PublicKeyContainer.value = '';
+    let PrivateKeyValue = PrivateKeyContainer.value;
+    PrivateKeyContainer.value ='';
+    PrivateKeyContainer.readOnly = true;
 
 
 
     try{
-      if (PublicKeyContainer.value.length < 20 && PrivateKeyContainer.value.length < 10) {
+      if (PublicKeyContainer.value.length < 20 && PrivateKeyValue.length < 10) {
 
         for (let index = messages.length - 1; index >= 0; index--) {
         const message = result.messages[index];
@@ -2547,9 +2549,7 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
     }
 
 
-    let PrivateKey = parsePrivateKey(PrivateKeyContainer.value);
 
-    PrivateKeyContainer.value = null;
 
     const profilePictures = await loadProfilePicture(); // Load profile pictures
     const usernames = await loadUsername(); // Load usernames
@@ -2564,9 +2564,6 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
     const topicActions = new Map();
 
     const loadedNFTsForTopicChat = [];
-
-
-
 
 
     for (let index = 0; index < result.messages.length; index++) {
@@ -2605,6 +2602,10 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
     if (loadedNFTsForTopicChat.length > 0) {
   console.log("loadedNFTsForTopicChat", loadedNFTsForTopicChat);
 }
+
+
+let PrivateKey = parsePrivateKey(PrivateKeyValue);
+PrivateKeyValue = null;
 
 // Process messages
 for (let index = 0; index < result.messages.length; index++) {
