@@ -674,7 +674,7 @@ html, body {
   -ms-user-select: text !important;
 }
 
-#topic-chat-container * {
+#topic-chat-container, #encrypted-chat-container * {
   user-select: text !important;
   -webkit-user-select: text !important;
   -moz-user-select: text !important;
@@ -1480,32 +1480,18 @@ button[type="submit"],
   <div class="chat-topic-chat-container"  onclick="event.stopPropagation();">
 
 
-
 <label style="font-size: 2vh; padding-bottom: 0.5vh;">Install BitWarden to save details for future use:
-    <input type="password"
-      name="password" 
-      autocomplete="off"
-      autocorrect="off"
-      autocapitalize="off"
-      spellcheck="false"
-      readonly
-      onfocus="this.removeAttribute('readonly');"
-      class="toolbar-column"
-      id="encrypted-chat-private-key"
-      placeholder="Private Key"
-      required
-    ></input>
+  </label>
+
+  <textarea class="toolbar-column" type="text" id="encrypted-chat-private-key" placeholder="Private Key"
+  onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+  ></textarea>
 
     <div style="display: flex; align-items: center;">
 
-      <input type="text"
-      name="username" 
-      autocomplete="username"
-      class="toolbar-column"
-      id="encrypted-chat-topic-id"
-      placeholder="Domain/Topic ID"
-      required
-      ></input>
+      <textarea class="toolbar-column" type="text" id="encrypted-chat-topic-id" placeholder="Domain/Topic ID"
+      onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+      ></textarea>
 
       <div style="display: flex; align-items: center;">
         <button id="load-msgs-from-encrypted-chat" class="toolbar-column-btns" style="margin-left: 1vw; width: 20vw;">Load
@@ -2441,8 +2427,20 @@ document.getElementById("stack-encrypted-chat-public-key-button").addEventListen
   }
 });
 
+let storedMessagesEncryptedChat = [];
+let storedMessages = [];
+let accidTopicChatColor = '#800080';
+let usernameTopicChatColor = '#ffffff';
+let textTopicChatColor = '#ffffff';
+
+
 
 document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click", async () => {
+  await loadMessagesFromEncryptedChat();
+});
+
+
+async function loadMessagesFromEncryptedChat() {
   try {
     let userInput = document.getElementById("encrypted-chat-topic-id").value.toLowerCase();
     let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
@@ -2499,8 +2497,6 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
     let PrivateKeyContainer = document.getElementById("encrypted-chat-private-key");
     let PrivateKeyValue = PrivateKeyContainer.value;
     PrivateKeyContainer.value ='';
-    PrivateKeyContainer.readOnly = true;
-
 
 
     try{
@@ -2642,7 +2638,9 @@ for (let index = 0; index < result.messages.length; index++) {
   if (PrivateKey) {
     decryptedMessage = await decryptMessage(userMessage, PrivateKey);
   }
-  
+
+  let fullMessage = {decryptedMessage: decryptedMessage, created: parsedMessage.created, payer: payer};
+  storedMessagesEncryptedChat.push(fullMessage);
 
 const payerImage = profilePictures[payer]?.url || 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
 
@@ -2686,8 +2684,6 @@ const displayHeader =
 `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>
 ${click2link ? `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor};
 text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicChatColor};">${username}</span>`}`;
-
-storedMessages.push(parsedMessage);
 
 if (payer !== previousPayer) {
   allMessages += `<div style="display: flex; align-items: center; margin-top: 0.1em;">
@@ -2753,10 +2749,9 @@ PrivateKey = null;
       </div>`;
       return;
   }
-  
+
   adjustTextareaHeight(messagesContainer);
 
-  // Scroll to the bottom of the message container
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
   } catch (error) {
@@ -2768,8 +2763,221 @@ PrivateKey = null;
     adjustTextareaHeight(messagesContainer);
     console.error("Error setting rules:", error);
   }
+}
+
+
+document.getElementById("topic-msgs-filter-encrypted-chat").addEventListener("click", async () => {
+  const fromDateInput = document.getElementById("from-mmddyyyy-encrypted-chat").value;
+  const toDateInput = document.getElementById("to-mmddyyyy-encrypted-chat").value;
+
+  if (!fromDateInput || !toDateInput) {
+    console.error("Please provide both from and to dates.");
+    return;
+  }
+
+  const profilePictures = await loadProfilePicture(); // Load profile pictures
+  const usernames = await loadUsername(); // Load usernames
+  const click2url = await loadCLICK2URL();
+  const topic2pic = await loadTOPIC2PIC();
+
+  const fromDate = new Date(fromDateInput.slice(4, 8), fromDateInput.slice(0, 2) - 1, fromDateInput.slice(2, 4));
+  const toDate = new Date(toDateInput.slice(4, 8), toDateInput.slice(0, 2) - 1, toDateInput.slice(2, 4));
+
+  // Adjust toDate to include the entire day
+  toDate.setHours(23, 59, 59, 999);
+
+  const filteredMessagesEncryptedChat = storedMessagesEncryptedChat.filter(message => {
+    const messageDate = new Date(message.created); // Parse the created date string
+    return messageDate >= fromDate && messageDate <= toDate;
+  });
+
+  let filteredMessagesHtml = '';
+  let previousPayer = null;
+
+  filteredMessagesEncryptedChat.forEach(parsedMessage => {
+    const userMessage = parsedMessage.decryptedMessage;
+    const payer = parsedMessage.payer || 'Unknown';
+    const payerImage = profilePictures[payer]?.url || 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
+
+// Function to validate URL
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+// Check if payerImage is valid, if not use fallback
+const validPayerImage = isValidUrl(payerImage) ? payerImage : 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
+const timestamp = new Date(parsedMessage.created)
+  .toLocaleString('en-US', {
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+  .replace(/[/]/g, '') // Remove slashes
+  .replace(/[:]/g, ''); // Remove colons
+
+const payerInfo = parsedMessage.payer ? `${parsedMessage.payer}` : 'Anonymous';
+              const username = parsedMessage.payer && usernames[parsedMessage.payer] ?
+                ` ${usernames[parsedMessage.payer].username}` :
+                '';
+
+                const click2link= parsedMessage.payer && click2url[parsedMessage.payer] ?
+                ` ${click2url[parsedMessage.payer].click2url}` :
+                '';
+
+const displayHeader = 
+`<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>
+${click2link ? `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor};
+text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicChatColor};">${username}</span>`}`;
+
+
+      if (payer !== previousPayer) {
+  filteredMessagesHtml += `<div style="display: flex; align-items: center; margin-top: 0.1em;">
+    <img src="${validPayerImage}" alt="Profile photo"
+    style="width: 2em; height: 2em; margin-right: 0.5em; border-radius: 1em; cursor: pointer;"
+    onclick="loadTOPIC4PIC('${parsedMessage.payer}');">
+                    <div style="display: flex; flex-direction: column; justify-content: center;">
+                      <div>${displayHeader}</div>
+                      <span style="font-size: 0.8em; color: gray;">${timestamp}</span>
+                      <div style="color: ${textTopicChatColor};">${userMessage}</div>
+                    </div>
+                  </div><br>`;
+} else {
+  filteredMessagesHtml += `<div style="display: flex; align-items: center; margin-left: 2.5em; margin-top: -1.25em;">
+                    <div style="color: ${textTopicChatColor};">${userMessage}</div>
+                  </div><br>`;
+}
+      previousPayer = payer; // Update the previous payer
+  });
+
+  const messageContainer = document.getElementById("messages-from-encrypted-chat");
+  messageContainer.innerHTML = filteredMessagesHtml;
+  adjustTextareaHeight(messageContainer);
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+
 });
 
+
+document.getElementById("topic-msgs-filter-time-encrypted-chat").addEventListener("click", async () => {
+  const fromDateInput = document.getElementById("from-mmddyyyy-encrypted-chat").value;
+  const toDateInput = document.getElementById("to-mmddyyyy-encrypted-chat").value;
+  const fromTimeInput = document.getElementById("from-hhmmss-encrypted-chat").value;
+  const toTimeInput = document.getElementById("to-hhmmss-encrypted-chat").value;
+
+  if (!fromDateInput || !toDateInput || !fromTimeInput || !toTimeInput) {
+    console.error("Please provide both from and to dates and times.");
+    return;
+  }
+
+  const profilePictures = await loadProfilePicture(); // Load profile pictures
+  const usernames = await loadUsername(); // Load usernames
+  const click2url = await loadCLICK2URL();
+  const topic2pic = await loadTOPIC2PIC();
+
+  const fromDate = new Date(
+    fromDateInput.slice(4, 8),
+    fromDateInput.slice(0, 2) - 1,
+    fromDateInput.slice(2, 4),
+    fromTimeInput.slice(0, 2), // Hours
+    fromTimeInput.slice(2, 4), // Minutes
+    fromTimeInput.slice(4, 6)  // Seconds
+  );
+
+  const toDate = new Date(
+    toDateInput.slice(4, 8),
+    toDateInput.slice(0, 2) - 1,
+    toDateInput.slice(2, 4),
+    toTimeInput.slice(0, 2), // Hours
+    toTimeInput.slice(2, 4), // Minutes
+    toTimeInput.slice(4, 6)  // Seconds
+  );
+
+  const filteredMessagesEncryptedChat = storedMessagesEncryptedChat.filter(message => {
+    const messageDate = new Date(message.created); // Parse the created date string
+    return messageDate >= fromDate && messageDate <= toDate;
+  });
+
+  let filteredMessagesHtml = '';
+  let previousPayer = null;
+
+  filteredMessagesEncryptedChat.forEach(parsedMessage => {
+    const userMessage = parsedMessage.decryptedMessage;
+    const payer = parsedMessage.payer || 'Unknown';
+    const payerImage = profilePictures[payer]?.url || 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
+
+// Function to validate URL
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+// Check if payerImage is valid, if not use fallback
+const validPayerImage = isValidUrl(payerImage) ? payerImage : 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
+const timestamp = new Date(parsedMessage.created)
+  .toLocaleString('en-US', {
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
+  .replace(/[/]/g, '') // Remove slashes
+  .replace(/[:]/g, ''); // Remove colons
+
+const payerInfo = parsedMessage.payer ? `${parsedMessage.payer}` : 'Anonymous';
+              const username = parsedMessage.payer && usernames[parsedMessage.payer] ?
+                ` ${usernames[parsedMessage.payer].username}` :
+                '';
+
+                const click2link= parsedMessage.payer && click2url[parsedMessage.payer] ?
+                ` ${click2url[parsedMessage.payer].click2url}` :
+                '';
+
+const displayHeader = 
+`<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>
+${click2link ? `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor};
+text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicChatColor};">${username}</span>`}`;
+
+
+      if (payer !== previousPayer) {
+  filteredMessagesHtml += `<div style="display: flex; align-items: center; margin-top: 0.1em;">
+    <img src="${validPayerImage}" alt="Profile photo"
+    style="width: 2em; height: 2em; margin-right: 0.5em; border-radius: 1em; cursor: pointer;"
+    onclick="loadTOPIC4PIC('${parsedMessage.payer}');">
+                    <div style="display: flex; flex-direction: column; justify-content: center;">
+                      <div>${displayHeader}</div>
+                      <span style="font-size: 0.8em; color: gray;">${timestamp}</span>
+                      <div style="color: ${textTopicChatColor};">${userMessage}</div>
+                    </div>
+                  </div><br>`;
+} else {
+  filteredMessagesHtml += `<div style="display: flex; align-items: center; margin-left: 2.5em; margin-top: -1.25em;">
+                    <div style="color: ${textTopicChatColor};">${userMessage}</div>
+                  </div><br>`;
+}
+      previousPayer = payer;
+  });
+
+  const messageContainer = document.getElementById("messages-from-encrypted-chat");
+  messageContainer.innerHTML = filteredMessagesHtml;
+  adjustTextareaHeight(messageContainer);
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+
+});
 
 
 document.getElementById('upload-to-ipfs-button').disabled = true;
@@ -3220,11 +3428,6 @@ document.getElementById('go-to-top-msgs').addEventListener('click', function() {
 });
 
 
-let storedMessages = [];
-let accidTopicChatColor = '#800080';
-let usernameTopicChatColor = '#ffffff';
-let textTopicChatColor = '#ffffff';
-
 document.getElementById("load-msgs-from").addEventListener("click", async () => {
   try {
     let userInput = document.getElementById("topic-chat-topic-id").value.toLowerCase();
@@ -3363,6 +3566,9 @@ for (let index = 0; index < result.messages.length; index++) {
     if (payerHasNFT && parsedMessage.userMessage) {
       const userMessage = parsedMessage.userMessage;
 
+      storedMessages.push(parsedMessage);
+
+
 const payerImage = profilePictures[payer]?.url || 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
 
 // Function to validate URL
@@ -3406,7 +3612,6 @@ const displayHeader =
 ${click2link ? `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor};
 text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicChatColor};">${username}</span>`}`;
 
-storedMessages.push(parsedMessage);
 
 if (payer !== previousPayer) {
   allMessages += `<div style="display: flex; align-items: center; margin-top: 0.1em;">
@@ -3502,9 +3707,6 @@ document.getElementById("topic-msgs-filter").addEventListener("click", async () 
   const fromDate = new Date(fromDateInput.slice(4, 8), fromDateInput.slice(0, 2) - 1, fromDateInput.slice(2, 4));
   const toDate = new Date(toDateInput.slice(4, 8), toDateInput.slice(0, 2) - 1, toDateInput.slice(2, 4));
 
-  console.log("fromDate", fromDate);
-  console.log("toDate", toDate);
-
   // Adjust toDate to include the entire day
   toDate.setHours(23, 59, 59, 999);
 
@@ -3559,9 +3761,6 @@ const displayHeader =
 `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>
 ${click2link ? `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor};
 text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicChatColor};">${username}</span>`}`;
-
-      filteredMessages.push(parsedMessage);
-
 
 
       if (payer !== previousPayer) {
@@ -3624,9 +3823,6 @@ document.getElementById("topic-msgs-filter-time").addEventListener("click", asyn
     toTimeInput.slice(4, 6)  // Seconds
   );
 
-  console.log("fromDate", fromDate);
-  console.log("toDate", toDate);
-
   const filteredMessages = storedMessages.filter(message => {
     const messageDate = new Date(message.created); // Parse the created date string
     return messageDate >= fromDate && messageDate <= toDate;
@@ -3678,9 +3874,6 @@ const payerInfo = parsedMessage.payer ? `${parsedMessage.payer}` : 'Anonymous';
 `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>
 ${click2link ? `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor};
 text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicChatColor};">${username}</span>`}`;
-
-      // Store the message in the external array
-      filteredMessages.push(parsedMessage);
 
 
 
@@ -4215,7 +4408,7 @@ window.loadTOPIC4PIC = async function(payer) {
     loaded_text_area.value = '';
     const topicSpinnerChat = `
     <div style="display: flex; justify-content: left; align-items: left; padding-top: 1vh; padding-bottom: 1vh;">
-       <span style="margin-left: 1vw;">User has not set any topics, it can be done by going to OPTIONS > TOOLABR > EDIT > add Topic ID and press TOPIC2PIC<br><br>
+       <span style="margin-left: 1vw;">User has not set any topics, it can be done by going to OPTIONS > TOOLBAR > EDIT > add Topic ID and press TOPIC2PIC<br><br>
        U can also stack multiple by going to OPTIONS > TOOLBAR > Stack Topic IDs (include one into TOPIC2PIC and then u stack them onto that one)</span>
       </div>`;
     loaded_text_area.innerHTML = topicSpinnerChat;
