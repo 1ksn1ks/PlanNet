@@ -2453,14 +2453,10 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
     const topicInfo = await sdk.getTopicInfo(topicId);
           const memo = topicInfo.memo;
 
-          // Split the memo by commas
           const parts = memo.split(',');
 
-          // Iterate over each part
           parts.forEach(part => {
-            // Check if the part starts with "0.0."
             if (part.startsWith("0.0.")) {
-              // Add it to the topicAdmin array
               topicAdmin.push(part);
             }
           });
@@ -2485,13 +2481,13 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
     const messages = result.messages;
 
     const PublicKeyContainer = document.getElementById("encrypted-chat-public-key");
+    const PrivateKeyContainer = document.getElementById("encrypted-chat-private-key");
+    PublicKeyContainer.value = '';
 
-    const PrivateKey = parsePrivateKey(document.getElementById("encrypted-chat-private-key").value);
 
 
     try{
-      const publicKey = parsePublicKey(PublicKeyContainer.value);
-      if (publicKey.length < 20 && PrivateKey.length < 10) {
+      if (PublicKeyContainer.value.length < 20 && PrivateKeyContainer.value.length < 10) {
 
         for (let index = messages.length - 1; index >= 0; index--) {
         const message = result.messages[index];
@@ -2499,8 +2495,22 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
         if (typeof message === 'string') {
           parsedMessage = JSON.parse(message);
         }
+
+        if(!parsedMessage.publicKey) {
+          const messagesContainer = document.getElementById("messages-from-encrypted-chat");
+          const topicSpinnerChat = `
+          <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+            <span style="margin-left: 1vw;">No public key found</span>
+          </div>`;
+          messagesContainer.innerHTML = topicSpinnerChat;
+          adjustTextareaHeight(messagesContainer);
+          return;
+        }
+
+
+
         if (parsedMessage.publicKey && (topicAdmin.length === 0 || topicAdmin.includes(message.payer))) {
-          PublicKeyContainer.innerHTML = parsedMessage.publicKey;
+          PublicKeyContainer.value = parsedMessage.publicKey;
           const messagesContainer = document.getElementById("messages-from-encrypted-chat");
           const topicSpinnerChat = `
           <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
@@ -2535,6 +2545,9 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
     const topicActions = new Map();
 
     const loadedNFTsForTopicChat = [];
+
+    const PrivateKey = parsePrivateKey(PrivateKeyContainer.value);
+
 
 
 
