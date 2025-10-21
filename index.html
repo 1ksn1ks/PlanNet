@@ -2486,9 +2486,12 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
 
     const PublicKeyContainer = document.getElementById("encrypted-chat-public-key");
 
+    const PrivateKey = parsePrivateKey(document.getElementById("encrypted-chat-private-key").value);
+
+
     try{
       const publicKey = parsePublicKey(PublicKeyContainer.value);
-      if (publicKey.length < 20 || privateKey.length > 10) {
+      if (publicKey.length < 20 && PrivateKey.length < 10) {
 
         for (let index = messages.length - 1; index >= 0; index--) {
         const message = result.messages[index];
@@ -2600,7 +2603,6 @@ for (let index = 0; index < result.messages.length; index++) {
     if (payerHasNFT && parsedMessage.encryptedMessage) {
       const userMessage = parsedMessage.encryptedMessage;
 
-      const PrivateKey = parsePrivateKey(document.getElementById("encrypted-chat-private-key").value);
 
 
   let decryptedMessage = null;
