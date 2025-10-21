@@ -1479,13 +1479,13 @@ button[type="submit"],
 <div id="encrypted-chat-container" class="topic-chat-container" style="display: none; position: absolute; z-index: 1002; top: 10vh;">
   <div class="chat-topic-chat-container"  onclick="event.stopPropagation();">
 
-    <form id="loginForm">
 
 
 
     <input type="password"
       name="password" 
-      autocomplete="current-password"
+      autocomplete="off"
+      autocorrect="off"
       class="toolbar-column"
       id="encrypted-chat-private-key"
       placeholder="Private Key"
@@ -1512,7 +1512,6 @@ button[type="submit"],
         </button>
      </div> 
     </div>
-  </form>
 
     <div id="options-from-encrypted-chat" style="display: none;">
 
@@ -2339,47 +2338,6 @@ async function loadProfile(accountId, balance) {
 
 loader.updateProgress();
 
-    const form = document.getElementById('loginForm');
-    const usernameInput = document.getElementById('encrypted-chat-topic-id');
-    const passwordInput = document.getElementById('encrypted-chat-private-key');
-    
-
-    window.addEventListener('load', () => {
-    const savedUser = localStorage.getItem('savedUsername');
-    const savedPass = localStorage.getItem('savedPassword');
-
-    if (savedUser) usernameInput.value = savedUser;
-    if (savedPass) passwordInput.value = savedPass;
-  });
-
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value;
-
-    if (username && password) {
-      localStorage.setItem('savedUsername', username);
-      localStorage.setItem('savedPassword', password);
-
-      alert('Credentials saved! Browser will autocomplete on next visit.');
-    }
-  });
-
-  usernameInput.addEventListener('input', () => {
-    if (!usernameInput.hasAttribute('autocomplete')) {
-      usernameInput.setAttribute('autocomplete', 'username');
-    }
-  });
-
-  passwordInput.addEventListener('input', () => {
-    if (!passwordInput.hasAttribute('autocomplete')) {
-      passwordInput.setAttribute('autocomplete', 'current-password');
-    }
-  });
-
-
-
 const sodium = window.sodium;
 
 function hexToBytes(hex) {
@@ -2534,7 +2492,7 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
     const messages = result.messages;
 
     const PublicKeyContainer = document.getElementById("encrypted-chat-public-key");
-    const PrivateKeyContainer = document.getElementById("encrypted-chat-private-key");
+    let PrivateKeyContainer = document.getElementById("encrypted-chat-private-key");
     PublicKeyContainer.value = '';
 
 
@@ -2599,7 +2557,7 @@ document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click
 
     const loadedNFTsForTopicChat = [];
 
-    const PrivateKey = parsePrivateKey(PrivateKeyContainer.value);
+    let PrivateKey = parsePrivateKey(PrivateKeyContainer.value);
 
 
 
@@ -2755,6 +2713,9 @@ if (payer !== previousPayer) {
     console.error(`Error processing message ${index}:`, messageError);
   }
 }
+
+PrivateKeyContainer.value = null;
+PrivateKey = null;
 
   const chatContainer = document.getElementById('topic-chat-container');
   let startY, scrollTop;
@@ -4790,7 +4751,10 @@ function handleMovement() {
 
   const isBlocked = [
     ...everythinginsideyourfov,
-    ...everythinginsidetoolbar
+    ...everythinginsidetoolbar,
+    ...firstlayercolumns,
+    ...everythinginsideoptionsbuttons,
+    document.getElementById("encrypted-chat-container") === "block"
   ].some(id => {
     const element = document.getElementById(id);
     return element && window.getComputedStyle(element).display === "block";
