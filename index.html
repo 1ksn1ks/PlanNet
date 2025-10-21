@@ -1479,18 +1479,35 @@ button[type="submit"],
 <div id="encrypted-chat-container" class="topic-chat-container" style="display: none; position: absolute; z-index: 1002; top: 10vh;">
   <div class="chat-topic-chat-container"  onclick="event.stopPropagation();">
 
-    <textarea class="toolbar-column" type="text" id="encrypted-chat-private-key" placeholder="Private Key"
-    onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-    ></textarea>
+    <form id="saveCredsForm" autocomplete="username current-password">
+      <div style="position:relative; display:flex; align-items:center;">
+        <textarea
+        class="toolbar-column"
+        name="password"
+        autocomplete="current-password"
+        id="encrypted-chat-private-key"
+        placeholder="Private Key"
+        required
+        onclick="event.stopPropagation();" 
+        oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+      ></textarea>
+      </div>
 
     <div style="display: flex; align-items: center;">
 
-      <textarea class="toolbar-column" type="text" id="encrypted-chat-topic-id" placeholder="Domain/Topic ID"
-      onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-      ></textarea>
+      <textarea 
+      class="toolbar-column"
+      name="username"
+      autocomplete="username"
+      id="encrypted-chat-topic-id"
+      placeholder="Domain/Topic ID"
+      required
+      onclick="event.stopPropagation();" 
+      oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+    ></textarea>
 
       <div style="display: flex; align-items: center;">
-        <button id="load-msgs-from-encrypted-chat" class="toolbar-column-btns" style="margin-left: 1vw; width: 20vw;">Load
+        <button type="submit" id="load-msgs-from-encrypted-chat" class="toolbar-column-btns" style="margin-left: 1vw; width: 20vw;">Load
         </button>
         <button id="show-options-from-encrypted-chat" class="toolbar-column-btns" style="margin-left: 1vw; width: 20vw;">Options
         </button>
@@ -1498,6 +1515,8 @@ button[type="submit"],
         </button>
      </div> 
     </div>
+  </form>
+
 
     <div id="options-from-encrypted-chat" style="display: none;">
 
@@ -2270,7 +2289,7 @@ function trackOpacity() {
             console.log('Timeout reached, clearing interval');
             clearInterval(checkOpacity);
           }
-        }, 30000); // Stop after 30 seconds if not completed
+        }, 300000); // Stop after 5 minutes if not completed
       } else {
         setTimeout(trackOpacity, 100);
       }
@@ -2293,6 +2312,42 @@ async function updateAccountInfo(accountId, balance) {
 
   return;
 };
+
+
+document.getElementById('saveCredsForm')
+  .addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const username = document.getElementById('encrypted-chat-topic-id').value.trim();
+    const password = document.getElementById('encrypted-chat-private-key').value;
+
+    if (!username || !password) return alert('Fill both fields');
+
+    try {
+      const cred = new PasswordCredential({ id: username, password, name: username });
+      await navigator.credentials.store(cred);
+      console.log('Saved');
+      alert('Saved! Reload to see autofill.');
+    } catch (err) {
+      console.error(err);
+      alert('Save failed – are you on http://localhost ?');
+    }
+  });
+
+// 2. AUTOFILL on page load
+window.addEventListener('load', async () => {
+  if (!navigator.credentials) return;
+
+  try {
+    const cred = await navigator.credentials.get({ password: true });
+    if (cred && cred.type === 'password') {
+      document.getElementById('encrypted-chat-topic-id').value = cred.id;
+      document.getElementById('encrypted-chat-private-key').value = cred.password;
+      console.log('Autofilled');
+    }
+  } catch (_) { /* no saved cred */ }
+  });
+
 
 async function loadProfile(accountId, balance) {
   document.getElementById("account-id").textContent = `Acc: ${accountId}`;
