@@ -269,16 +269,56 @@ html, body {
   height: 5vh;
   background-color: transparent;
   border: 0.1vh solid #007bff;
+  animation: zoomIn 0.5s ease-in-out;
+}
+
+.toolbar-column-settings-btns {
+  display: block;
+  width: 100%;
+  color: white;
+  border: 0.1vh solid white;
+  border-radius: 1vh;
+  font-size: 2vh;
+  box-sizing: border-box;
+  margin-bottom: 0.5vh;
+  margin-left: 1vw;
+  height: 5vh;
+  background-color: transparent;
+  border: 0.1vh solid #007bff;
+  animation: zoomIn 0.5s ease-in-out;
+}
+
+.toolbar-column-first-settings-btns {
+  display: block;
+  width: 100%;
+  color: white;
+  border: 0.1vh solid white;
+  border-radius: 1vh;
+  font-size: 2vh;
+  box-sizing: border-box;
+  margin-bottom: 0.5vh;
+  height: 5vh;
+  background-color: transparent;
+  border: 0.1vh solid #007bff;
+  animation: zoomIn 0.5s ease-in-out;
 }
 
 .toolbar-column-btns:hover,
-.toolbar-column-btns:active {
+.toolbar-column-btns:active,
+.toolbar-column-first-settings-btns:hover,
+.toolbar-column-first-settings-btns:active,
+.toolbar-column-settings-btns:hover,
+.toolbar-column-settings-btns:active {
   background-color: #007bff;
   color: white;
 }
 
 .toolbar-column:hover,
-.toolbar-column.active {
+.toolbar-column.active,
+.toolbar-column-first-settings-btns:hover,
+.toolbar-column-first-settings-btns.active,
+.toolbar-column-settings-btns:hover,
+.toolbar-column-settings-btns.active {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -298,6 +338,7 @@ html, body {
   resize: none; /* Prevent manual resizing */
   background-color: transparent;
   touch-action: auto; /* Enable touch interactions */
+  animation: zoomIn 0.5s ease-in-out;
 }
 
 .topic-chat-container {
@@ -895,47 +936,97 @@ button[type="submit"],
 <div id="Edit_Profile-column" style="display: none; position: absolute; z-index: 1002; top:10vh;">
   <div id="Edit_Profile-column-container" class="toolbar-containers" onclick="event.stopPropagation();">
 
-    <textarea type="text" id="toolbar-input" placeholder="URL/Name/Domain"
-    class="toolbar-column" onclick="event.stopPropagation();"
-    oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-    ></textarea>
 
-    <div style="display: flex; flex-direction: row; width: 100%;">
-      <button class="toolbar-column-btns" id="button1" style="display: block;">Picture
+    
+    <div style="display: flex;">
+      <button id="show-profile-picture-from-edit-profile" class="toolbar-column-first-settings-btns">Profile picture
       </button>
-      <button class="toolbar-column-btns" id="button2" style="display: block; margin-left: 1vw;">Username
+      <button id="hide-profile-picture-from-edit-profile" style="display: none;" class="toolbar-column-first-settings-btns">Profile picture
       </button>
-      <button class="toolbar-column-btns" id="button_for_click_url" style="display: block; margin-left: 1vw;">CLICK2LINK
+      <button id="show-username-from-edit-profile" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Username
+      </button>
+      <button id="hide-username-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Username
+      </button>
+      <button id="show-click2link-from-edit-profile" class="toolbar-column-settings-btns" style="margin-left: 1vw;">CLICK2LINK
+      </button>
+      <button id="hide-click2link-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">CLICK2LINK
       </button>
     </div>
 
-    <textarea type="text" id="Edit_Profile-topic-id" placeholder="Topic ID"
-    class="toolbar-column" onclick="event.stopPropagation();"
-    oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-    ></textarea>
+    
+    <div style="display: flex;">
+      <button id="show-topic-id-name-from-edit-profile" class="toolbar-column-first-settings-btns">Topic ID name
+      </button>
+      <button id="hide-topic-id-name-from-edit-profile" style="display: none;" class="toolbar-column-first-settings-btns">Topic ID name
+      </button>
+      <button id="show-topic-id-to-pfp-from-edit-profile" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Topic ID to PFP
+      </button>
+      <button id="hide-topic-id-to-pfp-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Topic ID to PFP
+      </button>
+      <button id="show-check-domain-availability-from-edit-profile" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Check Domain Availability
+      </button>
+      <button id="hide-check-domain-availability-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Check Domain Availability
+      </button>
+    </div>
 
-    <div style="display: flex; flex-direction: row; width: 100%;">
+    <div id="edit-profile-url-name-domain" style="display: none;">
+      <textarea type="text" id="toolbar-input" placeholder="URL/Name/Domain"
+      class="toolbar-column" onclick="event.stopPropagation();"
+      oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+      ></textarea>
+    </div>
+
+
+    <div id="edit-profile-picture" style="display: none;">
+      <button class="toolbar-column-btns" id="button1" style="display: block;">Change PFP
+      </button>
+    </div>
+
+    <div id="edit-profile-username" style="display: none;">
+      <button class="toolbar-column-btns" id="button2" style="display: block;">Change Username
+      </button>
+    </div>
+
+    <div id="edit-profile-click2link" style="display: none;">
+      <button class="toolbar-column-btns" id="button_for_click_url" style="display: block;">Tag URL to username
+      </button>
+    </div>
+
+
+    <div id="edit-profile-topic-id" style="display: none;">
+      <textarea type="text" id="Edit_Profile-topic-id" placeholder="Topic ID"
+      class="toolbar-column" onclick="event.stopPropagation();"
+      oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+      ></textarea>
+    </div>
+
+    <div id="edit-profile-topic-id-name" style="display: none;">
       <button class="toolbar-column-btns" id="button3">TopicID name
       </button>
-      <button class="toolbar-column-btns" id="button_for_topic2pic" style="margin-left: 1vw;">TOPIC2PIC
+    </div>
+
+    <div id="edit-profile-topic-id-name-topic2pic" style="display: none;">
+      <button class="toolbar-column-btns" id="button_for_topic2pic">TOPIC2PIC
       </button>
     </div>
 
-    <textarea type="text" id="domain-time-left" placeholder="Domain Time Left"
-    class="toolbar-column" onclick="event.stopPropagation();" readonly>
-    </textarea>
+    <div id="edit-profile-domain-time-left" style="display: none;">
+      <textarea type="text" id="domain-time-left" placeholder="Domain Time Left"
+      class="toolbar-column" onclick="event.stopPropagation();" readonly>
+      </textarea>
 
-    <button class="toolbar-column-btns" id="button4">Check Domain Availability
-    </button>
+      <button class="toolbar-column-btns" id="button4">Check Domain Availability
+      </button>
 
-    <label for="domain-time-left" style="font-size: 2vh;">1 USDC
-    (<span style="cursor: pointer; color: rgb(255, 255, 255); text-decoration: underline;"
-    onclick="navigator.clipboard.writeText('0.0.456858')
-    .then(() => alert('Copied to clipboard: 0.0.456858'))
-    .catch(err => console.error('Failed to copy: ', err));">0.0.456858</span>):
-    </label>
-    <button class="toolbar-column-btns" id="button5" style="margin-top: 0.5vh;">Add 28 days to domain
-    </button>
+      <label for="domain-time-left" style="font-size: 2vh;">1 USDC
+      (<span style="cursor: pointer; color: rgb(255, 255, 255); text-decoration: underline;"
+      onclick="navigator.clipboard.writeText('0.0.456858')
+      .then(() => alert('Copied to clipboard: 0.0.456858'))
+      .catch(err => console.error('Failed to copy: ', err));">0.0.456858</span>):
+      </label>
+      <button class="toolbar-column-btns" id="button5" style="margin-top: 0.5vh;">Add 28 days to domain
+      </button>
+    </div>
 
   </div>
 </div>
@@ -956,12 +1047,42 @@ button[type="submit"],
     <div class="toolbar-column" style="user-select: text;" id="loaded-topics" placeholder="Loaded Topics" onclick="event.stopPropagation();"
     ></div>
 
-    <textarea class="toolbar-column" type="text" id="load-msgs-from-ids" placeholder="user ID or IDs separated by comma"
-    onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-    ></textarea>
 
-    <button id="load-msgs-from-ids-button" class="toolbar-column-btns">Load Messages From
-    </button>
+    <div style="display: flex;">
+      <button id="show-load-from-users" class="toolbar-column-first-settings-btns">From
+      </button>
+      <button id="hide-load-from-users" style="display: none;" class="toolbar-column-first-settings-btns">From
+      </button>
+      <button id="show-block-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
+      </button>
+      <button id="hide-block-from-users" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
+      </button>
+    </div>
+
+    <div id="load-msgs-from-ids" style="display: none;">
+      <textarea class="toolbar-column" type="text" id="load-msgs-from-ids" placeholder="user ID or IDs separated by comma"
+      onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+      ></textarea>
+    </div>
+
+    <div id="load-load-from-users" style="display: none; flex-direction: row;">
+      <button id="load-msgs-from-ids-button" class="toolbar-column-first-settings-btns">Filter
+      </button>
+      <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+      </button>
+      <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+      </button>
+    </div>
+
+    <div id="load-block-from-users" style="display: none;">
+      <button id="load-block-from-users-button" class="toolbar-column-first-settings-btns">Filter
+      </button>
+      <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+      </button>
+      <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+      </button>
+    </div>
+
 
   </div>
 </div>
@@ -1095,6 +1216,23 @@ button[type="submit"],
       ></textarea>
     </div>
 
+
+    <div style="display: flex;">
+      <button id="show-topic-rules-from-marker" class="toolbar-column-first-settings-btns">Rules
+      </button>
+      <button id="hide-topic-rules-from-marker" style="display: none;" class="toolbar-column-first-settings-btns">Rules
+      </button>
+      <button id="show-optional-settings-marker" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Optional settings
+      </button>
+      <button id="hide-optional-settings-from-marker" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Optional settings
+      </button>
+      <button id="show-delete-marker-from-marker" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Delete marker
+      </button>
+      <button id="hide-delete-marker-from-marker" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Delete marker
+      </button>
+    </div>
+
+    <div id="optional-settings-from-marker" style="display: none;">
     <textarea class="toolbar-column" type="text" id="input-field-coverimage-marker" placeholder="Cover Image URL"
     oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" onclick="event.stopPropagation();"
     ></textarea>
@@ -1102,8 +1240,9 @@ button[type="submit"],
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
     <textarea class="toolbar-column" type="text" id="input-field-image-marker" placeholder="Image URL"
-    onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-    ></textarea>
+      onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+      ></textarea>
+    </div>
 
     <div style="position: relative;">
       <textarea class="toolbar-column" type="text" id="input-field-2-2" placeholder="Message" maxlength="256"
@@ -1118,6 +1257,7 @@ button[type="submit"],
     Submit
     </button>
 
+    <div id="loaded-topic-rules-from-marker" style="display: none;">
     <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topic Rules:</label>
     
     <div class="toolbar-column" type="text" style="user-select: text;" id="loaded-topic-rules-for-marker" placeholder="Loaded Topic Rules"
@@ -1126,7 +1266,9 @@ button[type="submit"],
     <button id="load-topic-rules-for-marker" class="toolbar-column-btns">
     Load Topic Rules
     </button>
+    </div>
 
+    <div id="delete-marker-from-marker" style="display: none;">
     <div style="display: flex; flex-direction: row; width: 100%;">
       <textarea class="toolbar-column" type="text" id="input-field-delete-marker-number" placeholder="Number of marker"
       oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
@@ -1135,12 +1277,15 @@ button[type="submit"],
       Delete marker number
       </button>
     </div>
+    </div>
+
 
   </div>
 </div>
 
 <div id="polygon-column" style="display: none; position: absolute; z-index: 1002; top:10vh;">
   <div id="polygon-column-container" class="toolbar-containers" onclick="event.stopPropagation();">
+    
     <div class="toolbar-group">
       <textarea class="toolbar-column" type="text" id="input-field-3-0" placeholder="Domain/Topic ID"
       onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
@@ -1155,36 +1300,58 @@ button[type="submit"],
       onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
       ></textarea>
     </div>
+
+
+    <div style="display: flex;">
+      <button id="show-topic-rules-from-polygon" class="toolbar-column-first-settings-btns">Rules
+      </button>
+      <button id="hide-topic-rules-from-polygon" style="display: none;" class="toolbar-column-first-settings-btns">Rules
+      </button>
+      <button id="show-optional-settings-polygon" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Optional settings
+      </button>
+      <button id="hide-optional-settings-from-polygon" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Optional settings
+      </button>
+      <button id="show-delete-polygon-from-polygon" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Delete polygon
+      </button>
+      <button id="hide-delete-polygon-from-polygon" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Delete polygon
+      </button>
+    </div>
     
+    <div id="optional-settings-from-polygon" style="display: none;">
     <textarea class="toolbar-column" type="text" id="input-field-coverimage-polygon" placeholder="Cover Image URL"
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
     <textarea class="toolbar-column" type="text" id="input-field-3-1" placeholder="Title" 
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
-    <textarea class="toolbar-column" type="text" id="input-field-image-polygon" placeholder="Image URL"
+    <textarea class="toolbar-column" type="text" id="input-field-image-polygon" placeholder="Inside image URL"
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
+    </div>
 
     <div style="position: relative;">
       <textarea class="toolbar-column" id="input-field-3-2" placeholder="Message" maxlength="256"
       onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';
       document.getElementById('char-counter-polygon').textContent = this.value.length + '/256';"
       ></textarea>
-      <div id="char-counte-polygon" style="position: absolute; bottom: 5px; right: 10px; font-size: 2vh; color: #666;">0/256
+      <div id="char-counter-polygon" style="position: absolute; bottom: 5px; right: 10px; font-size: 2vh; color: #666;">0/256
       </div>
     </div>
 
 
     <button id="submit-button-Create_Polygon" class="toolbar-column-btns" style="display: block;">Submit
     </button>
+
+  <div id="loaded-topic-rules-from-polygon" style="display: none;">
     <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topic Rules:</label>
     <div class="toolbar-column" type="text" style="user-select: text;" id="loaded-topic-rules-for-polygon" placeholder="Loaded Topic Rules"
     onclick="event.stopPropagation();"
     ></div>
     <button id="load-topic-rules-for-polygon" class="toolbar-column-btns">Load Topic Rules
     </button>
+  </div>
 
+  <div id="delete-polygon-from-polygon" style="display: none;">
     <div style="display: flex; flex-direction: row; width: 100%;">
       <textarea class="toolbar-column" type="text" id="input-field-delete-polygon-number" placeholder="Number of polygon"
       oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
@@ -1193,6 +1360,7 @@ button[type="submit"],
       Delete polygon number
       </button>
     </div>
+  </div>
       
   </div>
 </div>
@@ -1203,12 +1371,6 @@ button[type="submit"],
     <textarea class="toolbar-column" type="text" id="input-field-topic-id-for-rules" placeholder="Domain/Topic ID"
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
-    <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topic Rules:
-    </label>
-    <div class="toolbar-column" style="user-select: text;" id="loaded-topic-rules-for-topic" placeholder="Loaded Topic Rules"
-    onclick="event.stopPropagation();"></div>
-    <button id="load-topic-rules-for-topic" class="toolbar-column-btns">Load Topic Rules
-    </button>
     <label for="input-field-rules-for-polygons"style="font-size: 2vh; padding: 0px;">These come in pair and they overwrite last set:
     </label>
 
@@ -1245,6 +1407,13 @@ button[type="submit"],
       <div style="margin-bottom: 10px;"></div>
     </div>
 
+    <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topic Rules:
+    </label>
+    <div class="toolbar-column" style="user-select: text;" id="loaded-topic-rules-for-topic" placeholder="Loaded Topic Rules"
+    onclick="event.stopPropagation();"></div>
+    <button id="load-topic-rules-for-topic" class="toolbar-column-btns">Load Topic Rules
+    </button>
+
   </div>
 </div>
 
@@ -1254,26 +1423,66 @@ button[type="submit"],
     <textarea class="toolbar-column" type="text" id="input-field-topic-id-for-utility" placeholder="Domain/Topic ID"
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
-    <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topic Logic:
-    </label>
-    <div class="toolbar-column" style="user-select: text;" id="loaded-topic-rules-for-utility" placeholder="Loaded Topic Rules"
-    onclick="event.stopPropagation();"></div>
-    <button id="load-topic-rules-for-utility" class="toolbar-column-btns">Load Topic Rules
-    </button>
 
+
+
+
+
+      <div style="display: flex;">
+        <button id="show-topic-rules-from-nft-utility" class="toolbar-column-first-settings-btns">Topic Rules
+        </button>
+        <button id="hide-topic-rules-from-nft-utility" style="display: none;" class="toolbar-column-first-settings-btns">Topic Rules
+        </button>
+        <button id="show-model-sharing-from-nft-utility" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Model sharing
+        </button>
+        <button id="hide-model-sharing-from-nft-utility" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Model sharing
+        </button>
+        <button id="show-model-size-scale-factor-from-nft-utility" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Model size scale factor
+        </button>
+        <button id="hide-model-size-scale-factor-from-nft-utility" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Model size scale factor
+        </button>
+        <button id="show-topic-chat-from-nft-utility" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Topic Chat
+        </button>
+        <button id="hide-topic-chat-from-nft-utility" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Topic Chat
+        </button>
+      </div>
+
+
+
+
+
+
+
+    <div id="topic-rules-from-nft-utility" style="display: none;">
+      <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topic Logic:
+      </label>
+      <div class="toolbar-column" style="user-select: text;" id="loaded-topic-rules-for-utility" placeholder="Loaded Topic Rules"
+      onclick="event.stopPropagation();"></div>
+      <button id="load-topic-rules-for-utility" class="toolbar-column-btns">Load Topic Rules
+      </button>
+    </div>
+
+    <div id="model-sharing-from-nft-utility-label" style="display: none;">
     <label for="input-field-add-remove-NFT-for-model" style=" font-size: 2vh;padding: 0px;"> Model sharing:
     </label>
+  </div>
+  <div id="model-sharing-from-nft-utility" style="display: none;">
     <textarea class="toolbar-column" type="text" id="input-field-add-remove-NFT-for-model" placeholder="NFT ID (or IDs seperated by commas)"
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" 
     ></textarea>
+  </div>
 
+
+  <div id="model-sharing-from-nft-utility-button-group" style="display: none;">
     <div class="button-group" style="display: flex; flex-direction: row; align-items: center;">
       <button id="submit-button-add-NFT-for-model" class="toolbar-column-btns">Add
       </button>
       <button id="submit-button-remove-NFT-for-model" class="toolbar-column-btns" style="margin-left: 8vw;">Remove
       </button>
     </div>
+  </div>
 
+  <div id="model-size-scale-factor-from-nft-utility" style="display: none;"> 
     <label for="input-field-add-remove-scale-for-model" style=" font-size: 2vh;padding: 0px;">Model size scale factor:
     </label>
     <textarea class="toolbar-column" type="text" id="input-field-add-remove-scale-for-model" placeholder="Size factor (must include only one NFT at a time)"
@@ -1286,8 +1495,9 @@ button[type="submit"],
       <button id="submit-button-remove-scale-for-model" class="toolbar-column-btns" style="margin-left: 8vw;">Remove
       </button>
     </div>
+  </div>
 
-
+  <div id="topic-chat-from-nft-utility" style="display: none;">
     <label for="input-field-add-remove-topic-chat" style=" font-size: 2vh;padding: 0px;">Topic Chat:
     </label>
     <textarea class="toolbar-column" type="text" id="input-field-add-remove-topic-chat" placeholder="NFT ID (or IDs seperated by commas)"
@@ -1300,6 +1510,7 @@ button[type="submit"],
       <button id="submit-button-remove-topic-chat" class="toolbar-column-btns" style="margin-left: 8vw;">Remove
       </button>
     </div>
+  </div>
 
   </div>
 </div>
@@ -1660,11 +1871,35 @@ button[type="submit"],
 <div id="model-column" style="display: none; position: absolute; z-index: 1002; top: 10vh; left: 0; width: 100vw;">
   <div id="model-column-container" class="yourfovcontainer" onclick="event.stopPropagation();" >
 
+
+    <div style="display: flex;">
+      <button id="show-model-column-model-url" class="toolbar-column-first-settings-btns">URL
+      </button>
+      <button id="hide-model-column-model-url" style="display: none;" class="toolbar-column-first-settings-btns">URL
+      </button>
+      <button id="show-model-column-model-rotation" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Rotation
+      </button>
+      <button id="hide-model-column-model-rotation" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Rotation
+      </button>
+      <button id="show-model-column-model-position" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Position
+      </button>
+      <button id="hide-model-column-model-position" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Position
+      </button>
+      <button id="show-model-column-model-scale-factor" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Scale Factor
+      </button>
+      <button id="hide-model-column-model-scale-factor" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Scale Factor
+      </button>
+    </div>
+
+
+    <div id="model-column-model-url" style="display: none;">
     <input type="text" class="toolbar-column" id="object-input" placeholder="Enter URL" style="text-align: center;" onclick="event.stopPropagation();" />
     <button id="buttonforobject" class="toolbar-column-btns" style="text-shadow: 0 0 0.5vh black; margin-top: 1vh;">Change object
     </button>
+  </div>
 
-    <div style="display: flex; align-items: center; padding-left: 1vh; padding-bottom: 1vh; padding-top: 1vh;">
+  <div id="model-column-model-rotation" style="display: none;">
+    <div style="display: flex; align-items: center;">
       <label for="rotation-x"class="toolbar-column">Rotation X:
       </label>
       <input type="range" class="model_sliders" id="rotation-x" min="0" max="360" value="0"/>
@@ -1672,7 +1907,7 @@ button[type="submit"],
       onchange="document.getElementById('rotation-x').value = this.value;" />
     </div>
 
-    <div style="display: flex; align-items: center; padding-left: 1vh; padding-bottom: 1vh;">
+    <div style="display: flex; align-items: center;">
       <label for="rotation-y" class="toolbar-column">Rotation Y:
       </label>
       <input type="range" class="model_sliders" id="rotation-y" min="0" max="360" value="0"/>
@@ -1680,15 +1915,17 @@ button[type="submit"],
       onchange="document.getElementById('rotation-y').value = this.value;" />
     </div>
 
-    <div style="display: flex; align-items: center; padding-left: 1vh; padding-bottom: 1vh;">
+    <div style="display: flex; align-items: center;">
       <label for="rotation-z" class="toolbar-column">Rotation Z:
       </label>
       <input type="range" class="model_sliders" id="rotation-z" min="0" max="360" value="0"/>
       <input type="number" class="toolbar-column" style="text-align: center;" id="rotation-z-value" value="0"
       onchange="document.getElementById('rotation-z').value = this.value;" />
     </div>
+  </div>
 
-    <div style="display: flex; align-items: center; padding-left: 1vh; padding-bottom: 1vh;">
+  <div id="model-column-model-position" style="display: none;">
+    <div style="display: flex; align-items: center;">
       <label for="position-x" class="toolbar-column">Position X:
       </label>
       <input type="range" class="model_sliders" id="position-x" min="-100" max="100" step="0.1" value="0"/>
@@ -1696,7 +1933,7 @@ button[type="submit"],
       onchange="document.getElementById('position-x').value = this.value;" />
     </div>
 
-    <div style="display: flex; align-items: center; padding-left: 1vh; padding-bottom: 1vh;">
+    <div style="display: flex; align-items: center;">
       <label for="position-y"    class="toolbar-column">Position Y:
       </label>
       <input type="range" class="model_sliders" id="position-y" min="-100" max="100" step="0.1" value="0"/>
@@ -1704,22 +1941,25 @@ button[type="submit"],
       onchange="document.getElementById('position-y').value = this.value;" />
     </div>
 
-    <div style="display: flex; align-items: center; padding-left: 1vh; padding-bottom: 1vh;">
+    <div style="display: flex; align-items: center;">
       <label for="position-z"   class="toolbar-column">Position Z:
       </label>
       <input type="range" class="model_sliders" id="position-z" min="-100" max="100" step="0.1" value="0"/>
       <input type="number" class="toolbar-column" style="text-align: center;" id="position-z-value" value="0"
       onchange="document.getElementById('position-z').value = this.value;" />
     </div>
+    </div>
 
-    <div style="display: flex; align-items: center; padding-left: 1vh; padding-bottom: 1vh;">
+    <div id="model-column-model-scale-factor" style="display: none;">
+    <div style="display: flex; align-items: center;">
       <label for="scale-factor" class="toolbar-column">Scale Factor:
       </label>
       <input type="range" class="model_sliders" id="scale-factor" step="0.000001" value="1"/>
       <input type="number" class="toolbar-column" style="text-align: center;" id="scale-factor-value" value="1"
       onchange="document.getElementById('scale-factor').value = this.value;" />
     </div>
-
+  </div>
+    
   </div>
 </div>
 
@@ -2680,6 +2920,7 @@ async function loadMessagesFromEncryptedChat() {
           </div>`;
           messagesContainer.innerHTML = topicSpinnerChat;
           adjustTextareaHeight(messagesContainer);
+          adjustTextareaHeight(PublicKeyContainer);
           return;
         }
       }
@@ -2904,12 +3145,6 @@ PrivateKey = null;
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
   } catch (error) {
-    const messagesContainer = document.getElementById('messages-from-encrypted-chat');
-    messagesContainer.innerHTML = 
-    `<div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
-       <span style="margin-left: 1vw;">Invalid Topic ID</span>
-      </div>`;
-    adjustTextareaHeight(messagesContainer);
     console.error("Error setting rules:", error);
   }
 }
@@ -5751,10 +5986,505 @@ document.getElementById("popup-column-2-font").addEventListener("click", (event)
   document.getElementById("popup-column-3-font").style.display = "block";
 });
 
+document.getElementById("show-topic-rules-from-nft-utility").addEventListener("click", (event) => {
+  document.getElementById("topic-rules-from-nft-utility").style.display = "block";
+  document.getElementById("hide-topic-rules-from-nft-utility").style.display = "block";
+  document.getElementById("show-topic-rules-from-nft-utility").style.display = "none";
+});
+
+document.getElementById("hide-topic-rules-from-nft-utility").addEventListener("click", (event) => {
+  document.getElementById("topic-rules-from-nft-utility").style.display = "none";
+  document.getElementById("hide-topic-rules-from-nft-utility").style.display = "none";
+  document.getElementById("show-topic-rules-from-nft-utility").style.display = "block";
+});
+
+let isModelSharingOpen = false;
+let isModelSizeScaleFactorOpen = false;
+
+document.getElementById("show-model-sharing-from-nft-utility").addEventListener("click", (event) => {
+  isModelSharingOpen = true;
+  document.getElementById("model-sharing-from-nft-utility").style.display = "block";
+  document.getElementById("hide-model-sharing-from-nft-utility").style.display = "block";
+  document.getElementById("show-model-sharing-from-nft-utility").style.display = "none";
+  document.getElementById("model-sharing-from-nft-utility-button-group").style.display = "block";
+  document.getElementById("model-sharing-from-nft-utility-label").style.display = "block";
+});
+
+document.getElementById("hide-model-sharing-from-nft-utility").addEventListener("click", (event) => {
+  isModelSharingOpen = false;
+  if (isModelSizeScaleFactorOpen === false) {
+  document.getElementById("model-sharing-from-nft-utility").style.display = "none";
+  }
+  document.getElementById("hide-model-sharing-from-nft-utility").style.display = "none";
+  document.getElementById("show-model-sharing-from-nft-utility").style.display = "block";
+  document.getElementById("model-sharing-from-nft-utility-button-group").style.display = "none";
+  document.getElementById("model-sharing-from-nft-utility-label").style.display = "none";
+});
+
+document.getElementById("show-model-size-scale-factor-from-nft-utility").addEventListener("click", (event) => {
+  isModelSizeScaleFactorOpen = true;
+  document.getElementById("model-size-scale-factor-from-nft-utility").style.display = "block";
+  document.getElementById("hide-model-size-scale-factor-from-nft-utility").style.display = "block";
+  document.getElementById("show-model-size-scale-factor-from-nft-utility").style.display = "none";
+  document.getElementById("model-sharing-from-nft-utility").style.display = "block";
+});
+
+document.getElementById("hide-model-size-scale-factor-from-nft-utility").addEventListener("click", (event) => {
+  isModelSizeScaleFactorOpen = false;
+  document.getElementById("model-size-scale-factor-from-nft-utility").style.display = "none";
+  document.getElementById("hide-model-size-scale-factor-from-nft-utility").style.display = "none";
+  document.getElementById("show-model-size-scale-factor-from-nft-utility").style.display = "block";
+  if (isModelSharingOpen === false) {
+  document.getElementById("model-sharing-from-nft-utility").style.display = "none";
+  }
+});
+
+document.getElementById("show-topic-chat-from-nft-utility").addEventListener("click", (event) => {
+  document.getElementById("topic-chat-from-nft-utility").style.display = "block";
+  document.getElementById("hide-topic-chat-from-nft-utility").style.display = "block";
+  document.getElementById("show-topic-chat-from-nft-utility").style.display = "none";
+});
+
+document.getElementById("hide-topic-chat-from-nft-utility").addEventListener("click", (event) => {
+  document.getElementById("topic-chat-from-nft-utility").style.display = "none";
+  document.getElementById("hide-topic-chat-from-nft-utility").style.display = "none";
+  document.getElementById("show-topic-chat-from-nft-utility").style.display = "block";
+});
+
+
+
+
+
+
+
+
+document.getElementById("show-topic-rules-from-polygon").addEventListener("click", (event) => {
+  document.getElementById("loaded-topic-rules-from-polygon").style.display = "block";
+  document.getElementById("hide-topic-rules-from-polygon").style.display = "block";
+  document.getElementById("show-topic-rules-from-polygon").style.display = "none";
+});
+
+document.getElementById("hide-topic-rules-from-polygon").addEventListener("click", (event) => {
+  document.getElementById("loaded-topic-rules-from-polygon").style.display = "none";
+  document.getElementById("hide-topic-rules-from-polygon").style.display = "none";
+  document.getElementById("show-topic-rules-from-polygon").style.display = "block";
+});
+
+document.getElementById("show-optional-settings-polygon").addEventListener("click", (event) => {
+  document.getElementById("optional-settings-from-polygon").style.display = "block";
+  document.getElementById("hide-optional-settings-from-polygon").style.display = "block";
+  document.getElementById("show-optional-settings-polygon").style.display = "none";
+});
+
+document.getElementById("hide-optional-settings-from-polygon").addEventListener("click", (event) => {
+  document.getElementById("optional-settings-from-polygon").style.display = "none";
+  document.getElementById("hide-optional-settings-from-polygon").style.display = "none";
+  document.getElementById("show-optional-settings-polygon").style.display = "block";
+});
+
+document.getElementById("show-delete-polygon-from-polygon").addEventListener("click", (event) => {
+  document.getElementById("delete-polygon-from-polygon").style.display = "block";
+  document.getElementById("hide-delete-polygon-from-polygon").style.display = "block";
+  document.getElementById("show-delete-polygon-from-polygon").style.display = "none";
+});
+
+document.getElementById("hide-delete-polygon-from-polygon").addEventListener("click", (event) => {
+  document.getElementById("delete-polygon-from-polygon").style.display = "none";
+  document.getElementById("hide-delete-polygon-from-polygon").style.display = "none";
+  document.getElementById("show-delete-polygon-from-polygon").style.display = "block";
+});
+
+
+
+
+
+
+document.getElementById("show-topic-rules-from-marker").addEventListener("click", (event) => {
+  document.getElementById("loaded-topic-rules-from-marker").style.display = "block";
+  document.getElementById("hide-topic-rules-from-marker").style.display = "block";
+  document.getElementById("show-topic-rules-from-marker").style.display = "none";
+});
+
+document.getElementById("hide-topic-rules-from-marker").addEventListener("click", (event) => {
+  document.getElementById("loaded-topic-rules-from-marker").style.display = "none";
+  document.getElementById("hide-topic-rules-from-marker").style.display = "none";
+  document.getElementById("show-topic-rules-from-marker").style.display = "block";
+});
+
+document.getElementById("show-optional-settings-marker").addEventListener("click", (event) => {
+  document.getElementById("optional-settings-from-marker").style.display = "block";
+  document.getElementById("hide-optional-settings-from-marker").style.display = "block";
+  document.getElementById("show-optional-settings-marker").style.display = "none";
+});
+
+document.getElementById("hide-optional-settings-from-marker").addEventListener("click", (event) => {
+  document.getElementById("optional-settings-from-marker").style.display = "none";
+  document.getElementById("hide-optional-settings-from-marker").style.display = "none";
+  document.getElementById("show-optional-settings-marker").style.display = "block";
+});
+
+document.getElementById("show-delete-marker-from-marker").addEventListener("click", (event) => {
+  document.getElementById("delete-marker-from-marker").style.display = "block";
+  document.getElementById("hide-delete-marker-from-marker").style.display = "block";
+  document.getElementById("show-delete-marker-from-marker").style.display = "none";
+});
+
+document.getElementById("hide-delete-marker-from-marker").addEventListener("click", (event) => {
+  document.getElementById("delete-marker-from-marker").style.display = "none";
+  document.getElementById("hide-delete-marker-from-marker").style.display = "none";
+  document.getElementById("show-delete-marker-from-marker").style.display = "block";
+});
+
+const insideEditProfileEverything = [
+  document.getElementById("edit-profile-url-name-domain"),
+  document.getElementById("edit-profile-picture"),
+  document.getElementById("edit-profile-username"),
+  document.getElementById("edit-profile-click2link"),
+  document.getElementById("edit-profile-topic-id"),
+  document.getElementById("edit-profile-topic-id-name"),
+  document.getElementById("edit-profile-topic-id-name-topic2pic"),
+  document.getElementById("edit-profile-domain-time-left"),
+];
+
+const insideEditProfileShowOptions = [
+  document.getElementById("show-profile-picture-from-edit-profile"),
+  document.getElementById("show-username-from-edit-profile"),
+  document.getElementById("show-click2link-from-edit-profile"),
+  document.getElementById("show-topic-id-name-from-edit-profile"),
+  document.getElementById("show-topic-id-to-pfp-from-edit-profile"),
+  document.getElementById("show-check-domain-availability-from-edit-profile"),
+];
+
+
+const insideEditProfileHideOptions = [
+  document.getElementById("hide-profile-picture-from-edit-profile"),
+  document.getElementById("hide-username-from-edit-profile"),
+  document.getElementById("hide-click2link-from-edit-profile"),
+  document.getElementById("hide-topic-id-name-from-edit-profile"),
+  document.getElementById("hide-topic-id-to-pfp-from-edit-profile"),
+  document.getElementById("hide-check-domain-availability-from-edit-profile"),
+];
+
+
+function editProfileShowOptions() {
+  insideEditProfileShowOptions.forEach(element => {
+  element.style.display = "block";
+});
+}
+
+
+function editProfileEverything() {
+  insideEditProfileEverything.forEach(element => {
+  element.style.display = "none";
+});
+}
+
+function editProfileHideOptions() {
+  insideEditProfileHideOptions.forEach(element => {
+  element.style.display = "none";
+});
+}
+
+document.getElementById("show-profile-picture-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-url-name-domain").style.display = "block";
+  document.getElementById("hide-profile-picture-from-edit-profile").style.display = "block";
+  document.getElementById("show-profile-picture-from-edit-profile").style.display = "none";
+  document.getElementById("edit-profile-picture").style.display = "block";
+});
+
+document.getElementById("hide-profile-picture-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-url-name-domain").style.display = "none";
+  document.getElementById("hide-profile-picture-from-edit-profile").style.display = "none";
+  document.getElementById("show-profile-picture-from-edit-profile").style.display = "block";
+  document.getElementById("edit-profile-picture").style.display = "none";
+});
+
+document.getElementById("show-username-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-url-name-domain").style.display = "block";
+  document.getElementById("hide-username-from-edit-profile").style.display = "block";
+  document.getElementById("show-username-from-edit-profile").style.display = "none";
+  document.getElementById("edit-profile-username").style.display = "block";
+});
+
+
+document.getElementById("hide-username-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-url-name-domain").style.display = "none";
+  document.getElementById("hide-username-from-edit-profile").style.display = "none";
+  document.getElementById("show-username-from-edit-profile").style.display = "block";
+  document.getElementById("edit-profile-username").style.display = "none";
+});
+
+document.getElementById("show-click2link-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-url-name-domain").style.display = "block";
+  document.getElementById("hide-click2link-from-edit-profile").style.display = "block";
+  document.getElementById("show-click2link-from-edit-profile").style.display = "none";
+  document.getElementById("edit-profile-click2link").style.display = "block";
+});
+
+document.getElementById("hide-click2link-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-url-name-domain").style.display = "none";
+  document.getElementById("hide-click2link-from-edit-profile").style.display = "none";
+  document.getElementById("show-click2link-from-edit-profile").style.display = "block";
+  document.getElementById("edit-profile-click2link").style.display = "none";
+});
+
+document.getElementById("show-topic-id-name-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-url-name-domain").style.display = "block";
+  document.getElementById("hide-topic-id-name-from-edit-profile").style.display = "block";
+  document.getElementById("show-topic-id-name-from-edit-profile").style.display = "none";
+  document.getElementById("edit-profile-topic-id").style.display = "block";
+  document.getElementById("edit-profile-topic-id-name").style.display = "block";
+});
+
+document.getElementById("hide-topic-id-name-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-url-name-domain").style.display = "none";
+  document.getElementById("hide-topic-id-name-from-edit-profile").style.display = "none";
+  document.getElementById("show-topic-id-name-from-edit-profile").style.display = "block";
+  document.getElementById("edit-profile-topic-id-name").style.display = "none";
+});
+
+document.getElementById("show-topic-id-to-pfp-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-topic-id").style.display = "block";
+  document.getElementById("hide-topic-id-to-pfp-from-edit-profile").style.display = "block";
+  document.getElementById("show-topic-id-to-pfp-from-edit-profile").style.display = "none";
+  document.getElementById("edit-profile-topic-id-name-topic2pic").style.display = "block";
+});
+
+document.getElementById("hide-topic-id-to-pfp-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-topic-id").style.display = "none";
+  document.getElementById("hide-topic-id-to-pfp-from-edit-profile").style.display = "none";
+  document.getElementById("show-topic-id-to-pfp-from-edit-profile").style.display = "block";
+  document.getElementById("edit-profile-topic-id-name-topic2pic").style.display = "none";
+});
+
+document.getElementById("show-check-domain-availability-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-url-name-domain").style.display = "block";
+  document.getElementById("edit-profile-topic-id").style.display = "block";
+  document.getElementById("hide-check-domain-availability-from-edit-profile").style.display = "block";
+  document.getElementById("show-check-domain-availability-from-edit-profile").style.display = "none";
+  document.getElementById("edit-profile-domain-time-left").style.display = "block";
+});
+
+document.getElementById("hide-check-domain-availability-from-edit-profile").addEventListener("click", (event) => {
+  editProfileEverything()
+  editProfileShowOptions()
+  editProfileHideOptions()
+  document.getElementById("edit-profile-url-name-domain").style.display = "none";
+  document.getElementById("edit-profile-topic-id").style.display = "none";
+  document.getElementById("hide-check-domain-availability-from-edit-profile").style.display = "none";
+  document.getElementById("show-check-domain-availability-from-edit-profile").style.display = "block";
+  document.getElementById("edit-profile-domain-time-left").style.display = "none";
+});
+
+
+
+document.getElementById("show-load-from-users").addEventListener("click", (event) => {
+  document.getElementById("load-msgs-from-ids").style.display = "block";
+  document.getElementById("hide-load-from-users").style.display = "block";
+  document.getElementById("show-load-from-users").style.display = "none";
+  document.getElementById("load-load-from-users").style.display = "flex";
+  document.getElementById("load-block-from-users").style.display = "none";
+  document.getElementById("hide-block-from-users").style.display = "none";
+  document.getElementById("show-block-from-users").style.display = "block";
+
+});
+
+document.getElementById("hide-load-from-users").addEventListener("click", (event) => {
+  document.getElementById("show-load-from-users").style.display = "block";
+  document.getElementById("load-msgs-from-ids").style.display = "none";
+  document.getElementById("hide-load-from-users").style.display = "none";
+  document.getElementById("load-load-from-users").style.display = "none";
+});
+
+document.getElementById("show-block-from-users").addEventListener("click", (event) => {
+  document.getElementById("load-msgs-from-ids").style.display = "block";
+  document.getElementById("load-block-from-users").style.display = "block";
+  document.getElementById("hide-block-from-users").style.display = "block";
+  document.getElementById("show-block-from-users").style.display = "none";
+  document.getElementById("load-block-from-users").style.display = "flex";
+  document.getElementById("hide-load-from-users").style.display = "none";
+  document.getElementById("load-load-from-users").style.display = "none";
+  document.getElementById("show-load-from-users").style.display = "block";
+});
+
+document.getElementById("hide-block-from-users").addEventListener("click", (event) => {
+  document.getElementById("load-msgs-from-ids").style.display = "none";
+  document.getElementById("hide-block-from-users").style.display = "none";
+  document.getElementById("load-block-from-users").style.display = "none";
+  document.getElementById("show-block-from-users").style.display = "block";
+});
+
+const everythinginsidemodelcolumn = [
+  document.getElementById("model-column-model-url"),
+  document.getElementById("model-column-model-rotation"),
+  document.getElementById("model-column-model-position"),
+  document.getElementById("model-column-model-scale-factor"),
+  document.getElementById("hide-model-column-model-url"),
+  document.getElementById("hide-model-column-model-rotation"),
+  document.getElementById("hide-model-column-model-position"),
+  document.getElementById("hide-model-column-model-scale-factor"),
+];
+
+const showoptionsinsidemodelcolumn = [
+  document.getElementById("show-model-column-model-url"),
+  document.getElementById("show-model-column-model-rotation"),
+  document.getElementById("show-model-column-model-position"),
+  document.getElementById("show-model-column-model-scale-factor"),
+];
+
+
+function modelColumnShowOptions() {
+  showoptionsinsidemodelcolumn.forEach(element => {
+  element.style.display = "block";
+});
+}
+
+function modelColumnEverything() {
+  everythinginsidemodelcolumn.forEach(element => {
+  element.style.display = "none";
+});
+}
+
+document.getElementById("show-model-column-model-url").addEventListener("click", (event) => {
+  modelColumnEverything()
+  modelColumnShowOptions()
+  document.getElementById("model-column-model-url").style.display = "block";
+  document.getElementById("hide-model-column-model-url").style.display = "block";
+  document.getElementById("show-model-column-model-url").style.display = "none";
+});
+
+document.getElementById("hide-model-column-model-url").addEventListener("click", (event) => {
+  modelColumnEverything()
+  modelColumnShowOptions()
+  document.getElementById("model-column-model-url").style.display = "none";
+  document.getElementById("hide-model-column-model-url").style.display = "none";
+  document.getElementById("show-model-column-model-url").style.display = "block";
+});
+
+document.getElementById("show-model-column-model-rotation").addEventListener("click", (event) => {
+  modelColumnEverything()
+  modelColumnShowOptions()
+  document.getElementById("model-column-model-rotation").style.display = "block";
+  document.getElementById("hide-model-column-model-rotation").style.display = "block";
+  document.getElementById("show-model-column-model-rotation").style.display = "none";
+});
+
+document.getElementById("hide-model-column-model-rotation").addEventListener("click", (event) => {
+  modelColumnEverything()
+  modelColumnShowOptions()
+  document.getElementById("model-column-model-rotation").style.display = "none";
+  document.getElementById("hide-model-column-model-rotation").style.display = "none";
+  document.getElementById("show-model-column-model-rotation").style.display = "block";
+});
+
+document.getElementById("show-model-column-model-position").addEventListener("click", (event) => {
+  modelColumnEverything()
+  modelColumnShowOptions()
+  document.getElementById("model-column-model-position").style.display = "block";
+  document.getElementById("hide-model-column-model-position").style.display = "block";
+  document.getElementById("show-model-column-model-position").style.display = "none";
+});
+
+document.getElementById("hide-model-column-model-position").addEventListener("click", (event) => {
+  modelColumnEverything()
+  modelColumnShowOptions()
+  document.getElementById("model-column-model-position").style.display = "none";
+  document.getElementById("hide-model-column-model-position").style.display = "none";
+  document.getElementById("show-model-column-model-position").style.display = "block";
+});
+
+document.getElementById("show-model-column-model-scale-factor").addEventListener("click", (event) => {
+  modelColumnEverything()
+  modelColumnShowOptions()
+  document.getElementById("model-column-model-scale-factor").style.display = "block";
+  document.getElementById("hide-model-column-model-scale-factor").style.display = "block";
+  document.getElementById("show-model-column-model-scale-factor").style.display = "none";
+});
+
+document.getElementById("hide-model-column-model-scale-factor").addEventListener("click", (event) => {
+  modelColumnEverything()
+  modelColumnShowOptions()
+  document.getElementById("model-column-model-scale-factor").style.display = "none";
+  document.getElementById("hide-model-column-model-scale-factor").style.display = "none";
+  document.getElementById("show-model-column-model-scale-factor").style.display = "block";
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 document.getElementById("button3").addEventListener("click", async () => {
 try {
-  const topicId = document.getElementById("Edit_Profile-topic-id").value;
+  let userInput = document.getElementById("Edit_Profile-topic-id").value.toLowerCase();
   const newName = document.getElementById("toolbar-input").value;
+
+
+  let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+  let topicId;
+
+  if (domainEntry && domainEntry.lastMessage) {
+    topicId = domainEntry.lastMessage.topic;
+  } else {
+    topicId = userInput;
+  }
 
   const meesageobject = {
     changeName: newName
@@ -5767,6 +6497,16 @@ try {
   console.error("Error setting rules:", error);
 }
 });
+
+
+
+
+
+
+
+
+
+
 
 document.getElementById("post-msg").addEventListener("click", async () => {
 try {
@@ -8134,7 +8874,7 @@ async function loadButtonInputSettings() {
           button.style.color = inputFontColor;
       });
 
-      const ButtonInputButtons = document.querySelectorAll('.toolbar-column-btns');
+      const ButtonInputButtons = document.querySelectorAll('.toolbar-column-btns, .toolbar-column-first-settings-btns, .toolbar-column-settings-btns');
       ButtonInputButtons.forEach(button => {
           button.style.borderColor = buttonBorderColor;
           button.style.opacity = transparencyButtonInput;
