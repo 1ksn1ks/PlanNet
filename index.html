@@ -307,6 +307,7 @@ html, body {
   box-sizing: border-box;
   border-radius: 1vh;
   overflow-y: auto; /* Enable vertical scrolling */
+  overflow: hidden; /* Hide scrollbars */
   max-height: 80vh; /* Limit the height to 80% of the viewport */
   touch-action: auto; /* Enable touch interactions */
   resize: none; /* Prevent manual resizing */
@@ -674,7 +675,7 @@ html, body {
   -ms-user-select: text !important;
 }
 
-#topic-chat-container, #encrypted-chat-container * {
+#topic-chat-container *, #encrypted-chat-container * {
   user-select: text !important;
   -webkit-user-select: text !important;
   -moz-user-select: text !important;
@@ -2434,6 +2435,124 @@ let usernameTopicChatColor = '#ffffff';
 let textTopicChatColor = '#ffffff';
 
 
+function makeScrollable(el) {
+  let startY = 0, startScroll = 0, target = null;
+  let isDragging = false;
+  const DRAG_THRESHOLD = 5;                 // pixels you must move before scrolling starts
+
+  const interactiveTags = ['INPUT','TEXTAREA','BUTTON','SELECT','A'];
+  const isInteractive = node => {
+    return interactiveTags.includes(node.tagName) ||
+           node.isContentEditable ||
+           node.closest('[contenteditable],[role="button"],[role="textbox"]');
+  };
+
+  // ----- selection helpers -----
+  const disableSelection = () => {
+    el.style.userSelect = 'none';
+    el.style.webkitUserSelect = 'none';
+    el.style.touchAction = 'none';
+  };
+  const enableSelection = () => {
+    el.style.userSelect = '';
+    el.style.webkitUserSelect = '';
+    el.style.touchAction = '';
+  };
+
+  // ----- drag start -----
+  const start = (e, clientY) => {
+    if (isInteractive(e.target)) return;   // inputs/buttons keep normal behaviour
+
+    target = el;
+    startY = clientY;
+    startScroll = target.scrollTop;
+    isDragging = false;                    // we haven't moved yet
+    // **do NOT** call preventDefault here → text selection works
+    e.stopPropagation();                   // stop outer container
+  };
+
+  // ----- drag move -----
+  const move = (e, clientY) => {
+    if (!target) return;
+
+    const dy = Math.abs(clientY - startY);
+
+    // First movement that exceeds threshold → real drag
+    if (!isDragging && dy > DRAG_THRESHOLD) {
+      isDragging = true;
+      disableSelection();                 // block selection only now
+    }
+
+    if (!isDragging) return;               // still a possible click/select
+
+    const walk = (startY - clientY) * 2;    // scroll amount
+    target.scrollTop = startScroll + walk;
+    e.preventDefault();                    // stop page scroll while dragging
+  };
+
+  // ----- drag end -----
+  const end = () => {
+    if (isDragging) enableSelection();
+    isDragging = false;
+    target = null;
+  };
+
+  // ---------- TOUCH ----------
+  el.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    start(e, t.clientY);
+  }, { passive: true });                     // allow default (selection)
+
+  el.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    move(e, t.clientY);
+    if (isDragging) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }, { passive: false });
+
+  el.addEventListener('touchend', end);
+  el.addEventListener('touchcancel', end);
+
+  // ---------- MOUSE ----------
+  el.addEventListener('mousedown', e => {
+    start(e, e.clientY);
+  });
+
+  const onMouseMove = e => move(e, e.clientY);
+  const onMouseUp = () => {
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    end();
+  };
+
+  // only attach global listeners after a real drag starts
+  const maybeStartGlobal = () => {
+    if (isDragging) {
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    }
+  };
+  el.addEventListener('mousemove', maybeStartGlobal);   // tiny movement → attach
+
+  // ---------- WHEEL ----------
+  el.addEventListener('wheel', e => {
+    if (isInteractive(e.target)) return;
+    el.scrollTop += e.deltaY;
+    if (el.scrollHeight > el.clientHeight) e.stopPropagation();
+  }, { passive: false });
+
+  // make sure selection is on by default
+  enableSelection();
+}
+
+
+
+makeScrollable(document.getElementById('topic-chat-container'));      // outer container
+makeScrollable(document.getElementById('messages-from-topic-chat'));  // inner container
+makeScrollable(document.getElementById('encrypted-chat-container'));      // outer container
+makeScrollable(document.getElementById('messages-from-encrypted-chat'));  // inner container
 
 document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click", async () => {
   await loadMessagesFromEncryptedChat();
@@ -2484,7 +2603,28 @@ async function loadMessagesFromEncryptedChat() {
       console.error("Error getting topic info:", error);
       return;
     }
-    const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+
+
+
+
+
+    const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+
+    const seen = new Map();
+    const uniqueMessages = {messages:[]};
+
+    for (let index = 0; index < rawResult.messages.length; index++) {
+      const message = rawResult.messages[index];
+      const seqNum = message.sequence_number;
+
+      if (!seen.has(seqNum)) {
+        seen.set(seqNum, true);
+        uniqueMessages.messages.push(message);
+      }
+    }
+
+
+    const result = sanitizeWalletMessages(uniqueMessages);
 
     if (!result || !Array.isArray(result.messages)) {
       console.log("No messages found or result is not an array.");
@@ -3395,6 +3535,58 @@ document.getElementById("load-msgs-from-ids-button").addEventListener("click", a
 
 loader.updateProgress();
 
+// utils/safeEmojiParser.js
+function sanitizeWalletMessages(input) {
+  if (Array.isArray(input)) {
+    return input.map(sanitizeSingleMessage);
+  }
+  if (typeof input === 'object' && input !== null) {
+    return sanitizeSingleMessage(input);
+  }
+  return input;
+}
+
+function sanitizeSingleMessage(msg) {
+  if (typeof msg !== 'object' || msg === null) return msg;
+
+  const fixed = {};
+
+  for (const [key, value] of Object.entries(msg)) {
+    // SKIP 'created' field — leave it completely untouched
+    if (key === 'created') {
+      fixed[key] = value;
+      continue;
+    }
+
+    if (typeof value === 'string') {
+      fixed[key] = fixMojibake(value);
+    } 
+    else if (Array.isArray(value)) {
+      fixed[key] = value.map(item => 
+        typeof item === 'string' ? fixMojibake(item) : sanitizeSingleMessage(item)
+      );
+    }
+    else if (typeof value === 'object' && value !== null) {
+      fixed[key] = sanitizeSingleMessage(value);
+    } 
+    else {
+      fixed[key] = value;
+    }
+  }
+
+  return fixed;
+}
+
+// Core fix: Convert Latin-1 mojibake back to UTF-8
+function fixMojibake(str) {
+  try {
+    const latin1Bytes = new Uint8Array([...str].map(c => c.charCodeAt(0)));
+    return new TextDecoder('utf-8').decode(latin1Bytes);
+  } catch (e) {
+    return str;
+  }
+}
+
 document.getElementById("button4").addEventListener("click", async () => {
 
   const domain = document.getElementById("toolbar-input").value.toLowerCase();
@@ -3423,7 +3615,12 @@ document.getElementById("button4").addEventListener("click", async () => {
 });
 
 document.getElementById('go-to-top-msgs').addEventListener('click', function() {
-  const container = document.getElementById('chat-container');
+  const container = document.getElementById('messages-from-topic-chat');
+  container.scrollTop = 0;
+});
+
+document.getElementById('go-to-top-msgs-encrypted-chat').addEventListener('click', function() {
+  const container = document.getElementById('messages-from-encrypted-chat');
   container.scrollTop = 0;
 });
 
@@ -3478,12 +3675,30 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
               return;
         }
 
-    const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+        const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
 
-    if (!result || !Array.isArray(result.messages)) {
-      console.log("No messages found or result is not an array.");
-      return [];
-    }
+        const seen = new Map();
+        const uniqueMessages = {messages:[]};
+
+        for (let index = 0; index < rawResult.messages.length; index++) {
+          const message = rawResult.messages[index];
+          const seqNum = message.sequence_number;
+
+          if (!seen.has(seqNum)) {
+            seen.set(seqNum, true);
+            uniqueMessages.messages.push(message);
+          }
+        }
+
+
+        const result = sanitizeWalletMessages(uniqueMessages);
+
+
+
+        if (!result || !Array.isArray(result.messages)) {
+          console.log("No messages found or result is not an array.");
+          return [];
+        }
 
     const profilePictures = await loadProfilePicture(); // Load profile pictures
     const usernames = await loadUsername(); // Load usernames
@@ -3533,10 +3748,6 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
       }
     }
 
-
-    if (loadedNFTsForTopicChat.length > 0) {
-  console.log("loadedNFTsForTopicChat", loadedNFTsForTopicChat);
-}
 
 // Process messages
 for (let index = 0; index < result.messages.length; index++) {
@@ -3637,35 +3848,6 @@ if (payer !== previousPayer) {
     console.error(`Error processing message ${index}:`, messageError);
   }
 }
-
-  const chatContainer = document.getElementById('topic-chat-container');
-  let startY, scrollTop;
-
-  chatContainer.addEventListener('touchstart', (e) => {
-    startY = e.touches[0].pageY - chatContainer.offsetTop;
-    scrollTop = chatContainer.scrollTop;
-  });
-
-  chatContainer.addEventListener('touchmove', (e) => {
-    const y = e.touches[0].pageY - chatContainer.offsetTop;
-    const walk = (y - startY) * 2; // Adjust the multiplier for sensitivity
-    chatContainer.scrollTop = scrollTop - walk;
-    e.preventDefault(); // Prevent default touch behavior
-  });
-
-  messagesContainer.addEventListener('touchstart', (e) => {
-    startY = e.touches[0].pageY - messagesContainer.offsetTop;
-    scrollTop = messagesContainer.scrollTop;
-    e.stopPropagation(); // Stop the event from bubbling up
-  });
-
-  messagesContainer.addEventListener('touchmove', (e) => {
-    const y = e.touches[0].pageY - messagesContainer.offsetTop;
-    const walk = (y - startY) * 2; // Adjust the multiplier for sensitivity
-    messagesContainer.scrollTop = scrollTop - walk;
-    e.preventDefault(); // Prevent default touch behavior
-    e.stopPropagation(); // Stop the event from bubbling up
-  });
 
   messagesContainer.innerHTML = allMessages;
 
@@ -3913,7 +4095,23 @@ async function loadDomains() {
   try {
     const topicId = "0.0.9606779";
 
-    const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+    const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+
+    const seen = new Map();
+    const uniqueMessages = {messages:[]};
+
+    for (let index = 0; index < rawResult.messages.length; index++) {
+      const message = rawResult.messages[index];
+      const seqNum = message.sequence_number;
+
+      if (!seen.has(seqNum)) {
+        seen.set(seqNum, true);
+        uniqueMessages.messages.push(message);
+      }
+    }
+
+
+    const result = sanitizeWalletMessages(uniqueMessages);
 
     if (!result || !Array.isArray(result.messages)) {
       console.log("No messages found or result is not an array.");
@@ -4240,7 +4438,23 @@ const topicId = "0.0.9609881";
 const accountUrls = {}; // Dictionary to store account IDs and their URLs
 
   try {
-    const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+    const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+
+    const seen = new Map();
+    const uniqueMessages = {messages:[]};
+
+    for (let index = 0; index < rawResult.messages.length; index++) {
+      const message = rawResult.messages[index];
+      const seqNum = message.sequence_number;
+
+      if (!seen.has(seqNum)) {
+        seen.set(seqNum, true);
+        uniqueMessages.messages.push(message);
+      }
+    }
+
+
+    const result = sanitizeWalletMessages(uniqueMessages);
 
     // Check if result exists and has messages
     if (!result || !Array.isArray(result.messages)) {
@@ -4276,7 +4490,23 @@ async function loadUsername() {
   const accountUsernames = {};
 
   try {
-    const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+    const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+
+    const seen = new Map();
+    const uniqueMessages = {messages:[]};
+
+    for (let index = 0; index < rawResult.messages.length; index++) {
+      const message = rawResult.messages[index];
+      const seqNum = message.sequence_number;
+
+      if (!seen.has(seqNum)) {
+        seen.set(seqNum, true);
+        uniqueMessages.messages.push(message);
+      }
+    }
+
+
+    const result = sanitizeWalletMessages(uniqueMessages);
 
     // Check if result exists and has messages
     if (!result || !Array.isArray(result.messages)) {
@@ -4946,7 +5176,6 @@ function handleMovement() {
     ...everythinginsidetoolbar,
     ...firstlayercolumns,
     ...everythinginsideoptionsbuttons,
-    document.getElementById("encrypted-chat-container") === "block"
   ].some(id => {
     const element = document.getElementById(id);
     return element && window.getComputedStyle(element).display === "block";
@@ -8462,7 +8691,24 @@ async function processTopicMessages(topicId) {
         const click2url = await loadCLICK2URL();
 
         try {
-          const response = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+          const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+
+          const seen = new Map();
+          const uniqueMessages = {messages:[]};
+
+          for (let index = 0; index < rawResult.messages.length; index++) {
+            const message = rawResult.messages[index];
+            const seqNum = message.sequence_number;
+
+            if (!seen.has(seqNum)) {
+              seen.set(seqNum, true);
+              uniqueMessages.messages.push(message);
+            }
+          }
+
+
+          const response = sanitizeWalletMessages(uniqueMessages);
+          
 
           const topicInfo = await sdk.getTopicInfo(topicId);
           const topicAdmin = [];
@@ -9553,7 +9799,22 @@ function retryWebRTCConnection(peerId) {
                   const topicId = "0.0.9609898";
                   const accountUrl = []; // Initialize an empty array to store account URLs
                   try {
-                  const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+                    const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+
+                    const seen = new Map();
+                    const uniqueMessages = {messages:[]};
+
+                    for (let index = 0; index < rawResult.messages.length; index++) {
+                      const message = rawResult.messages[index];
+                      const seqNum = message.sequence_number;
+
+                      if (!seen.has(seqNum)) {
+                        seen.set(seqNum, true);
+                        uniqueMessages.messages.push(message);
+                      }
+                    }
+
+                    const result = sanitizeWalletMessages(uniqueMessages);
                   // Check if result exists and has messages
                   if (!result || !Array.isArray(result.messages) || result.messages.length === 0) {
                     console.log("No profile object found, using defaults");
