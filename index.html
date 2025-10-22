@@ -5647,10 +5647,17 @@ document.getElementById("topic-chat-btn").addEventListener("click", (event) => {
   removeUfoModel();
 });
 
-document.getElementById("show-options-from-topic-chat").addEventListener("click", (event) => {
+function showOptionsFromTopicChat() {
   document.getElementById("options-from-topic-chat").style.display = "block";
   document.getElementById("show-options-from-topic-chat").style.display = "none";
   document.getElementById("show-options-from-topic-chat-btn").style.display = "block";
+}
+
+// Apply debounce (e.g., 300ms delay)
+const debouncedShowOptions = debounce(showOptionsFromTopicChat, 300);
+
+document.getElementById("show-options-from-topic-chat").addEventListener("click", (event) => {
+  debouncedShowOptions();
 });
 
 document.getElementById("show-options-from-topic-chat-btn").addEventListener("click", (event) => {
