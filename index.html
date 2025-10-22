@@ -2440,9 +2440,9 @@ function makeScrollable(el) {
   let isDragging = false;
   let hasMoved = false;
   let mouseDownTarget = null;
-  const DRAG_THRESHOLD = 5; // px
+  const DRAG_THRESHOLD = 5;
 
-  // ---------- Selection ----------
+  // Selection
   const disableSelection = () => {
     el.style.userSelect = 'none';
     el.style.webkitUserSelect = 'none';
@@ -2455,42 +2455,48 @@ function makeScrollable(el) {
   };
 
   // ---------- START ----------
-  const onMouseDown = e => {
+  const start = (e, clientY, isTouch = false) => {
     mouseDownTarget = e.target;
-    startY = e.clientY;
+    startY = clientY;
     startScroll = el.scrollTop;
     isDragging = false;
     hasMoved = false;
 
-    e.stopPropagation(); // stop outer container
+    e.stopPropagation();
+
+    // Only disable selection early on touch (to prevent iOS zoom)
+    if (isTouch) {
+      disableSelection();
+    }
   };
 
   // ---------- MOVE ----------
-  const onMouseMove = e => {
-    if (!mouseDownTarget) return; // no mousedown → ignore
+  const move = (e, clientY) => {
+    if (isDragging) {
+      const walk = (startY - clientY) * 2;
+      el.scrollTop = startScroll + walk;
+      e.preventDefault();
+      return;
+    }
 
-    const dy = Math.abs(e.clientY - startY);
-
-    if (!isDragging && dy > DRAG_THRESHOLD) {
+    const dy = Math.abs(clientY - startY);
+    if (dy > DRAG_THRESHOLD) {
       isDragging = true;
       hasMoved = true;
       disableSelection();
       startScroll = el.scrollTop; // re-base
     }
-
-    if (!isDragging) return;
-
-    const walk = (startY - e.clientY) * 2;
-    el.scrollTop = startScroll + walk;
-    e.preventDefault(); // only during real drag
   };
 
   // ---------- END ----------
-  const onMouseUp = e => {
-    if (isDragging) enableSelection();
+  const end = (e, isTouch = false) => {
+    if (isDragging) {
+      enableSelection();
+    }
 
-    if (!hasMoved && mouseDownTarget) {
-      mouseDownTarget.click(); // simulate click
+    // Only simulate click on MOUSE up, never on touch
+    if (!isTouch && !hasMoved && mouseDownTarget) {
+      mouseDownTarget.click();
     }
 
     cleanup();
@@ -2500,63 +2506,60 @@ function makeScrollable(el) {
     mouseDownTarget = null;
     isDragging = false;
     hasMoved = false;
+    enableSelection();
   };
 
-  // ---------- TOUCH ----------
+  // ========== TOUCH ==========
   el.addEventListener('touchstart', e => {
     const t = e.touches[0];
-    mouseDownTarget = e.target;
-    startY = t.clientY;
-    startScroll = el.scrollTop;
-    isDragging = false;
-    hasMoved = false;
-    e.stopPropagation();
+    start(e, t.clientY, true);
   }, { passive: true });
 
   el.addEventListener('touchmove', e => {
-    if (e.touches.length === 0) return;
-    const t = e.touches[0];
-    onMouseMove({ clientY: t.clientY, preventDefault: () => e.preventDefault() });
+    if (!e.touches[0]) return;
+    move(e, e.touches[0].clientY);
     if (isDragging) {
       e.preventDefault();
       e.stopPropagation();
     }
   }, { passive: false });
 
-  el.addEventListener('touchend', onMouseUp);
+  el.addEventListener('touchend', e => {
+    end(e, true);
+  });
+
   el.addEventListener('touchcancel', cleanup);
 
-  // ---------- MOUSE ----------
-  el.addEventListener('mousedown', onMouseDown);
+  // ========== MOUSE ==========
+  el.addEventListener('mousedown', e => {
+    start(e, e.clientY, false);
+  });
 
-  // **Only attach global move/up after mousedown**
-  const startGlobal = () => {
+  const onMouseMove = e => move(e, e.clientY);
+  const onMouseUp = e => end(e, false);
+
+  // Attach global listeners only after mousedown
+  const attachGlobal = () => {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
 
   el.addEventListener('mousedown', () => {
-    // Use setTimeout to ensure mousedown is processed first
-    setTimeout(startGlobal, 0);
+    setTimeout(attachGlobal, 0);
   });
 
-  // Clean up if mouse leaves while button is down
-  el.addEventListener('mouseleave', () => {
-    if (mouseDownTarget && !isDragging) {
-      cleanup();
-    }
-  });
+  // Clean up if mouse leaves
+  el.addEventListener('mouseleave', cleanup);
 
-  // ---------- WHEEL ----------
+  // ========== WHEEL ==========
   el.addEventListener('wheel', e => {
     el.scrollTop += e.deltaY;
     if (el.scrollHeight > el.clientHeight) e.stopPropagation();
   }, { passive: false });
 
-  // Default: allow selection
+  // Default
   enableSelection();
 }
-
 
 
 makeScrollable(document.getElementById('topic-chat-container'));      // outer container
@@ -5647,17 +5650,10 @@ document.getElementById("topic-chat-btn").addEventListener("click", (event) => {
   removeUfoModel();
 });
 
-function showOptionsFromTopicChat() {
+document.getElementById("show-options-from-topic-chat").addEventListener("click", (event) => {
   document.getElementById("options-from-topic-chat").style.display = "block";
   document.getElementById("show-options-from-topic-chat").style.display = "none";
   document.getElementById("show-options-from-topic-chat-btn").style.display = "block";
-}
-
-// Apply debounce (e.g., 300ms delay)
-const debouncedShowOptions = debounce(showOptionsFromTopicChat, 300);
-
-document.getElementById("show-options-from-topic-chat").addEventListener("click", (event) => {
-  debouncedShowOptions();
 });
 
 document.getElementById("show-options-from-topic-chat-btn").addEventListener("click", (event) => {
