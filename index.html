@@ -943,37 +943,30 @@ button[type="submit"],
       </button>
       <button id="hide-profile-picture-from-edit-profile" style="display: none;" class="toolbar-column-first-settings-btns">Profile picture
       </button>
-      <button id="show-username-from-edit-profile" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Username
+      <button id="show-username-from-edit-profile" class="toolbar-column-settings-btns">Username
       </button>
-      <button id="hide-username-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Username
+      <button id="hide-username-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns">Username
       </button>
-      <button id="show-click2link-from-edit-profile" class="toolbar-column-settings-btns" style="margin-left: 1vw;">CLICK2LINK
+      <button id="show-topic-id-name-from-edit-profile" class="toolbar-column-settings-btns" >Topic ID name
       </button>
-      <button id="hide-click2link-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">CLICK2LINK
+      <button id="hide-topic-id-name-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns">Topic ID name
       </button>
     </div>
 
     
     <div style="display: flex;">
-      <button id="show-topic-id-name-from-edit-profile" class="toolbar-column-first-settings-btns">Topic ID name
+      <button id="show-topic-id-to-pfp-from-edit-profile" class="toolbar-column-first-settings-btns"">Topic ID to PFP
       </button>
-      <button id="hide-topic-id-name-from-edit-profile" style="display: none;" class="toolbar-column-first-settings-btns">Topic ID name
+      <button id="hide-topic-id-to-pfp-from-edit-profile" style="display: none;" class="toolbar-column-first-settings-btns"">Topic ID to PFP
       </button>
-      <button id="show-topic-id-to-pfp-from-edit-profile" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Topic ID to PFP
+      <button id="show-click2link-from-edit-profile" class="toolbar-column-settings-btns">CLICK2LINK
       </button>
-      <button id="hide-topic-id-to-pfp-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Topic ID to PFP
+      <button id="hide-click2link-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns">CLICK2LINK
       </button>
-      <button id="show-check-domain-availability-from-edit-profile" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Check Domain Availability
+      <button id="show-check-domain-availability-from-edit-profile" class="toolbar-column-settings-btns"">Domain
       </button>
-      <button id="hide-check-domain-availability-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Check Domain Availability
+      <button id="hide-check-domain-availability-from-edit-profile" style="display: none;" class="toolbar-column-settings-btns">Domain
       </button>
-    </div>
-
-    <div id="edit-profile-url-name-domain" style="display: none;">
-      <textarea type="text" id="toolbar-input" placeholder="URL/Name/Domain"
-      class="toolbar-column" onclick="event.stopPropagation();"
-      oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-      ></textarea>
     </div>
 
 
@@ -995,6 +988,13 @@ button[type="submit"],
 
     <div id="edit-profile-topic-id" style="display: none;">
       <textarea type="text" id="Edit_Profile-topic-id" placeholder="Topic ID"
+      class="toolbar-column" onclick="event.stopPropagation();"
+      oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+      ></textarea>
+    </div>
+
+    <div id="edit-profile-url-name-domain" style="display: none;">
+      <textarea type="text" id="toolbar-input" placeholder="URL/Name/Domain"
       class="toolbar-column" onclick="event.stopPropagation();"
       oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
       ></textarea>
@@ -1437,9 +1437,9 @@ button[type="submit"],
         </button>
         <button id="hide-model-sharing-from-nft-utility" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Model sharing
         </button>
-        <button id="show-model-size-scale-factor-from-nft-utility" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Model size scale factor
+        <button id="show-model-size-scale-factor-from-nft-utility" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Model size
         </button>
-        <button id="hide-model-size-scale-factor-from-nft-utility" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Model size scale factor
+        <button id="hide-model-size-scale-factor-from-nft-utility" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Model size
         </button>
         <button id="show-topic-chat-from-nft-utility" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Topic Chat
         </button>
@@ -2143,7 +2143,7 @@ button[type="submit"],
     <div style="display: flex; align-items: center; padding-bottom: 1vh;" >
       <label for="color-green" class="yourfov">Font Size:
       </label>
-      <input type="number" id="font-for-button-input" class="yourfov" style="margin-left: 1vw;" max="255" placeholder="Size" value="2"/>
+      <input type="number" id="font-for-button-input" class="yourfov" style="margin-left: 1vw;" max="10" placeholder="Size" value="2" step="0.01"/>
     </div>
 
     <div style="display: flex; align-items: center; padding-bottom: 1vh;" >
@@ -2574,7 +2574,7 @@ const sodium = window.sodium;
 function hexToBytes(hex) {
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+    bytes[i / 2] = parseFloat(hex.substr(i, 2), 16);
   }
   return bytes;
 }
@@ -8417,7 +8417,7 @@ event.stopPropagation();
             const hexColorUsername = document.getElementById('color-picker-popup-username').value;
             const hexColorTitles = document.getElementById('color-picker-popup-titles').value;
             const hexColorText = document.getElementById('color-picker-popup-text').value;
-            const popupFontSize = Math.min(parseInt(document.getElementById("popup-font-size").value) || 0.5, 10);
+            const popupFontSize = Math.min(parseFloat(document.getElementById("popup-font-size").value) || 0.5, 10);
 
             const messageData = {
                 data: {
@@ -8584,7 +8584,7 @@ document.getElementById('color-picker-popup-text').addEventListener('input', (ev
 
 function updatePopupFontSize() {
     const popupFontSize = document.getElementById("popup-font-size").value;
-    const popupFontSizeValue = Math.min(parseInt(popupFontSize) || 0.5, 10);
+    const popupFontSizeValue = Math.min(parseFloat(popupFontSize) || 0.5, 10);
     const popupTexts = document.querySelectorAll('.maplibregl-popup-content');
     popupTexts.forEach(text => {
         text.style.fontSize = `${popupFontSizeValue}vh`;
@@ -8698,7 +8698,7 @@ document.getElementById("save-marker-settings").addEventListener("click", async 
     try {
         const topicId = "0.0.9796116";
 
-        const sizeMarker = Math.min(parseInt(document.getElementById("Marker-Sizer").value) || 0, 255);
+        const sizeMarker = Math.min(parseFloat(document.getElementById("Marker-Sizer").value) || 0, 255);
         const messageData = {
             data: {
                 sizeMarker: sizeMarker
@@ -8740,7 +8740,7 @@ async function loadMarkerSettings() {
                 // Extract relevant data and clamp to max 255
                 const { sizeMarker } = lastMessage.data;
 
-                const clampedSizeMarker = Math.min(parseInt(sizeMarker) || 0, 10);
+                const clampedSizeMarker = Math.min(parseFloat(sizeMarker) || 0, 10);
 
                 accountObjectSettings.push({
                     sizeMarker: clampedSizeMarker
@@ -8761,7 +8761,7 @@ async function loadMarkerSettings() {
 
 function updateMarkerSettings() {
   const MarkerSize = document.getElementById("Marker-Size").value;
-  currentMarkerSize = Math.min(parseInt(MarkerSize) || 5, 10);
+  currentMarkerSize = Math.min(parseFloat(MarkerSize) || 5, 10);
   updateClusters();
 }
 
@@ -8778,8 +8778,8 @@ document.getElementById("save-button-button-input").addEventListener("click", as
         const ButtonBorderColor = document.getElementById("button-border-color").value;
         const ButtonFontColor = document.getElementById("button-font-color").value;
         const OnhoverButtonColor = document.getElementById("onhover-button-color").value;
-        const FontForButtonInput = Math.min(parseInt(document.getElementById("font-for-button-input").value) || 1.5, 10);
-        const TransparencyButtonInput = Math.min(parseInt(document.getElementById("transparency-button-input").value) || 0.5, 1);
+        const FontForButtonInput = Math.min(parseFloat(document.getElementById("font-for-button-input").value) || 1.5, 10);
+        const TransparencyButtonInput = Math.min(parseFloat(document.getElementById("transparency-button-input").value) || 0.5, 1);
 
         const messageData = {
             data: {
@@ -8863,8 +8863,8 @@ async function loadButtonInputSettings() {
       const buttonFontColor = document.getElementById("button-font-color").value;
       const onhoverButtonColor = document.getElementById("onhover-button-color").value;
       const buttonBorderColor = document.getElementById("button-border-color").value;
-      const fontForButtonInput = Math.min(parseInt(document.getElementById("font-for-button-input").value) || 1.5, 10);
-      const transparencyButtonInput = Math.min(parseInt(document.getElementById("transparency-button-input").value) || 0.5, 1);
+      const fontForButtonInput = Math.min(parseFloat(document.getElementById("font-for-button-input").value) || 1.5, 10);
+      const transparencyButtonInput = Math.min(parseFloat(document.getElementById("transparency-button-input").value) || 0.5, 1);
 
       const inputButtons = document.querySelectorAll('.toolbar-column, .yourfov');
       inputButtons.forEach(button => {
@@ -10006,7 +10006,7 @@ let updateMapLayerIntervalId = null; // Initialize the interval ID
 let updateInterval = 5000; // Default interval time in milliseconds
 
 document.getElementById("update-loop").addEventListener("click", () => {
-  const newInterval = parseInt(document.getElementById("time-input").value, 10);
+  const newInterval = parseFloat(document.getElementById("time-input").value, 10);
   const updatesValue = document.getElementById("updates-value");
   const visibilityValue = document.getElementById("3d-model-visibility-value");
   const toggle3DModelButton = document.getElementById("toggle-3d-model-visibility");
