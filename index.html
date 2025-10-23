@@ -8,6 +8,7 @@
 
 <div class="loader-container" id="loaderContainer">
   <div>
+    <div id="logs">Loading...</div>
       <div class="spinner"></div>
       <div class="loader">
           <div class="progress" id="progressBar"></div>
@@ -15,6 +16,30 @@
       <div class="percentage" id="percentageText">0%</div>
   </div>
 </div>
+
+
+<script>
+  // Step 1: Create your global log array
+  window.HCS_LOGS = [];
+
+  // Step 2: Override console.log ONLY for HCS messages
+  (function() {
+    const original = console.log;
+    console.log = function(...args) {
+      const msg = args.join(' ');
+      if (msg.startsWith('[HCS SDK] Loaded script:')) {
+        const scriptName = msg.replace('[HCS SDK] Loaded script:', '').trim();
+        window.HCS_LOGS.push({
+          name: scriptName,
+          timestamp: new Date().toISOString(),
+          step: window.HCS_LOGS.length + 1
+        });
+      }
+      // Always call original
+      return original.apply(this, args);
+    };
+  })();
+</script>
 
 <script
   data-hcs-config=""
@@ -333,6 +358,26 @@ html, body {
   box-sizing: border-box;
   margin-bottom: 0.5vh;
   height: 5vh;
+  border: 0.1vh solid #007bff;
+  overflow: hidden; /* Hide scrollbars */
+  resize: none; /* Prevent manual resizing */
+  background-color: transparent;
+  touch-action: auto; /* Enable touch interactions */
+  animation: zoomIn 0.5s ease-in-out;
+}
+
+.toolbar-column-loaded-rules {
+  display: block;
+  width: 100%;
+  color: white;
+  padding-left: 1vw;
+  border: 0.1vh solid white;
+  border-radius: 1vh;
+  font-size: 2vh;
+  box-sizing: border-box;
+  margin-bottom: 0.5vh;
+  height: 5vh;
+  max-height: 50vh; /* Set maximum height */
   border: 0.1vh solid #007bff;
   overflow: hidden; /* Hide scrollbars */
   resize: none; /* Prevent manual resizing */
@@ -970,20 +1015,7 @@ button[type="submit"],
     </div>
 
 
-    <div id="edit-profile-picture" style="display: none;">
-      <button class="toolbar-column-btns" id="button1" style="display: block;">Change PFP
-      </button>
-    </div>
 
-    <div id="edit-profile-username" style="display: none;">
-      <button class="toolbar-column-btns" id="button2" style="display: block;">Change Username
-      </button>
-    </div>
-
-    <div id="edit-profile-click2link" style="display: none;">
-      <button class="toolbar-column-btns" id="button_for_click_url" style="display: block;">Tag URL to username
-      </button>
-    </div>
 
 
     <div id="edit-profile-topic-id" style="display: none;">
@@ -998,6 +1030,21 @@ button[type="submit"],
       class="toolbar-column" onclick="event.stopPropagation();"
       oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
       ></textarea>
+    </div>
+
+    <div id="edit-profile-picture" style="display: none;">
+      <button class="toolbar-column-btns" id="button1" style="display: block;">Change PFP
+      </button>
+    </div>
+
+    <div id="edit-profile-username" style="display: none;">
+      <button class="toolbar-column-btns" id="button2" style="display: block;">Change Username
+      </button>
+    </div>
+
+    <div id="edit-profile-click2link" style="display: none;">
+      <button class="toolbar-column-btns" id="button_for_click_url" style="display: block;">Tag URL to username
+      </button>
     </div>
 
     <div id="edit-profile-topic-id-name" style="display: none;">
@@ -1065,13 +1112,24 @@ button[type="submit"],
       ></textarea>
     </div>
 
-    <div id="load-load-from-users" style="display: none; flex-direction: row;">
+    <div id="load-load-from-users-label" style="display: none;">
+      <label style="font-size: 2vh; padding: 0px;">Load Users:
+      </label>
+    </div>
+
+
+    <div id="load-load-from-users" style="display: none; flex-direction: row;"> 
       <button id="load-msgs-from-ids-button" class="toolbar-column-first-settings-btns">Filter
       </button>
       <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
       </button>
       <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
       </button>
+    </div>
+
+    <div id="load-block-from-users-label" style="display: none;">
+      <label style="font-size: 2vh; padding: 0px;">Block Users:
+      </label>
     </div>
 
     <div id="load-block-from-users" style="display: none;">
@@ -1118,6 +1176,20 @@ button[type="submit"],
 
 <div id="create-column" style="display: none; position: absolute; z-index: 1002; top:10vh;">
   <div id="create-column-container" class="toolbar-containers" onclick="event.stopPropagation();">
+
+
+    <div style="display: flex;">
+      <button id="show-new-topic-from-create" class="toolbar-column-first-settings-btns">New Topic
+      </button>
+      <button id="hide-new-topic-from-create" style="display: none;" class="toolbar-column-first-settings-btns">New Topic
+      </button>
+      <button id="show-new-keys-from-create" class="toolbar-column-settings-btns" style="margin-left: 1vw;">New Keys
+      </button>
+      <button id="hide-new-keys-from-create" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">New Keys
+      </button>
+    </div>
+
+    <div id="new-topic-from-create" style="display: none;">
     <div class="toolbar-group">
       <textarea class="toolbar-column" type="text" id="input-field-5-1" placeholder="Admins 0.0.1,0.0.2.."
       onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
@@ -1177,7 +1249,9 @@ button[type="submit"],
       <button id="submit-button-Create_New_Topic" class="toolbar-column-btns" style="display: block;">Create
       </button>
     </div>
+  </div>
 
+  <div id="new-keys-from-create" style="display: none;">
       <label for="public-key-label"style="font-size: 2vh; padding: 0px;">Public Key:
       </label>
       <textarea
@@ -1197,6 +1271,7 @@ button[type="submit"],
 
     <button id="generate-private-and-public-key" class="toolbar-column-btns" style="display: block;">Generate
     </button>
+  </div>
 
   </div>
 </div>
@@ -1260,7 +1335,7 @@ button[type="submit"],
     <div id="loaded-topic-rules-from-marker" style="display: none;">
     <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topic Rules:</label>
     
-    <div class="toolbar-column" type="text" style="user-select: text;" id="loaded-topic-rules-for-marker" placeholder="Loaded Topic Rules"
+    <div class="toolbar-column-loaded-rules" type="text" style="user-select: text;" id="loaded-topic-rules-for-marker" placeholder="Loaded Topic Rules"
     onclick="event.stopPropagation();"
     ></div>
     <button id="load-topic-rules-for-marker" class="toolbar-column-btns">
@@ -1344,7 +1419,7 @@ button[type="submit"],
 
   <div id="loaded-topic-rules-from-polygon" style="display: none;">
     <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topic Rules:</label>
-    <div class="toolbar-column" type="text" style="user-select: text;" id="loaded-topic-rules-for-polygon" placeholder="Loaded Topic Rules"
+    <div class="toolbar-column-loaded-rules" type="text" style="user-select: text;" id="loaded-topic-rules-for-polygon" placeholder="Loaded Topic Rules"
     onclick="event.stopPropagation();"
     ></div>
     <button id="load-topic-rules-for-polygon" class="toolbar-column-btns">Load Topic Rules
@@ -1409,7 +1484,7 @@ button[type="submit"],
 
     <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topic Rules:
     </label>
-    <div class="toolbar-column" style="user-select: text;" id="loaded-topic-rules-for-topic" placeholder="Loaded Topic Rules"
+    <div class="toolbar-column-loaded-rules" style="user-select: text;" id="loaded-topic-rules-for-topic" placeholder="Loaded Topic Rules"
     onclick="event.stopPropagation();"></div>
     <button id="load-topic-rules-for-topic" class="toolbar-column-btns">Load Topic Rules
     </button>
@@ -1456,7 +1531,7 @@ button[type="submit"],
     <div id="topic-rules-from-nft-utility" style="display: none;">
       <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topic Logic:
       </label>
-      <div class="toolbar-column" style="user-select: text;" id="loaded-topic-rules-for-utility" placeholder="Loaded Topic Rules"
+      <div class="toolbar-column-loaded-rules" style="user-select: text;" id="loaded-topic-rules-for-utility" placeholder="Loaded Topic Rules"
       onclick="event.stopPropagation();"></div>
       <button id="load-topic-rules-for-utility" class="toolbar-column-btns">Load Topic Rules
       </button>
@@ -1466,6 +1541,7 @@ button[type="submit"],
     <label for="input-field-add-remove-NFT-for-model" style=" font-size: 2vh;padding: 0px;"> Model sharing:
     </label>
   </div>
+
   <div id="model-sharing-from-nft-utility" style="display: none;">
     <textarea class="toolbar-column" type="text" id="input-field-add-remove-NFT-for-model" placeholder="NFT ID (or IDs seperated by commas)"
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';" 
@@ -1530,7 +1606,7 @@ button[type="submit"],
       ></textarea>
     </div>
 
-    <label for="public-key-label"style="font-size: 2vh; padding: 0px;">Optional fee for each message:
+    <label for="public-key-label"style="font-size: 2vh; padding: 0px;">OPTIONAL fee for each message:
     </label>
 
     <div class="toolbar-group">
@@ -1554,20 +1630,19 @@ button[type="submit"],
 <div id="stack-topic-ids" style="display: none; position: absolute; z-index: 1002; top:10vh;">
   <div id="stack-topic-ids-container" class="toolbar-containers" onclick="event.stopPropagation();">
 
+    <label for="stack-topic-ids-topic" style="font-size: 2vh; padding: 0px;">Main Domain/Topic ID:
     <textarea class="toolbar-column" type="text" id="stack-topic-ids-topic" placeholder="Domain/Topic ID"
     click="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
-    <textarea class="toolbar-column" type="text" id="stack-topic-add-topic" placeholder="0.0.1,0.0.2.."
+    <textarea class="toolbar-column" type="text" id="stack-topic-add-remove-topic" placeholder="0.0.1,0.0.2.."
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
-    <button id="add-topic-id" class="toolbar-column-btns" style="display: block;">Stack
-    </button>
-    <textarea class="toolbar-column" type="text" id="stack-topic-remove-topic" placeholder="0.0.1,0.0.2.."
-    onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-    ></textarea>
-    <button id="remove-topic-id" class="toolbar-column-btns" style="display: block;">Remove
-    </button>
-
+    <div style="display: flex;">
+        <button id="add-topic-id" class="toolbar-column-btns" style="display: block; margin-right: 0.5vh;">Stack
+        </button>
+        <button id="remove-topic-id" class="toolbar-column-btns" style="display: block; margin-left: 0.5vh;">Remove
+        </button>
+    </div>
   </div>
 </div>
 
@@ -2273,7 +2348,10 @@ button[type="submit"],
           loader.updateProgress();
 
 
-
+          setInterval(() => {
+    document.getElementById('logs').innerHTML = 
+      window.HCS_LOGS.map((l, i) => `${l.name}`).join('<br>');
+  }, 50);
 
 
       window.HCSReady = async function () {
@@ -2804,6 +2882,23 @@ makeScrollable(document.getElementById('topic-chat-container'));      // outer c
 makeScrollable(document.getElementById('messages-from-topic-chat'));  // inner container
 makeScrollable(document.getElementById('encrypted-chat-container'));      // outer container
 makeScrollable(document.getElementById('messages-from-encrypted-chat'));  // inner container
+makeScrollable(document.getElementById('Edit_Profile-column-container'));
+makeScrollable(document.getElementById('load-column-container'));
+makeScrollable(document.getElementById('upload-to-ipfs-column-container'));
+makeScrollable(document.getElementById('create-column-container'));
+makeScrollable(document.getElementById('marker-column-container'));
+makeScrollable(document.getElementById('polygon-column-container'));
+makeScrollable(document.getElementById('rules-column-container'));
+makeScrollable(document.getElementById('utility-column-container'));
+makeScrollable(document.getElementById('memo-column-container'));
+makeScrollable(document.getElementById('stack-topic-ids-container'));
+makeScrollable(document.getElementById('input-field-3-2'));
+makeScrollable(document.getElementById('input-field-2-2'));
+makeScrollable(document.getElementById('loaded-topic-rules-for-marker'));
+makeScrollable(document.getElementById('loaded-topic-rules-for-polygon'));
+makeScrollable(document.getElementById('loaded-topic-rules-for-topic'));
+makeScrollable(document.getElementById('loaded-topic-rules-for-utility'));
+
 
 document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click", async () => {
   await loadMessagesFromEncryptedChat();
@@ -5984,23 +6079,58 @@ document.getElementById("popup-column-2-font").addEventListener("click", (event)
   document.getElementById("popup-column-3-font").style.display = "block";
 });
 
+
+
+
+
+const allOptionsFromNFTUtility = [
+  document.getElementById("hide-topic-rules-from-nft-utility"),
+  document.getElementById("hide-model-sharing-from-nft-utility"),
+  document.getElementById("hide-model-size-scale-factor-from-nft-utility"),
+  document.getElementById("hide-topic-chat-from-nft-utility"),
+  document.getElementById("topic-rules-from-nft-utility"),
+  document.getElementById("model-sharing-from-nft-utility-label"),
+  document.getElementById("model-sharing-from-nft-utility"),
+  document.getElementById("model-sharing-from-nft-utility-button-group"),
+  document.getElementById("model-size-scale-factor-from-nft-utility"),
+  document.getElementById("topic-chat-from-nft-utility"),
+];
+
+function hideAllInnerOptionsFromNFTUtility() {
+  allOptionsFromNFTUtility.forEach(element => {
+  element.style.display = "none";
+});
+}
+
+const allShowButtonsFromNFTUtility = [
+  document.getElementById("show-topic-rules-from-nft-utility"),
+  document.getElementById("show-model-sharing-from-nft-utility"),
+  document.getElementById("show-model-size-scale-factor-from-nft-utility"),
+  document.getElementById("show-topic-chat-from-nft-utility"),
+];
+
+function showAllInnerOptionsFromNFTUtility() {
+  allShowButtonsFromNFTUtility.forEach(element => {
+  element.style.display = "block";
+});
+}
+
 document.getElementById("show-topic-rules-from-nft-utility").addEventListener("click", (event) => {
+  hideAllInnerOptionsFromNFTUtility()
+  showAllInnerOptionsFromNFTUtility()
   document.getElementById("topic-rules-from-nft-utility").style.display = "block";
   document.getElementById("hide-topic-rules-from-nft-utility").style.display = "block";
   document.getElementById("show-topic-rules-from-nft-utility").style.display = "none";
 });
 
 document.getElementById("hide-topic-rules-from-nft-utility").addEventListener("click", (event) => {
-  document.getElementById("topic-rules-from-nft-utility").style.display = "none";
-  document.getElementById("hide-topic-rules-from-nft-utility").style.display = "none";
-  document.getElementById("show-topic-rules-from-nft-utility").style.display = "block";
+  hideAllInnerOptionsFromNFTUtility()
+  showAllInnerOptionsFromNFTUtility()
 });
 
-let isModelSharingOpen = false;
-let isModelSizeScaleFactorOpen = false;
-
 document.getElementById("show-model-sharing-from-nft-utility").addEventListener("click", (event) => {
-  isModelSharingOpen = true;
+  hideAllInnerOptionsFromNFTUtility()
+  showAllInnerOptionsFromNFTUtility()
   document.getElementById("model-sharing-from-nft-utility").style.display = "block";
   document.getElementById("hide-model-sharing-from-nft-utility").style.display = "block";
   document.getElementById("show-model-sharing-from-nft-utility").style.display = "none";
@@ -6009,18 +6139,14 @@ document.getElementById("show-model-sharing-from-nft-utility").addEventListener(
 });
 
 document.getElementById("hide-model-sharing-from-nft-utility").addEventListener("click", (event) => {
-  isModelSharingOpen = false;
-  if (isModelSizeScaleFactorOpen === false) {
-  document.getElementById("model-sharing-from-nft-utility").style.display = "none";
-  }
-  document.getElementById("hide-model-sharing-from-nft-utility").style.display = "none";
-  document.getElementById("show-model-sharing-from-nft-utility").style.display = "block";
-  document.getElementById("model-sharing-from-nft-utility-button-group").style.display = "none";
-  document.getElementById("model-sharing-from-nft-utility-label").style.display = "none";
+  hideAllInnerOptionsFromNFTUtility()
+  showAllInnerOptionsFromNFTUtility()
 });
 
 document.getElementById("show-model-size-scale-factor-from-nft-utility").addEventListener("click", (event) => {
-  isModelSizeScaleFactorOpen = true;
+  hideAllInnerOptionsFromNFTUtility()
+  showAllInnerOptionsFromNFTUtility()
+  document.getElementById("model-sharing-from-nft-utility-label").style.display = "block";
   document.getElementById("model-size-scale-factor-from-nft-utility").style.display = "block";
   document.getElementById("hide-model-size-scale-factor-from-nft-utility").style.display = "block";
   document.getElementById("show-model-size-scale-factor-from-nft-utility").style.display = "none";
@@ -6028,30 +6154,83 @@ document.getElementById("show-model-size-scale-factor-from-nft-utility").addEven
 });
 
 document.getElementById("hide-model-size-scale-factor-from-nft-utility").addEventListener("click", (event) => {
-  isModelSizeScaleFactorOpen = false;
-  document.getElementById("model-size-scale-factor-from-nft-utility").style.display = "none";
-  document.getElementById("hide-model-size-scale-factor-from-nft-utility").style.display = "none";
-  document.getElementById("show-model-size-scale-factor-from-nft-utility").style.display = "block";
-  if (isModelSharingOpen === false) {
-  document.getElementById("model-sharing-from-nft-utility").style.display = "none";
-  }
+  hideAllInnerOptionsFromNFTUtility()
+  showAllInnerOptionsFromNFTUtility()
 });
 
 document.getElementById("show-topic-chat-from-nft-utility").addEventListener("click", (event) => {
+  hideAllInnerOptionsFromNFTUtility()
+  showAllInnerOptionsFromNFTUtility()
   document.getElementById("topic-chat-from-nft-utility").style.display = "block";
   document.getElementById("hide-topic-chat-from-nft-utility").style.display = "block";
   document.getElementById("show-topic-chat-from-nft-utility").style.display = "none";
 });
 
 document.getElementById("hide-topic-chat-from-nft-utility").addEventListener("click", (event) => {
-  document.getElementById("topic-chat-from-nft-utility").style.display = "none";
-  document.getElementById("hide-topic-chat-from-nft-utility").style.display = "none";
-  document.getElementById("show-topic-chat-from-nft-utility").style.display = "block";
+  hideAllInnerOptionsFromNFTUtility()
+  showAllInnerOptionsFromNFTUtility()
 });
 
 
+document.getElementById("show-topic-rules-from-marker").addEventListener("click", (event) => {
+  document.getElementById("loaded-topic-rules-from-marker").style.display = "block";
+  document.getElementById("hide-topic-rules-from-marker").style.display = "block";
+  document.getElementById("show-topic-rules-from-marker").style.display = "none";
+});
 
+document.getElementById("hide-topic-rules-from-marker").addEventListener("click", (event) => {
+  document.getElementById("loaded-topic-rules-from-marker").style.display = "none";
+  document.getElementById("hide-topic-rules-from-marker").style.display = "none";
+  document.getElementById("show-topic-rules-from-marker").style.display = "block";
+});
 
+document.getElementById("show-optional-settings-marker").addEventListener("click", (event) => {
+  document.getElementById("optional-settings-from-marker").style.display = "block";
+  document.getElementById("hide-optional-settings-from-marker").style.display = "block";
+  document.getElementById("show-optional-settings-marker").style.display = "none";
+});
+
+document.getElementById("hide-optional-settings-from-marker").addEventListener("click", (event) => {
+  document.getElementById("optional-settings-from-marker").style.display = "none";
+  document.getElementById("hide-optional-settings-from-marker").style.display = "none";
+  document.getElementById("show-optional-settings-marker").style.display = "block";
+});
+
+document.getElementById("show-delete-marker-from-marker").addEventListener("click", (event) => {
+  document.getElementById("delete-marker-from-marker").style.display = "block";
+  document.getElementById("hide-delete-marker-from-marker").style.display = "block";
+  document.getElementById("show-delete-marker-from-marker").style.display = "none";
+});
+
+document.getElementById("hide-delete-marker-from-marker").addEventListener("click", (event) => {
+  document.getElementById("delete-marker-from-marker").style.display = "none";
+  document.getElementById("hide-delete-marker-from-marker").style.display = "none";
+  document.getElementById("show-delete-marker-from-marker").style.display = "block";
+});
+
+document.getElementById("show-new-topic-from-create").addEventListener("click", (event) => {
+  document.getElementById("new-topic-from-create").style.display = "block";
+  document.getElementById("hide-new-topic-from-create").style.display = "block";
+  document.getElementById("show-new-topic-from-create").style.display = "none";
+});
+
+document.getElementById("hide-new-topic-from-create").addEventListener("click", (event) => {
+  document.getElementById("new-topic-from-create").style.display = "none";
+  document.getElementById("hide-new-topic-from-create").style.display = "none";
+  document.getElementById("show-new-topic-from-create").style.display = "block";
+});
+
+document.getElementById("show-new-keys-from-create").addEventListener("click", (event) => {
+  document.getElementById("new-keys-from-create").style.display = "block";
+  document.getElementById("hide-new-keys-from-create").style.display = "block";
+  document.getElementById("show-new-keys-from-create").style.display = "none";
+});
+
+document.getElementById("hide-new-keys-from-create").addEventListener("click", (event) => {
+  document.getElementById("new-keys-from-create").style.display = "none";
+  document.getElementById("hide-new-keys-from-create").style.display = "none";
+  document.getElementById("show-new-keys-from-create").style.display = "block";
+});
 
 
 
@@ -6097,41 +6276,7 @@ document.getElementById("hide-delete-polygon-from-polygon").addEventListener("cl
 
 
 
-document.getElementById("show-topic-rules-from-marker").addEventListener("click", (event) => {
-  document.getElementById("loaded-topic-rules-from-marker").style.display = "block";
-  document.getElementById("hide-topic-rules-from-marker").style.display = "block";
-  document.getElementById("show-topic-rules-from-marker").style.display = "none";
-});
 
-document.getElementById("hide-topic-rules-from-marker").addEventListener("click", (event) => {
-  document.getElementById("loaded-topic-rules-from-marker").style.display = "none";
-  document.getElementById("hide-topic-rules-from-marker").style.display = "none";
-  document.getElementById("show-topic-rules-from-marker").style.display = "block";
-});
-
-document.getElementById("show-optional-settings-marker").addEventListener("click", (event) => {
-  document.getElementById("optional-settings-from-marker").style.display = "block";
-  document.getElementById("hide-optional-settings-from-marker").style.display = "block";
-  document.getElementById("show-optional-settings-marker").style.display = "none";
-});
-
-document.getElementById("hide-optional-settings-from-marker").addEventListener("click", (event) => {
-  document.getElementById("optional-settings-from-marker").style.display = "none";
-  document.getElementById("hide-optional-settings-from-marker").style.display = "none";
-  document.getElementById("show-optional-settings-marker").style.display = "block";
-});
-
-document.getElementById("show-delete-marker-from-marker").addEventListener("click", (event) => {
-  document.getElementById("delete-marker-from-marker").style.display = "block";
-  document.getElementById("hide-delete-marker-from-marker").style.display = "block";
-  document.getElementById("show-delete-marker-from-marker").style.display = "none";
-});
-
-document.getElementById("hide-delete-marker-from-marker").addEventListener("click", (event) => {
-  document.getElementById("delete-marker-from-marker").style.display = "none";
-  document.getElementById("hide-delete-marker-from-marker").style.display = "none";
-  document.getElementById("show-delete-marker-from-marker").style.display = "block";
-});
 
 const insideEditProfileEverything = [
   document.getElementById("edit-profile-url-name-domain"),
@@ -6314,10 +6459,11 @@ document.getElementById("show-load-from-users").addEventListener("click", (event
   document.getElementById("hide-load-from-users").style.display = "block";
   document.getElementById("show-load-from-users").style.display = "none";
   document.getElementById("load-load-from-users").style.display = "flex";
+  document.getElementById("load-load-from-users-label").style.display = "block";
   document.getElementById("load-block-from-users").style.display = "none";
   document.getElementById("hide-block-from-users").style.display = "none";
   document.getElementById("show-block-from-users").style.display = "block";
-
+  document.getElementById("load-block-from-users-label").style.display = "none";
 });
 
 document.getElementById("hide-load-from-users").addEventListener("click", (event) => {
@@ -6325,6 +6471,7 @@ document.getElementById("hide-load-from-users").addEventListener("click", (event
   document.getElementById("load-msgs-from-ids").style.display = "none";
   document.getElementById("hide-load-from-users").style.display = "none";
   document.getElementById("load-load-from-users").style.display = "none";
+  document.getElementById("load-load-from-users-label").style.display = "none";
 });
 
 document.getElementById("show-block-from-users").addEventListener("click", (event) => {
@@ -6336,6 +6483,8 @@ document.getElementById("show-block-from-users").addEventListener("click", (even
   document.getElementById("hide-load-from-users").style.display = "none";
   document.getElementById("load-load-from-users").style.display = "none";
   document.getElementById("show-load-from-users").style.display = "block";
+  document.getElementById("load-load-from-users-label").style.display = "none";
+  document.getElementById("load-block-from-users-label").style.display = "block";
 });
 
 document.getElementById("hide-block-from-users").addEventListener("click", (event) => {
@@ -6343,6 +6492,7 @@ document.getElementById("hide-block-from-users").addEventListener("click", (even
   document.getElementById("hide-block-from-users").style.display = "none";
   document.getElementById("load-block-from-users").style.display = "none";
   document.getElementById("show-block-from-users").style.display = "block";
+  document.getElementById("load-block-from-users-label").style.display = "none";
 });
 
 const everythinginsidemodelcolumn = [
@@ -7059,15 +7209,15 @@ if (loadedNFTsForModel.length === 0 && loadedNFTScaleForModel.length === 0 && lo
 .addEventListener("click", async () => {
             try {
               let userInput = document.getElementById("stack-topic-ids-topic").value.toLowerCase();
-    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
-    let topicId;
+              let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+              let topicId;
 
-    if (domainEntry && domainEntry.lastMessage) {
-      topicId = domainEntry.lastMessage.topic;
-    } else {
-      topicId = userInput;
-    }
-              const stackTopicAddTopic = document.getElementById("stack-topic-add-topic").value;
+              if (domainEntry && domainEntry.lastMessage) {
+                topicId = domainEntry.lastMessage.topic;
+              } else {
+                topicId = userInput;
+              }
+              const stackTopicAddTopic = document.getElementById("stack-topic-add-remove-topic").value;
 
 
               const meesageobject = {
@@ -7099,7 +7249,7 @@ if (loadedNFTsForModel.length === 0 && loadedNFTScaleForModel.length === 0 && lo
     } else {
       topicId = userInput;
     }
-              const stackTopicRemoveTopic = document.getElementById("stack-topic-remove-topic").value;
+              const stackTopicRemoveTopic = document.getElementById("stack-topic-add-remove-topic").value;
 
 
               const meesageobject = {
