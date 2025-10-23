@@ -282,6 +282,22 @@ html, body {
   touch-action: auto; /* Enable touch interactions */
 }
 
+.toolbar-group-messages {
+  margin-bottom: -1em !important;
+  width: 100%;
+  color: white;
+  border: 0.1vh solid white;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  border-radius: 1vh;
+  box-sizing: border-box;
+  border: 0.1vh solid #ffc107;
+  overflow: hidden; /* Hide scrollbars */
+  resize: none; /* Prevent manual resizing */
+  background-color: transparent;
+  touch-action: auto; /* Enable touch interactions */
+}
+
 .toolbar-column-btns {
   display: block;
   width: 100%;
@@ -409,11 +425,12 @@ html, body {
   width: 100% !important;
   height: 5vh;
   color: white;
-  padding-left: 1vw;
+  padding-left: 0.15em;
+  padding-right: 0.15em;
+  padding-top: 0.1em;
   border-radius: 1vh;
   font-size: 2vh;
   box-sizing: border-box;
-  margin-bottom: 0.5vh;
   border: 0.1vh solid #007bff;
   overflow: hidden; /* Hide scrollbars */
   resize: none; /* Prevent manual resizing */
@@ -424,6 +441,7 @@ html, body {
   user-select: text; /* Allow text selection */
   -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
   scrollbar-width: none; /* Firefox */
+  margin-bottom: 0.5vh;
 }
 
 .model_sliders {
@@ -1561,7 +1579,7 @@ button[type="submit"],
   <div id="model-size-scale-factor-from-nft-utility" style="display: none;"> 
     <label for="input-field-add-remove-scale-for-model" style=" font-size: 2vh;padding: 0px;">Model size scale factor:
     </label>
-    <textarea class="toolbar-column" type="text" id="input-field-add-remove-scale-for-model" placeholder="Size factor (must include only one NFT at a time)"
+    <textarea class="toolbar-column" type="text" id="input-field-add-remove-scale-for-model" placeholder="Size factor (must include only one NFT ID at a time)"
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
 
@@ -2652,7 +2670,7 @@ const sodium = window.sodium;
 function hexToBytes(hex) {
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseFloat(hex.substr(i, 2), 16);
+    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
   }
   return bytes;
 }
@@ -2706,7 +2724,6 @@ document.getElementById("post-msg-encrypted-chat").addEventListener("click", asy
 
     const message = document.getElementById("user-write-message-encrypted-chat").value;
     const encryptedMessage = await encryptMessage(message, PublicKey);
-
 
 
     const meesageobject = {
@@ -2919,7 +2936,7 @@ async function loadMessagesFromEncryptedChat() {
     
     const messagesContainer = document.getElementById("messages-from-encrypted-chat");
     const topicSpinnerChat = `
-    <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+    <div style="display: flex; justify-content: left; align-items: left; height: 100%;">
       <div id="topicspinnerchat"></div>
        <span style="margin-left: 1vw;">Loading messages from ${topicId}</span>
       </div>`;
@@ -2941,7 +2958,7 @@ async function loadMessagesFromEncryptedChat() {
     } catch (error) {
       const messagesContainer = document.getElementById("messages-from-encrypted-chat");
       const topicSpinnerChat = `
-      <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+      <div style="display: flex; justify-content: left; align-items: left; height: 100%;">
         <span style="margin-left: 1vw;">Invalid Topic ID</span>
       </div>`;
       messagesContainer.innerHTML = topicSpinnerChat;
@@ -2950,23 +2967,9 @@ async function loadMessagesFromEncryptedChat() {
       return;
     }
 
-    const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
-
-    const seen = new Map();
-    const uniqueMessages = {messages:[]};
-
-    for (let index = 0; index < rawResult.messages.length; index++) {
-      const message = rawResult.messages[index];
-      const seqNum = message.sequence_number;
-
-      if (!seen.has(seqNum)) {
-        seen.set(seqNum, true);
-        uniqueMessages.messages.push(message);
-      }
-    }
+    const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
 
 
-    const result = sanitizeWalletMessages(uniqueMessages);
 
     if (!result || !Array.isArray(result.messages)) {
       console.log("No messages found or result is not an array.");
@@ -2976,47 +2979,52 @@ async function loadMessagesFromEncryptedChat() {
     const messages = result.messages;
 
     const PublicKeyContainer = document.getElementById("encrypted-chat-public-key");
-    let PrivateKeyContainer = document.getElementById("encrypted-chat-private-key");
-    let PrivateKeyValue = PrivateKeyContainer.value;
-    PrivateKeyContainer.value ='';
+    const PrivateKeyContainer = document.getElementById("encrypted-chat-private-key");
+
+    const PrivateKeyValue = PrivateKeyContainer.value;
 
 
     try{
-      if (PublicKeyContainer.value.length < 20 && PrivateKeyValue.length < 10) {
+      if (PrivateKeyValue.length < 30 && PublicKeyContainer.value.length < 55) {
 
         for (let index = messages.length - 1; index >= 0; index--) {
         const message = result.messages[index];
         let parsedMessage = message;
+
         if (typeof message === 'string') {
-          parsedMessage = JSON.parse(message);
-        }
-
-        if(!parsedMessage.publicKey) {
-          const messagesContainer = document.getElementById("messages-from-encrypted-chat");
-          const topicSpinnerChat = `
-          <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
-            <span style="margin-left: 1vw;">No public key found</span>
-          </div>`;
-          messagesContainer.innerHTML = topicSpinnerChat;
-          adjustTextareaHeight(messagesContainer);
-          return;
-        }
-
-
+                try {
+                  parsedMessage = JSON.parse(message);
+                } catch (parseError) {
+                  console.warn("Failed to parse message as JSON:", message, parseError);
+                  continue; // skip invalid JSON
+                }
+              } else {
+                parsedMessage = message;
+              }
 
         if (parsedMessage.publicKey && (topicAdmin.length === 0 || topicAdmin.includes(message.payer))) {
           PublicKeyContainer.value = parsedMessage.publicKey;
           const messagesContainer = document.getElementById("messages-from-encrypted-chat");
           const topicSpinnerChat = `
-          <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+          <div style="display: flex; justify-content: left; align-items: left; height: 100%; ">
             <span style="margin-left: 1vw;">Loaded Public Key for topic ${topicId}</span>
           </div>`;
           messagesContainer.innerHTML = topicSpinnerChat;
           adjustTextareaHeight(messagesContainer);
           adjustTextareaHeight(PublicKeyContainer);
-          return;
+          break;
         }
       }
+      if (PublicKeyContainer.value.length < 20) {
+      const messagesContainer = document.getElementById("messages-from-encrypted-chat");
+          const topicSpinnerChat = `
+          <div style="display: flex; justify-content: left; align-items: left; height: 100%;">
+            <span style="margin-left: 1vw;">No public key found</span>
+          </div>`;
+          messagesContainer.innerHTML = topicSpinnerChat;
+          adjustTextareaHeight(messagesContainer);
+      return;
+    }
       }
     }catch (error) {
       const PublicKeySpinnerChat = `No public key found`;
@@ -3030,15 +3038,11 @@ async function loadMessagesFromEncryptedChat() {
 
 
 
+
     const profilePictures = await loadProfilePicture(); // Load profile pictures
     const usernames = await loadUsername(); // Load usernames
     const click2url = await loadCLICK2URL();
     const topic2pic = await loadTOPIC2PIC();
-
-
-    let allMessages = ''; // Initialize an empty string to hold all messages
-
-    let previousPayer = null; // Track the previous payer
 
     const topicActions = new Map();
 
@@ -3083,10 +3087,19 @@ async function loadMessagesFromEncryptedChat() {
 }
 
 
-let PrivateKey = parsePrivateKey(PrivateKeyValue);
-PrivateKeyValue = null;
+
 
 // Process messages
+let allMessages = '';
+let previousPayer = null;
+
+// Buffer for the current group
+let groupHTML = '';
+let groupOpen = false;
+let decryptedMessage = null;
+
+const PrivateKey = parsePrivateKey(PrivateKeyValue);
+
 for (let index = 0; index < result.messages.length; index++) {
   const message = result.messages[index];
   try {
@@ -3097,7 +3110,7 @@ for (let index = 0; index < result.messages.length; index++) {
 
     const payer = parsedMessage.payer || 'Unknown';
 
-    // Check if the payer owns any NFT from loadedNFTsForTopicChat
+    // ----- NFT check (unchanged) -----
     let payerHasNFT = false;
     if (loadedNFTsForTopicChat.length > 0) {
       for (const item of loadedNFTsForTopicChat) {
@@ -3108,19 +3121,13 @@ for (let index = 0; index < result.messages.length; index++) {
         }
       }
     } else {
-      payerHasNFT = true; // If no NFTs to check, allow all messages
+      payerHasNFT = true;
     }
 
     if (payerHasNFT && parsedMessage.encryptedMessage) {
       const userMessage = parsedMessage.encryptedMessage;
 
-
-
-  let decryptedMessage = null;
-
-  if (PrivateKey) {
-    decryptedMessage = await decryptMessage(userMessage, PrivateKey);
-  }
+  decryptedMessage = await decryptMessage(userMessage, PrivateKey);
 
   let fullMessage = {decryptedMessage: decryptedMessage, created: parsedMessage.created, payer: payer};
   storedMessagesEncryptedChat.push(fullMessage);
@@ -3163,71 +3170,74 @@ const payerInfo = message.payer ? `${message.payer}` : 'Anonymous';
                 ` ${click2url[message.payer].click2url}` :
                 '';
 
-const displayHeader = 
-`<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>
-${click2link ? `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor};
-text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicChatColor};">${username}</span>`}`;
+                const displayHeader = 
+        `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>` +
+        (click2link ?
+          `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor}; text-decoration: none;">${username}</a>` :
+          `<span style="color: ${usernameTopicChatColor};">${username}</span>`);
 
-if (payer !== previousPayer) {
-  allMessages += `<div style="display: flex; align-items: center; margin-top: 0.1em;">
-    <img src="${validPayerImage}" alt="Profile photo"
-    style="width: 2em; height: 2em; margin-right: 0.5em; border-radius: 1em; cursor: pointer;"
-    onclick="loadTOPIC4PIC('${message.payer}');">
-                    <div style="display: flex; flex-direction: column; justify-content: center;">
-                      <div>${displayHeader}</div>
-                      <span style="font-size: 0.8em; color: gray;">${timestamp}</span>
-                      <div style="color: ${textTopicChatColor};">${decryptedMessage}</div>
-                    </div>
-                  </div><br>`;
-} else {
-  allMessages += `<div style="display: flex; align-items: center; margin-left: 2.5em; margin-top: -1.25em;">
-                    <div style="color: ${textTopicChatColor};">${decryptedMessage}</div>
-                  </div><br>`;
+
+      // ---------------------------------------------------------
+      // GROUPING LOGIC
+      // ---------------------------------------------------------
+      if (payer !== previousPayer) {
+        // 1. Close previous group (if any)
+        if (groupOpen) {
+          groupHTML += '</div></div></div><br></div>'; // close inner divs + toolbar-group
+          allMessages += groupHTML;
+          groupHTML = '';
+          groupOpen = false;
+        }
+
+// Open NEW toolbar-group with GRID layout
+groupHTML = `<div class="toolbar-group-messages" style="position: relative; padding-left: 2.5em; min-height: 2.5em;">
+              <img src="${validPayerImage}" alt="Profile photo"
+                  style="position: absolute; left: 0.25em; top: 0.5em; width: 2em; height: 2em; border-radius: 1em; cursor: pointer;"
+                  onclick="loadTOPIC4PIC('${message.payer}');">
+                <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center; height: 0.5em;">
+                  ${displayHeader}
+                </div>`;
+
+  groupOpen = true;
 }
-      previousPayer = payer; // Update the previous payer
+
+      // 3. Append the message (first or continuation)
+      if (payer !== previousPayer) {
+        // First message of the group – already inside the header block
+        groupHTML += `<div style="color: ${textTopicChatColor}; margin-top: 0.5em;">${decryptedMessage}</div>
+                      <span style="font-size: 0.8em; color: gray;">${timestamp}</span>`;
+      } else {
+        // Continuation – indented block
+        groupHTML += `
+          <div style="display: flex; flex-direction: column; justify-content: center; margin-top: 0.5em;">
+            <div style="color: ${textTopicChatColor};">${decryptedMessage}</div>
+            <span style="font-size: 0.8em; color: gray;">${timestamp}</span>
+          </div>`;
+      }
+
+      previousPayer = payer;
     } else {
-      console.warn(`Message ${index} is missing payer or data.`);
+      continue;
     }
   } catch (messageError) {
     console.error(`Error processing message ${index}:`, messageError);
+    continue
   }
 }
 
-PrivateKey = null;
-
-  const chatContainer = document.getElementById('topic-chat-container');
-  let startY, scrollTop;
-
-  chatContainer.addEventListener('touchstart', (e) => {
-    startY = e.touches[0].pageY - chatContainer.offsetTop;
-    scrollTop = chatContainer.scrollTop;
-  });
-
-  chatContainer.addEventListener('touchmove', (e) => {
-    const y = e.touches[0].pageY - chatContainer.offsetTop;
-    const walk = (y - startY) * 2; // Adjust the multiplier for sensitivity
-    chatContainer.scrollTop = scrollTop - walk;
-    e.preventDefault(); // Prevent default touch behavior
-  });
-
-  messagesContainer.addEventListener('touchstart', (e) => {
-    startY = e.touches[0].pageY - messagesContainer.offsetTop;
-    scrollTop = messagesContainer.scrollTop;
-    e.stopPropagation(); // Stop the event from bubbling up
-  });
-
-  messagesContainer.addEventListener('touchmove', (e) => {
-    const y = e.touches[0].pageY - messagesContainer.offsetTop;
-    const walk = (y - startY) * 2; // Adjust the multiplier for sensitivity
-    messagesContainer.scrollTop = scrollTop - walk;
-    e.preventDefault(); // Prevent default touch behavior
-    e.stopPropagation(); // Stop the event from bubbling up
-  });
+// ----- Flush the very last group -----
+if (groupOpen) {
+  groupHTML += '</div></div></div><br></div>';
+  allMessages += groupHTML;
+}
 
   messagesContainer.innerHTML = allMessages;
 
   if (allMessages.length === 0) {
-    messagesContainer.innerHTML =  `<div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+    const messagesContainer = document.getElementById('messages-from-encrypted-chat');
+    messagesContainer.innerHTML = 
+    `<div style="display: flex; justify-content: left; align-items: left; height: 100%;">
        <span style="margin-left: 1vw;">No messages found</span>
       </div>`;
       return;
@@ -3238,9 +3248,15 @@ PrivateKey = null;
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
   } catch (error) {
+
     console.error("Error setting rules:", error);
   }
 }
+
+
+
+
+
 
 
 document.getElementById("topic-msgs-filter-encrypted-chat").addEventListener("click", async () => {
@@ -3962,6 +3978,19 @@ document.getElementById('go-to-top-msgs-encrypted-chat').addEventListener('click
 });
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 document.getElementById("load-msgs-from").addEventListener("click", async () => {
   try {
     let userInput = document.getElementById("topic-chat-topic-id").value.toLowerCase();
@@ -3977,7 +4006,7 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
     
     const messagesContainer = document.getElementById("messages-from-topic-chat");
     const topicSpinnerChat = `
-    <div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+    <div style="display: flex; justify-content: left; align-items: left; height: 100%; ">
       <div id="topicspinnerchat"></div>
        <span style="margin-left: 1vw;">Loading messages from ${topicId}</span>
       </div>`;
@@ -4005,7 +4034,7 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
         } catch (error){
               const messagesContainer = document.getElementById('messages-from-topic-chat');
               messagesContainer.innerHTML = 
-              `<div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+              `<div style="display: flex; justify-content: left; align-items: left; height: 100%; ">
                 <span style="margin-left: 1vw;">Invalid Topic ID</span>
                 </div>`;
               adjustTextareaHeight(messagesContainer);
@@ -4043,9 +4072,7 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
     const topic2pic = await loadTOPIC2PIC();
 
 
-    let allMessages = ''; 
 
-    let previousPayer = null; // Track the previous payer
 
     const topicActions = new Map();
 
@@ -4087,6 +4114,13 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
 
 
 // Process messages
+let allMessages = '';
+let previousPayer = null;
+
+// Buffer for the current group
+let groupHTML = '';
+let groupOpen = false;
+
 for (let index = 0; index < result.messages.length; index++) {
   const message = result.messages[index];
   try {
@@ -4097,7 +4131,7 @@ for (let index = 0; index < result.messages.length; index++) {
 
     const payer = parsedMessage.payer || 'Unknown';
 
-    // Check if the payer owns any NFT from loadedNFTsForTopicChat
+    // ----- NFT check (unchanged) -----
     let payerHasNFT = false;
     if (loadedNFTsForTopicChat.length > 0) {
       for (const item of loadedNFTsForTopicChat) {
@@ -4108,76 +4142,84 @@ for (let index = 0; index < result.messages.length; index++) {
         }
       }
     } else {
-      payerHasNFT = true; // If no NFTs to check, allow all messages
+      payerHasNFT = true;
     }
 
     if (payerHasNFT && parsedMessage.userMessage) {
       const userMessage = parsedMessage.userMessage;
-
       storedMessages.push(parsedMessage);
 
+      const payerImage = profilePictures[payer]?.url || 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
 
-const payerImage = profilePictures[payer]?.url || 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
+      // ----- URL validation (unchanged) -----
+      function isValidUrl(string) {
+        try { new URL(string); return true; } catch (_) { return false; }
+      }
+      const validPayerImage = isValidUrl(payerImage) ? payerImage : 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
 
-// Function to validate URL
-function isValidUrl(string) {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
-  }
+      const timestamp = new Date(parsedMessage.created)
+        .toLocaleString('en-US', {
+          hour12: false,
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+
+      const payerInfo = message.payer ? `${message.payer}` : 'Anonymous';
+      const username = message.payer && usernames[message.payer] ?
+        ` ${usernames[message.payer].username}` : '';
+      const click2link = message.payer && click2url[message.payer] ?
+        ` ${click2url[message.payer].click2url}` : '';
+
+      const displayHeader = 
+        `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>` +
+        (click2link ?
+          `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor}; text-decoration: none;">${username}</a>` :
+          `<span style="color: ${usernameTopicChatColor};">${username}</span>`);
+
+      // ---------------------------------------------------------
+      // GROUPING LOGIC
+      // ---------------------------------------------------------
+      if (payer !== previousPayer) {
+        // 1. Close previous group (if any)
+        if (groupOpen) {
+          groupHTML += '</div></div></div><br></div>'; // close inner divs + toolbar-group
+          allMessages += groupHTML;
+          groupHTML = '';
+          groupOpen = false;
+        }
+
+// Open NEW toolbar-group with GRID layout
+groupHTML = `<div class="toolbar-group-messages" style="position: relative; padding-left: 2.5em; min-height: 2.5em;">
+              <img src="${validPayerImage}" alt="Profile photo"
+                  style="position: absolute; left: 0.25em; top: 0.5em; width: 2em; height: 2em; border-radius: 1em; cursor: pointer;"
+                  onclick="loadTOPIC4PIC('${message.payer}');">
+                <div style="display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center; height: 0.5em;">
+                  ${displayHeader}
+                </div>`;
+
+  groupOpen = true;
 }
 
-// Check if payerImage is valid, if not use fallback
-const validPayerImage = isValidUrl(payerImage) ? payerImage : 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
+      // 3. Append the message (first or continuation)
+      if (payer !== previousPayer) {
+        // First message of the group – already inside the header block
+        groupHTML += `<div style="color: ${textTopicChatColor}; margin-top: 0.5em;">${userMessage}</div>
+                      <span style="font-size: 0.8em; color: gray;">${timestamp}</span>`;
+      } else {
+        // Continuation – indented block
+        groupHTML += `
+          <div style="display: flex; flex-direction: column; justify-content: center; margin-top: 0.5em;">
+            <div style="color: ${textTopicChatColor};">${userMessage}</div>
+            <span style="font-size: 0.8em; color: gray;">${timestamp}</span>
+          </div>`;
+      }
 
-
-const timestamp = new Date(parsedMessage.created)
-  .toLocaleString('en-US', {
-    hour12: false,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  })
-  .replace(/[/]/g, '') // Remove slashes
-  .replace(/[:]/g, ''); // Remove colons
-
-const payerInfo = message.payer ? `${message.payer}` : 'Anonymous';
-              const username = message.payer && usernames[message.payer] ?
-                ` ${usernames[message.payer].username}` :
-                '';
-
-                const click2link= message.payer && click2url[message.payer] ?
-                ` ${click2url[message.payer].click2url}` :
-                '';
-
-const displayHeader = 
-`<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>
-${click2link ? `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor};
-text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicChatColor};">${username}</span>`}`;
-
-
-if (payer !== previousPayer) {
-  allMessages += `<div style="display: flex; align-items: center; margin-top: 0.1em;">
-    <img src="${validPayerImage}" alt="Profile photo"
-    style="width: 2em; height: 2em; margin-right: 0.5em; border-radius: 1em; cursor: pointer;"
-    onclick="loadTOPIC4PIC('${message.payer}');">
-                    <div style="display: flex; flex-direction: column; justify-content: center;">
-                      <div>${displayHeader}</div>
-                      <span style="font-size: 0.8em; color: gray;">${timestamp}</span>
-                      <div style="color: ${textTopicChatColor};">${userMessage}</div>
-                    </div>
-                  </div><br>`;
-} else {
-  allMessages += `<div style="display: flex; align-items: center; margin-left: 2.5em; margin-top: -1.25em;">
-                    <div style="color: ${textTopicChatColor};">${userMessage}</div>
-                  </div><br>`;
-}
-      previousPayer = payer; // Update the previous payer
+      previousPayer = payer;
     } else {
       console.warn(`Message ${index} is missing payer or data.`);
     }
@@ -4186,13 +4228,19 @@ if (payer !== previousPayer) {
   }
 }
 
+// ----- Flush the very last group -----
+if (groupOpen) {
+  groupHTML += '</div></div></div><br></div>';
+  allMessages += groupHTML;
+}
+
   messagesContainer.innerHTML = allMessages;
 
   if (allMessages.length === 0) {
     const messagesContainer = document.getElementById('messages-from-topic-chat');
 
     messagesContainer.innerHTML = 
-     `<div style="display: flex; justify-content: left; align-items: left; height: 100%;  padding-top: 2.5vh;">
+     `<div style="display: flex; justify-content: left; align-items: left; height: 100%; ">
        <span style="margin-left: 1vw;">No messages found</span>
       </div>`; 
     return;
@@ -4208,6 +4256,22 @@ if (payer !== previousPayer) {
     console.error("Error setting rules:", error);
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 document.getElementById("topic-msgs-filter").addEventListener("click", async () => {
   const fromDateInput = document.getElementById("from-mmddyyyy").value;
@@ -4307,6 +4371,22 @@ text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicC
   messageContainer.scrollTop = messageContainer.scrollHeight;
 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 document.getElementById("topic-msgs-filter-time").addEventListener("click", async () => {
   const fromDateInput = document.getElementById("from-mmddyyyy").value;
