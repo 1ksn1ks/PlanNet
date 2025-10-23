@@ -313,6 +313,22 @@ html, body {
   animation: zoomIn 0.5s ease-in-out;
 }
 
+.pin-public-key-from-encrypted-chat {
+  display: block;
+  width: 50vw;
+  color: white;
+  border: 0.1vh solid white;
+  border-radius: 1vh;
+  font-size: 2vh;
+  box-sizing: border-box;
+  margin-bottom: 0.5vh;
+  height: 5vh;
+  background-color: transparent;
+  border: 0.1vh solid #007bff;
+  animation: zoomIn 0.5s ease-in-out;
+  margin-left: 24vw;
+}
+
 .toolbar-column-settings-btns {
   display: block;
   width: 100%;
@@ -1729,6 +1745,25 @@ button[type="submit"],
 
   <div id="options-from-topic-chat" style="display: none;">
 
+    <div style="display: flex;">
+      <button id="show-time-from-topic-chat" class="toolbar-column-first-settings-btns">Time
+      </button>
+      <button id="hide-time-from-topic-chat" style="display: none;" class="toolbar-column-first-settings-btns">Time
+      </button>
+      <button id="show-from-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">From
+      </button>
+      <button id="hide-from-from-topic-chat" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">From
+      </button>
+      <button id="show-block-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
+      </button>
+      <button id="hide-block-from-topic-chat" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
+      </button>
+    </div>
+
+  </div>
+
+  
+  <div id="time-from-topic-chat" style="display: none;">
     <label for="from-mmddyyyy-encrypted-chat" style="font-size: 2vh; padding-bottom: 0.5vh;">Month Day Year:
       <div style="display: flex; align-items: center;">
         <input type="number" id="from-mmddyyyy" class="toolbar-column" step="1" placeholder="MMDDYYYY" />
@@ -1736,18 +1771,54 @@ button[type="submit"],
         <button id="topic-msgs-filter" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
         </button>
       </div>
-    </label>
+  </label>
 
-    <label for="from-mmddyyyy-encrypted-chat" style="font-size: 2vh; padding-bottom: 0.5vh;">Hour Minute Second:
-      <div style="display: flex; align-items: center;">
-        <input type="number" id="from-hhmmss" class="toolbar-column" step="1" placeholder="HHMMSS" />
-        <input type="number" id="to-hhmmss" class="toolbar-column" step="1" placeholder="HHMMSS" style="margin-left: 1vw;" />
-        <button id="topic-msgs-filter-time" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
-        </button>
-      </div>
-    </label>
+  <label for="from-mmddyyyy-encrypted-chat" style="font-size: 2vh; padding-bottom: 0.5vh;">Hour Minute Second:
+    <div style="display: flex; align-items: center;">
+      <input type="number" id="from-hhmmss" class="toolbar-column" step="1" placeholder="HHMMSS" />
+      <input type="number" id="to-hhmmss" class="toolbar-column" step="1" placeholder="HHMMSS" style="margin-left: 1vw;" />
+      <button id="topic-msgs-filter-time" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
+      </button>
+    </div>
+  </label>
+</div>
 
-  </div>
+<div id="load-load-from-users-label-from-topic-chat" style="display: none;">
+  <label style="font-size: 2vh; padding: 0px;">Load Users:
+  </label>
+</div>
+
+<div id="load-block-from-users-label-from-topic-chat" style="display: none;">
+  <label style="font-size: 2vh; padding: 0px;">Block Users:
+  </label>
+</div>
+
+<div id="load-msgs-from-ids-from-topic-chat" style="display: none;">
+  <textarea class="toolbar-column" type="text" id="load-msgs-from-ids" placeholder="user ID or IDs separated by comma"
+  onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+  ></textarea>
+</div>
+
+
+<div id="load-load-from-users-from-topic-chat" style="display: none;"> 
+  <button id="load-msgs-from-ids-button" class="toolbar-column-first-settings-btns">Filter
+  </button>
+  <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+  </button>
+  <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+  </button>
+</div>
+
+
+
+<div id="load-block-from-users-from-topic-chat" style="display: none;">
+  <button id="load-block-from-users-button" class="toolbar-column-first-settings-btns">Filter
+  </button>
+  <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+  </button>
+  <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+  </button>
+</div>
 
     <div class="chat-container" id="messages-from-topic-chat" onclick="event.stopPropagation();">
     </div>
@@ -1810,13 +1881,35 @@ button[type="submit"],
 
     <div id="options-from-encrypted-chat" style="display: none;">
 
-  <label for="from-mmddyyyy-encrypted-chat" style="font-size: 2vh; padding-bottom: 0.5vh;">Month Day Year:
-    <div style="display: flex; align-items: center;">
-      <input type="number" id="from-mmddyyyy-encrypted-chat" class="toolbar-column" step="1" placeholder="MMDDYYYY" />
-      <input type="number" id="to-mmddyyyy-encrypted-chat" class="toolbar-column" step="1" placeholder="MMDDYYYY" style="margin-left: 1vw;" />
-      <button id="topic-msgs-filter-encrypted-chat" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
-      </button>
-    </div>
+      <div style="display: flex;">
+        <button id="show-time-from-encrypted-chat" class="toolbar-column-first-settings-btns">Time
+        </button>
+        <button id="hide-time-from-encrypted-chat" style="display: none;" class="toolbar-column-first-settings-btns">Time
+        </button>
+        <button id="show-from-from-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">From
+        </button>
+        <button id="hide-from-from-encrypted-chat" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">From
+        </button>
+        <button id="show-block-from-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
+        </button>
+        <button id="hide-block-from-encrypted-chat" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
+        </button>
+        <button id="show-pin-public-key-from-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Pin
+        </button>
+        <button id="hide-pin-public-key-from-encrypted-chat" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Pin
+        </button>
+      </div>
+
+  </div>
+
+  <div id="time-from-encrypted-chat" style="display: none;"> 
+    <label for="from-mmddyyyy-encrypted-chat" style="font-size: 2vh; padding-bottom: 0.5vh;">Month Day Year:
+      <div style="display: flex; align-items: center;">
+        <input type="number" id="from-mmddyyyy-encrypted-chat" class="toolbar-column" step="1" placeholder="MMDDYYYY" />
+        <input type="number" id="to-mmddyyyy-encrypted-chat" class="toolbar-column" step="1" placeholder="MMDDYYYY" style="margin-left: 1vw;" />
+        <button id="topic-msgs-filter-encrypted-chat" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
+        </button>
+      </div>
   </label>
 
   <label for="from-mmddyyyy-encrypted-chat" style="font-size: 2vh; padding-bottom: 0.5vh;">Hour Minute Second:
@@ -1827,19 +1920,51 @@ button[type="submit"],
       </button>
     </div>
   </label>
+</div>
 
-    <textarea class="toolbar-column" style="text-align: center; padding-top: 2vh;" type="text" id="load-msgs-from-ids-encrypted-chat" 
-    placeholder="User ID or IDs separated by comma"
-    onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-    ></textarea>
 
-    <button id="load-msgs-from-ids-encrypted-chat-button" class="toolbar-column-btns">^ Load Messages From ^
+<div id="load-load-from-users-label-from-encrypted-chat" style="display: none;">
+  <label style="font-size: 2vh; padding: 0px;">Load Users:
+  </label>
+</div>
+
+<div id="load-block-from-users-label-from-encrypted-chat" style="display: none;">
+  <label style="font-size: 2vh; padding: 0px;">Block Users:
+  </label>
+</div>
+
+<div id="load-msgs-from-ids-from-encrypted-chat" style="display: none;">
+  <textarea class="toolbar-column" type="text" id="load-msgs-from-ids" placeholder="user ID or IDs separated by comma"
+  onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+  ></textarea>
+</div>
+
+
+<div id="load-load-from-users-from-encrypted-chat" style="display: none;"> 
+  <button id="load-msgs-from-ids-button" class="toolbar-column-first-settings-btns">Filter
+  </button>
+  <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+  </button>
+  <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+  </button>
+</div>
+
+
+
+<div id="load-block-from-users-from-encrypted-chat" style="display: none;">
+  <button id="load-block-from-users-button" class="toolbar-column-first-settings-btns">Filter
+  </button>
+  <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+  </button>
+  <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+  </button>
+</div>
+
+
+<div id="pin-public-key-from-encrypted-chat" style="display: none;">
+    <button id="stack-encrypted-chat-public-key-button" class="pin-public-key-from-encrypted-chat">Pin Public Key
     </button>
-
-    <button id="stack-encrypted-chat-public-key-button" class="toolbar-column-btns" style="width: 50vw; transform: translateX(48%);">Pin Public Key
-    </button>
-
-  </div>
+</div>
 
     <div class="chat-container" id="messages-from-encrypted-chat" onclick="event.stopPropagation();">
     </div>
@@ -6073,13 +6198,212 @@ document.getElementById("show-options-from-topic-chat").addEventListener("click"
   document.getElementById("options-from-topic-chat").style.display = "block";
   document.getElementById("show-options-from-topic-chat").style.display = "none";
   document.getElementById("show-options-from-topic-chat-btn").style.display = "block";
+  showAllShowButtonsFromTopicChatOptions()
 });
 
 document.getElementById("show-options-from-topic-chat-btn").addEventListener("click", (event) => {
   document.getElementById("options-from-topic-chat").style.display = "none";
   document.getElementById("show-options-from-topic-chat-btn").style.display = "none";
   document.getElementById("show-options-from-topic-chat").style.display = "block";
+  hideAllShowButtonsFromTopicChat()
 });
+
+const allShowButtonsFromTopicChat = [
+  document.getElementById("time-from-topic-chat"),
+  document.getElementById("load-msgs-from-ids-from-topic-chat"),
+  document.getElementById("load-load-from-users-label-from-topic-chat"),
+  document.getElementById("load-load-from-users-from-topic-chat"),
+  document.getElementById("load-block-from-users-label-from-topic-chat"),
+  document.getElementById("load-block-from-users-from-topic-chat"),
+  document.getElementById("hide-time-from-topic-chat"),
+  document.getElementById("hide-from-from-topic-chat"),
+  document.getElementById("hide-block-from-topic-chat"),
+];
+
+function hideAllShowButtonsFromTopicChat() {
+  allShowButtonsFromTopicChat.forEach(element => {
+  element.style.display = "none";
+});
+}
+
+const allShowButtonsFromTopicChatOptions = [
+  document.getElementById("show-time-from-topic-chat"),
+  document.getElementById("show-from-from-topic-chat"),
+  document.getElementById("show-block-from-topic-chat"),
+];
+
+function showAllShowButtonsFromTopicChatOptions() {
+  allShowButtonsFromTopicChatOptions.forEach(element => {
+  element.style.display = "block";
+});
+}
+
+document.getElementById("show-time-from-topic-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromTopicChat()
+  showAllShowButtonsFromTopicChatOptions()
+  document.getElementById("time-from-topic-chat").style.display = "block";
+  document.getElementById("hide-time-from-topic-chat").style.display = "block";
+  document.getElementById("show-time-from-topic-chat").style.display = "none";
+});
+
+document.getElementById("hide-time-from-topic-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromTopicChat()
+  showAllShowButtonsFromTopicChatOptions()
+  document.getElementById("hide-time-from-topic-chat").style.display = "none";
+  document.getElementById("show-time-from-topic-chat").style.display = "block";
+});
+
+document.getElementById("show-from-from-topic-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromTopicChat()
+  showAllShowButtonsFromTopicChatOptions()
+  document.getElementById("load-msgs-from-ids-from-topic-chat").style.display = "block";
+  document.getElementById("load-load-from-users-label-from-topic-chat").style.display = "block";
+  document.getElementById("load-load-from-users-from-topic-chat").style.display = "flex";
+  document.getElementById("hide-from-from-topic-chat").style.display = "block";
+  document.getElementById("show-from-from-topic-chat").style.display = "none";
+});
+
+document.getElementById("hide-from-from-topic-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromTopicChat()
+  showAllShowButtonsFromTopicChatOptions()
+  document.getElementById("hide-from-from-topic-chat").style.display = "none";
+  document.getElementById("show-from-from-topic-chat").style.display = "block";
+});
+
+document.getElementById("show-block-from-topic-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromTopicChat()
+  showAllShowButtonsFromTopicChatOptions()
+  document.getElementById("load-block-from-users-from-topic-chat").style.display = "flex";
+  document.getElementById("load-msgs-from-ids-from-topic-chat").style.display = "block";
+  document.getElementById("load-block-from-users-label-from-topic-chat").style.display = "block";
+  document.getElementById("hide-block-from-topic-chat").style.display = "block";
+  document.getElementById("show-block-from-topic-chat").style.display = "none";
+});
+
+document.getElementById("hide-block-from-topic-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromTopicChat()
+  showAllShowButtonsFromTopicChatOptions()
+  document.getElementById("hide-block-from-topic-chat").style.display = "none";
+  document.getElementById("show-block-from-topic-chat").style.display = "block";
+});
+
+
+
+const allShowButtonsFromEncryptedChat = [
+  document.getElementById("time-from-encrypted-chat"),
+  document.getElementById("load-msgs-from-ids-from-encrypted-chat"),
+  document.getElementById("load-load-from-users-label-from-encrypted-chat"),
+  document.getElementById("load-load-from-users-from-encrypted-chat"),
+  document.getElementById("load-block-from-users-label-from-encrypted-chat"),
+  document.getElementById("load-block-from-users-from-encrypted-chat"),
+  document.getElementById("pin-public-key-from-encrypted-chat"),
+  document.getElementById("hide-pin-public-key-from-encrypted-chat"),
+  document.getElementById("hide-block-from-encrypted-chat"),
+  document.getElementById("hide-from-from-encrypted-chat"),
+  document.getElementById("hide-time-from-encrypted-chat"),
+];
+
+function hideAllShowButtonsFromEncryptedChat() {
+  allShowButtonsFromEncryptedChat.forEach(element => {
+  element.style.display = "none";
+});
+}
+
+const allShowButtonsFromEncryptedChatOptions = [
+  document.getElementById("show-time-from-encrypted-chat"),
+  document.getElementById("show-from-from-encrypted-chat"),
+  document.getElementById("show-block-from-encrypted-chat"),
+  document.getElementById("show-pin-public-key-from-encrypted-chat"),
+];
+
+function showAllShowButtonsFromEncryptedChatOptions() {
+  allShowButtonsFromEncryptedChatOptions.forEach(element => {
+  element.style.display = "block";
+});
+}
+
+document.getElementById("show-time-from-encrypted-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromEncryptedChat()
+  showAllShowButtonsFromEncryptedChatOptions()
+  document.getElementById("time-from-encrypted-chat").style.display = "block";
+  document.getElementById("hide-time-from-encrypted-chat").style.display = "block";
+  document.getElementById("show-time-from-encrypted-chat").style.display = "none";
+});
+
+document.getElementById("hide-time-from-encrypted-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromEncryptedChat()
+  showAllShowButtonsFromEncryptedChatOptions()
+  document.getElementById("hide-time-from-encrypted-chat").style.display = "none";
+  document.getElementById("show-time-from-encrypted-chat").style.display = "block";
+});
+
+document.getElementById("show-from-from-encrypted-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromEncryptedChat()
+  showAllShowButtonsFromEncryptedChatOptions()
+  document.getElementById("load-msgs-from-ids-from-encrypted-chat").style.display = "block";
+  document.getElementById("load-load-from-users-label-from-encrypted-chat").style.display = "block";
+  document.getElementById("load-load-from-users-from-encrypted-chat").style.display = "flex";
+  document.getElementById("hide-from-from-encrypted-chat").style.display = "block";
+  document.getElementById("show-from-from-encrypted-chat").style.display = "none";
+});
+
+document.getElementById("hide-from-from-encrypted-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromEncryptedChat()
+  showAllShowButtonsFromEncryptedChatOptions()
+  document.getElementById("hide-from-from-encrypted-chat").style.display = "none";
+  document.getElementById("show-from-from-encrypted-chat").style.display = "block";
+});
+
+document.getElementById("show-block-from-encrypted-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromEncryptedChat()
+  showAllShowButtonsFromEncryptedChatOptions()
+  document.getElementById("load-block-from-users-from-encrypted-chat").style.display = "flex";
+  document.getElementById("load-msgs-from-ids-from-encrypted-chat").style.display = "block";
+  document.getElementById("load-block-from-users-label-from-encrypted-chat").style.display = "block";
+  document.getElementById("hide-block-from-encrypted-chat").style.display = "block";
+  document.getElementById("show-block-from-encrypted-chat").style.display = "none";
+});
+
+
+document.getElementById("hide-block-from-encrypted-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromEncryptedChat()
+  showAllShowButtonsFromEncryptedChatOptions()
+  document.getElementById("hide-block-from-encrypted-chat").style.display = "none";
+  document.getElementById("show-block-from-encrypted-chat").style.display = "block";
+});
+
+document.getElementById("show-pin-public-key-from-encrypted-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromEncryptedChat()
+  showAllShowButtonsFromEncryptedChatOptions()
+  document.getElementById("pin-public-key-from-encrypted-chat").style.display = "block";
+  document.getElementById("hide-pin-public-key-from-encrypted-chat").style.display = "block";
+  document.getElementById("show-pin-public-key-from-encrypted-chat").style.display = "none";
+});
+
+document.getElementById("hide-pin-public-key-from-encrypted-chat").addEventListener("click", (event) => {
+  hideAllShowButtonsFromEncryptedChat()
+  showAllShowButtonsFromEncryptedChatOptions()
+  document.getElementById("hide-pin-public-key-from-encrypted-chat").style.display = "none";
+  document.getElementById("show-pin-public-key-from-encrypted-chat").style.display = "block";
+  document.getElementById("encrypted-chat-public-key").style.display = "block";
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 document.getElementById("toggle-toolbar-btn-btn").addEventListener("click", (event) => {
   event.stopPropagation();
@@ -6101,12 +6425,14 @@ document.getElementById("toggle-encrypted-chat-btn").addEventListener("click", (
 });
 
 document.getElementById("show-options-from-encrypted-chat").addEventListener("click", (event) => {
+  showAllShowButtonsFromEncryptedChatOptions()
   document.getElementById("options-from-encrypted-chat").style.display = "block";
   document.getElementById("show-options-from-encrypted-chat").style.display = "none";
   document.getElementById("show-options-from-encrypted-chat-btn").style.display = "block";
 });
 
 document.getElementById("show-options-from-encrypted-chat-btn").addEventListener("click", (event) => {
+  hideAllShowButtonsFromEncryptedChat()
   document.getElementById("options-from-encrypted-chat").style.display = "none";
   document.getElementById("show-options-from-encrypted-chat-btn").style.display = "none";
   document.getElementById("show-options-from-encrypted-chat").style.display = "block";
@@ -9120,7 +9446,7 @@ async function loadButtonInputSettings() {
           button.style.color = inputFontColor;
       });
 
-      const ButtonInputButtons = document.querySelectorAll('.toolbar-column-btns, .toolbar-column-first-settings-btns, .toolbar-column-settings-btns');
+      const ButtonInputButtons = document.querySelectorAll('.toolbar-column-btns, .toolbar-column-first-settings-btns, .toolbar-column-settings-btns, .pin-public-key-from-encrypted-chat');
       ButtonInputButtons.forEach(button => {
           button.style.borderColor = buttonBorderColor;
           button.style.opacity = transparencyButtonInput;
