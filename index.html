@@ -425,8 +425,8 @@ html, body {
   width: 100% !important;
   height: 5vh;
   color: white;
-  padding-left: 0.15em;
-  padding-right: 0.15em;
+  padding-left: 0.1em;
+  padding-right: 0.1em;
   padding-top: 0.1em;
   border-radius: 1vh;
   font-size: 2vh;
@@ -3158,8 +3158,6 @@ const timestamp = new Date(parsedMessage.created)
     minute: '2-digit',
     second: '2-digit'
   })
-  .replace(/[/]/g, '') // Remove slashes
-  .replace(/[:]/g, ''); // Remove colons
 
 const payerInfo = message.payer ? `${message.payer}` : 'Anonymous';
               const username = message.payer && usernames[message.payer] ?
@@ -3171,7 +3169,7 @@ const payerInfo = message.payer ? `${message.payer}` : 'Anonymous';
                 '';
 
                 const displayHeader = 
-        `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>` +
+        `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>&nbsp;` +
         (click2link ?
           `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor}; text-decoration: none;">${username}</a>` :
           `<span style="color: ${usernameTopicChatColor};">${username}</span>`);
@@ -4175,7 +4173,7 @@ for (let index = 0; index < result.messages.length; index++) {
         ` ${click2url[message.payer].click2url}` : '';
 
       const displayHeader = 
-        `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>` +
+        `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>&nbsp;` +
         (click2link ?
           `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor}; text-decoration: none;">${username}</a>` :
           `<span style="color: ${usernameTopicChatColor};">${username}</span>`);
