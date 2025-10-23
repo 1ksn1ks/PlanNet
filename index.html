@@ -955,6 +955,8 @@ button[type="submit"],
   </button>
   <button id="topic-chat-btn" class="options-and-topic" style="margin-left: 1vw;">TOPIC CHAT
   </button>
+  <button id="toggle-encrypted-chat-btn" class="options-and-topic" style="margin-left: 1vw;">E2EE CHAT
+  </button>
 </div>
 
 
@@ -970,8 +972,6 @@ button[type="submit"],
 <button id="toggle-toolbar-btn" class="menu_buttons" style="top: 20vh;">TOOLBAR
 </button>
 
-<button id="toggle-encrypted-chat-btn" class="menu_buttons" style="top: 24.5vh;">E2ECHAT
-</button>
 
 <div id="toolbar" class="toolbar" style="display: none; flex-direction: column;">
   <div class="toolbar-column" id="Edit_Profile">Edit
@@ -1884,13 +1884,13 @@ button[type="submit"],
   </div>
   <div class="toolbar-column" id="change-crosshair-settings">Crosshair Settings
   </div>
-  <div class="toolbar-column" id="change-color-of-main-buttons">Color of Main Buttons
-  </div>
   <div class="toolbar-column" id="change-marker-options">Marker Options
   </div>
-  <div class="toolbar-column" id="change-button-input-settings">Button/Input Settings
+  <div class="toolbar-column" id="change-color-of-main-buttons">Main Buttons
   </div>
-  <div class="toolbar-column" id="change-topic-chat-options">Topic chat Colors
+  <div class="toolbar-column" id="change-button-input-settings">Button/Input/Containers
+  </div>
+  <div class="toolbar-column" id="change-topic-chat-options">Chat settings
   </div>
 </div>
 
@@ -2269,6 +2269,11 @@ button[type="submit"],
       <label style="font-size: 1.5vh;">OnHover Button Color:</label>
       <input type="color" id="onhover-button-color" class="yourfov" value="#007bff">
     </div>
+
+    <div>
+      <label style="font-size: 1.5vh;">Rules Container Color:</label>
+      <input type="color" id="rules-container-color" class="yourfov" value="#007bff">
+    </div>
     
   </div>
 </div>
@@ -2302,8 +2307,13 @@ button[type="submit"],
     </div>
 
     <div>
-      <label style="font-size: 1.5vh;">Text Container Color:</label>
-      <input type="color" id="text-container-topic-chat-color" class="yourfov" value="#ffffff">
+      <label style="font-size: 1.5vh;">Outer Container Color:</label>
+      <input type="color" id="text-container-topic-chat-color" class="yourfov" value="#007bff">
+    </div>
+
+    <div>
+      <label style="font-size: 1.5vh;">Inner Container Color:</label>
+      <input type="color" id="inner-container-topic-chat-color" class="yourfov" value="#ffc107">
     </div>
 
   </div>
@@ -2768,7 +2778,7 @@ let storedMessages = [];
 let accidTopicChatColor = '#800080';
 let usernameTopicChatColor = '#ffffff';
 let textTopicChatColor = '#ffffff';
-
+let innerContainerTopicChatColor = '#ffc107';
 
 function makeScrollable(el) {
   let startY = 0, startScroll = 0;
@@ -3188,7 +3198,7 @@ const payerInfo = message.payer ? `${message.payer}` : 'Anonymous';
         }
 
 // Open NEW toolbar-group with GRID layout
-groupHTML = `<div class="toolbar-group-messages" style="position: relative; padding-left: 2.5em; min-height: 2.5em;">
+groupHTML = `<div class="toolbar-group-messages" style="position: relative; padding-left: 2.5em; min-height: 2.5em; border-color: ${innerContainerTopicChatColor};">
               <img src="${validPayerImage}" alt="Profile photo"
                   style="position: absolute; left: 0.25em; top: 0.5em; width: 2em; height: 2em; border-radius: 1em; cursor: pointer;"
                   onclick="loadTOPIC4PIC('${message.payer}');">
@@ -3204,13 +3214,13 @@ groupHTML = `<div class="toolbar-group-messages" style="position: relative; padd
       if (payer !== previousPayer) {
         // First message of the group – already inside the header block
         groupHTML += `<div style="color: ${textTopicChatColor}; margin-top: 0.5em;">${decryptedMessage}</div>
-                      <span style="font-size: 0.8em; color: gray;">${timestamp}</span>`;
+                      <span style="font-size: 0.5em; color: gray;">${timestamp}</span>`;
       } else {
         // Continuation – indented block
         groupHTML += `
           <div style="display: flex; flex-direction: column; justify-content: center; margin-top: 0.5em;">
             <div style="color: ${textTopicChatColor};">${decryptedMessage}</div>
-            <span style="font-size: 0.8em; color: gray;">${timestamp}</span>
+            <span style="font-size: 0.5em; color: gray;">${timestamp}</span>
           </div>`;
       }
 
@@ -4191,7 +4201,7 @@ for (let index = 0; index < result.messages.length; index++) {
         }
 
 // Open NEW toolbar-group with GRID layout
-groupHTML = `<div class="toolbar-group-messages" style="position: relative; padding-left: 2.5em; min-height: 2.5em;">
+groupHTML = `<div class="toolbar-group-messages" style="position: relative; padding-left: 2.5em; min-height: 2.5em; border-color: ${innerContainerTopicChatColor};">
               <img src="${validPayerImage}" alt="Profile photo"
                   style="position: absolute; left: 0.25em; top: 0.5em; width: 2em; height: 2em; border-radius: 1em; cursor: pointer;"
                   onclick="loadTOPIC4PIC('${message.payer}');">
@@ -4207,13 +4217,13 @@ groupHTML = `<div class="toolbar-group-messages" style="position: relative; padd
       if (payer !== previousPayer) {
         // First message of the group – already inside the header block
         groupHTML += `<div style="color: ${textTopicChatColor}; margin-top: 0.5em;">${userMessage}</div>
-                      <span style="font-size: 0.8em; color: gray;">${timestamp}</span>`;
+                      <span style="font-size: 0.5em; color: gray;">${timestamp}</span>`;
       } else {
         // Continuation – indented block
         groupHTML += `
           <div style="display: flex; flex-direction: column; justify-content: center; margin-top: 0.5em;">
             <div style="color: ${textTopicChatColor};">${userMessage}</div>
-            <span style="font-size: 0.8em; color: gray;">${timestamp}</span>
+            <span style="font-size: 0.5em; color: gray;">${timestamp}</span>
           </div>`;
       }
 
@@ -5719,12 +5729,14 @@ function OpenToggleToolbar() {
   document.getElementById("main-toggle-btn").style.display = "none";
   document.getElementById("toggle-toolbar-btn-btn").style.display = "block";
   document.getElementById("topic-chat-btn").style.display = "block";
+  document.getElementById("toggle-encrypted-chat-btn").style.display = "block";
 }
 
 function OpenToggleYourFov() {
   document.getElementById("main-toggle-btn").style.display = "none";
   document.getElementById("toggle-your-fov-btn-btn").style.display = "block";
   document.getElementById("topic-chat-btn").style.display = "block";
+  document.getElementById("toggle-encrypted-chat-btn").style.display = "block";
 }
   
 
@@ -5732,8 +5744,7 @@ const everythinginsideoptionsbuttons = [
   "toggle-controls-btn",
   "toggle-your-fov-btn",
   "toggle-visibility-controls-btn",
-  "toggle-toolbar-btn",
-  "toggle-encrypted-chat-btn"
+  "toggle-toolbar-btn"
 ];
 
 const firstlayercolumns = [
@@ -5792,6 +5803,7 @@ function CloseALL() {
   });
   document.getElementById("main-toggle-btn").style.display = "block";
   document.getElementById("topic-chat-btn").style.display = "block";
+  document.getElementById("toggle-encrypted-chat-btn").style.display = "block";
   document.getElementById("toggle-toolbar-btn-btn").style.display = "none";
   document.getElementById("toggle-your-fov-btn-btn").style.display = "none";
   if (popIsOpen === true) {
@@ -5822,6 +5834,7 @@ document.getElementById("main-toggle-btn").addEventListener("click", function(ev
   activeMarkerPopups.forEach((popup) => popup.remove());
   document.getElementById("main-toggle-btn").style.display = "none";
   document.getElementById("topic-chat-btn").style.display = "none";
+  document.getElementById("toggle-encrypted-chat-btn").style.display = "none";
   everythinginsideoptionsbuttons.forEach(buttonId => {
     document.getElementById(buttonId).style.display = "flex";
   });
@@ -6078,6 +6091,8 @@ document.getElementById("toggle-toolbar-btn-btn").addEventListener("click", (eve
 document.getElementById("toggle-encrypted-chat-btn").addEventListener("click", (event) => {
   event.stopPropagation();
   CloseALL();
+  activePolygonPopups.forEach((popup) => popup.remove());
+  activeMarkerPopups.forEach((popup) => popup.remove());
   document.getElementById("encrypted-chat-container").style.display = "block";
   document.getElementById("options-from-encrypted-chat").style.display = "none";
   document.getElementById("show-options-from-encrypted-chat").style.display = "block";
@@ -9004,6 +9019,7 @@ document.getElementById("save-button-button-input").addEventListener("click", as
         const ButtonBorderColor = document.getElementById("button-border-color").value;
         const ButtonFontColor = document.getElementById("button-font-color").value;
         const OnhoverButtonColor = document.getElementById("onhover-button-color").value;
+        const RulesContainerColor = document.getElementById("rules-container-color").value;
         const FontForButtonInput = Math.min(parseFloat(document.getElementById("font-for-button-input").value) || 1.5, 10);
         const TransparencyButtonInput = Math.min(parseFloat(document.getElementById("transparency-button-input").value) || 0.5, 1);
 
@@ -9014,6 +9030,7 @@ document.getElementById("save-button-button-input").addEventListener("click", as
                 ButtonBorderColor: ButtonBorderColor,
                 ButtonFontColor: ButtonFontColor,
                 OnhoverButtonColor: OnhoverButtonColor,
+                RulesContainerColor: RulesContainerColor,
                 FontForButtonInput: FontForButtonInput,
                 TransparencyButtonInput: TransparencyButtonInput,
             }
@@ -9052,7 +9069,7 @@ async function loadButtonInputSettings() {
       // Check if the last message has valid data
       if (lastMessage && lastMessage.data) {
           // Extract relevant data and clamp to max 255
-          const { InputBorderColor, InputFontColor, ButtonBorderColor, ButtonFontColor, OnhoverButtonColor, FontForButtonInput, TransparencyButtonInput } = lastMessage.data;
+          const { InputBorderColor, InputFontColor, ButtonBorderColor, ButtonFontColor, OnhoverButtonColor, FontForButtonInput, TransparencyButtonInput, RulesContainerColor } = lastMessage.data;
 
           accountObjectSettings.push({
               InputBorderColor,
@@ -9060,6 +9077,7 @@ async function loadButtonInputSettings() {
               ButtonBorderColor,
               ButtonFontColor,
               OnhoverButtonColor,
+              RulesContainerColor,
               FontForButtonInput,
               TransparencyButtonInput,
           });
@@ -9070,6 +9088,7 @@ async function loadButtonInputSettings() {
           document.getElementById("button-border-color").value = ButtonBorderColor;
           document.getElementById("button-font-color").value = ButtonFontColor;
           document.getElementById("onhover-button-color").value = OnhoverButtonColor;
+          document.getElementById("rules-container-color").value = RulesContainerColor;
           document.getElementById("font-for-button-input").value = FontForButtonInput;
           document.getElementById("transparency-button-input").value = TransparencyButtonInput;
           updateButtonInputSettings();
@@ -9089,6 +9108,7 @@ async function loadButtonInputSettings() {
       const buttonFontColor = document.getElementById("button-font-color").value;
       const onhoverButtonColor = document.getElementById("onhover-button-color").value;
       const buttonBorderColor = document.getElementById("button-border-color").value;
+      const rulesContainerColor = document.getElementById("rules-container-color").value;
       const fontForButtonInput = Math.min(parseFloat(document.getElementById("font-for-button-input").value) || 1.5, 10);
       const transparencyButtonInput = Math.min(parseFloat(document.getElementById("transparency-button-input").value) || 0.5, 1);
 
@@ -9114,6 +9134,11 @@ async function loadButtonInputSettings() {
               button.style.color = buttonFontColor;
           });
       });
+
+      const rulesContainer = document.querySelectorAll('.toolbar-column-loaded-rules');
+      rulesContainer.forEach(rule => {
+        rule.style.borderColor = rulesContainerColor;
+      });
   }
 
   const everythingInsdieButtonInput = [
@@ -9122,6 +9147,7 @@ async function loadButtonInputSettings() {
     document.getElementById("button-border-color"),
     document.getElementById("button-font-color"),
     document.getElementById("onhover-button-color"),
+    document.getElementById("rules-container-color"),
     document.getElementById("font-for-button-input"),
     document.getElementById("transparency-button-input"),
   ]
@@ -9140,6 +9166,7 @@ document.getElementById("save-topic-chat-settings").addEventListener("click", as
         const usernameTopicChatColor = document.getElementById("username-topic-chat-color").value;
         const textTopicChatColor = document.getElementById("text-topic-chat-color").value;
         const textContainerTopicChatColor = document.getElementById("text-container-topic-chat-color").value;
+        const innerContainerTopicChatColor = document.getElementById("inner-container-topic-chat-color").value;
 
         const messageData = {
             data: {
@@ -9147,6 +9174,7 @@ document.getElementById("save-topic-chat-settings").addEventListener("click", as
                 usernameTopicChatColor: usernameTopicChatColor,
                 textTopicChatColor: textTopicChatColor,
                 textContainerTopicChatColor: textContainerTopicChatColor,
+                innerContainerTopicChatColor: innerContainerTopicChatColor,
             }
         };
 
@@ -9166,7 +9194,7 @@ document.getElementById("save-topic-chat-settings").addEventListener("click", as
 
 
 async function loadTopicChatSettings() {
-    const topicId = "0.0.9798078";
+    const topicId = "0.0.9798064";
     const accountObjectSettings = []; // Initialize an empty array to store account Settings
     try {
         const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
@@ -9184,7 +9212,7 @@ async function loadTopicChatSettings() {
         // Check if the last message has valid data
         if (lastMessage && lastMessage.data) {
             // Extract relevant data and clamp to max 255
-            const { accidTopicChatColor, usernameTopicChatColor, textTopicChatColor, textContainerTopicChatColor } = lastMessage.data;
+            const { accidTopicChatColor, usernameTopicChatColor, textTopicChatColor, textContainerTopicChatColor, innerContainerTopicChatColor } = lastMessage.data;
 
 
             accountObjectSettings.push({
@@ -9192,12 +9220,16 @@ async function loadTopicChatSettings() {
                 usernameTopicChatColor: usernameTopicChatColor,
                 textTopicChatColor: textTopicChatColor,
                 textContainerTopicChatColor: textContainerTopicChatColor,
+                innerContainerTopicChatColor: innerContainerTopicChatColor,
             });
+
+            console.log(accountObjectSettings);
 
             document.getElementById("accid-topic-chat-color").value = accidTopicChatColor;
             document.getElementById("username-topic-chat-color").value = usernameTopicChatColor;
             document.getElementById("text-topic-chat-color").value = textTopicChatColor;
             document.getElementById("text-container-topic-chat-color").value = textContainerTopicChatColor;
+            document.getElementById("inner-container-topic-chat-color").value = innerContainerTopicChatColor;
 
             updateTopicChatSettings();
         }
@@ -9215,18 +9247,25 @@ async function loadTopicChatSettings() {
     const newUsernameTopicChatColor = document.getElementById("username-topic-chat-color").value;
     const newTextTopicChatColor = document.getElementById("text-topic-chat-color").value;
     const newTextContainerTopicChatColor = document.getElementById("text-container-topic-chat-color").value;
+    const newInnerContainerTopicChatColor = document.getElementById("inner-container-topic-chat-color").value;
 
     accidTopicChatColor = newAccidTopicChatColor;
     usernameTopicChatColor = newUsernameTopicChatColor;
     textTopicChatColor = newTextTopicChatColor;
     textContainerTopicChatColor = newTextContainerTopicChatColor;
+    innerContainerTopicChatColor = newInnerContainerTopicChatColor;
 
     const topicChatSettings = document.querySelectorAll('.chat-container');
     topicChatSettings.forEach(topicChat => {
         topicChat.style.borderColor = textContainerTopicChatColor;
     });
 
-    return { accidTopicChatColor, usernameTopicChatColor, textTopicChatColor };
+    const topicChatSettingsInner = document.querySelectorAll('.toolbar-group-messages');
+    topicChatSettingsInner.forEach(topicChatInner => {
+        topicChatInner.style.borderColor = innerContainerTopicChatColor;
+    });
+
+    return { accidTopicChatColor, usernameTopicChatColor, textTopicChatColor, textContainerTopicChatColor, innerContainerTopicChatColor };
 
 }
 
@@ -9234,6 +9273,8 @@ document.getElementById("accid-topic-chat-color").addEventListener("input", (eve
 document.getElementById("username-topic-chat-color").addEventListener("input", (event) => {updateTopicChatSettings();});
 document.getElementById("text-topic-chat-color").addEventListener("input", (event) => {updateTopicChatSettings();});
 document.getElementById("text-container-topic-chat-color").addEventListener("input", (event) => {updateTopicChatSettings();});
+document.getElementById("inner-container-topic-chat-color").addEventListener("input", (event) => {updateTopicChatSettings();});
+
 
 
 async function loadUfoModel(modelUrl) {
