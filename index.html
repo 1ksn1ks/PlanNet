@@ -2530,7 +2530,7 @@ button[type="submit"],
           setInterval(() => {
     document.getElementById('logs').innerHTML = 
       window.HCS_LOGS.map((l, i) => `${l.name}`).join('<br>');
-  }, 50);
+  }, 500);
 
 
       window.HCSReady = async function () {
@@ -2764,7 +2764,7 @@ function trackOpacity() {
             } else {
             }
           }
-        }, 500); // Check every 500ms
+        }, 50); // Check every 50ms
 
         setTimeout(() => {
           if (!toolbarload) {
