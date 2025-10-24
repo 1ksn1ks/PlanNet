@@ -5359,6 +5359,16 @@ async function handleAllMessages() {
       topicId = userInput || initialTopicId;
     }
 
+    const loaded_text_area = document.getElementById("loaded-topics");
+    loaded_text_area.value = '';
+    const topicSpinnerChat = `
+    <div style="display: flex; justify-content: left; align-items: left; padding-top: 1vh; padding-bottom: 1vh;">
+      <div id="topicspinnerchat"></div>
+       <span style="margin-left: 1vw;">loading messages from ${topicId}</span>
+      </div>`;
+    loaded_text_area.innerHTML = topicSpinnerChat;
+    adjustTextareaHeight(loaded_text_area);
+
 
 
     const topicAdmin = [];
@@ -5397,17 +5407,6 @@ try{
     let addedTopics = [];
     let removedTopics = [];
     let loadedTopicsIds = [];
-
-    const loaded_text_area = document.getElementById("loaded-topics");
-    loaded_text_area.value = '';
-    const topicSpinnerChat = `
-    <div style="display: flex; justify-content: left; align-items: left; padding-top: 1vh; padding-bottom: 1vh;">
-      <div id="topicspinnerchat"></div>
-       <span style="margin-left: 1vw;">loading messages from ${topicId}</span>
-      </div>`;
-    loaded_text_area.innerHTML = topicSpinnerChat;
-    adjustTextareaHeight(loaded_text_area);
-
 
 
     const result = await sdk.getMessages(topicId);
