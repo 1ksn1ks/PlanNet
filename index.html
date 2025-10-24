@@ -529,9 +529,11 @@ html, body {
   background-color: rgba(51, 51, 51, 0.0);
   z-index: 5003;
   backdrop-filter: blur(5px);
+  margin-top: 0.3vh;
+  margin-left: 0.3vh;
 }
 
-#connect-wallet-btn {
+.connect-wallet-buttons {
   background-color: #ffc107;
   color: white;
   border: none;
@@ -540,8 +542,8 @@ html, body {
   cursor: pointer;
   font-size: 1.5vh;
   text-shadow: 0 0 0.5vh black;
-  margin-top: 0.3vh;
-  margin-left: 0.3vh;
+  margin-right: 0.5vh;
+  animation: zoomIn 0.5s ease-in-out;
 }
 
 #disconnect-wallet-btn {
@@ -554,8 +556,6 @@ html, body {
   cursor: pointer;
   font-size: 1.5vh;
   text-shadow: 0 0 0.5vh black;
-  margin-top: 0.3vh;
-  margin-left: 0.3vh;
 }
 
 .account-info {
@@ -1140,25 +1140,9 @@ button[type="submit"],
       </button>
     </div>
 
-    <div id="load-msgs-from-ids" style="display: none;">
-      <textarea class="toolbar-column" type="text" id="load-msgs-from-ids" placeholder="user ID or IDs separated by comma"
-      onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
-      ></textarea>
-    </div>
-
     <div id="load-load-from-users-label" style="display: none;">
-      <label style="font-size: 2vh; padding: 0px;">Load Users:
+      <label style="font-size: 2vh; padding: 0px;">Load From Users:
       </label>
-    </div>
-
-
-    <div id="load-load-from-users" style="display: none; flex-direction: row;"> 
-      <button id="load-msgs-from-ids-button" class="toolbar-column-first-settings-btns">Filter
-      </button>
-      <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
-      </button>
-      <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
-      </button>
     </div>
 
     <div id="load-block-from-users-label" style="display: none;">
@@ -1166,12 +1150,36 @@ button[type="submit"],
       </label>
     </div>
 
+    <div id="load-msgs-from-ids-load-column" style="display: none;">
+      <textarea class="toolbar-column" type="text" id="load-msgs-from-ids" placeholder="user ID or IDs separated by comma"
+      onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+      ></textarea>
+    </div>
+
+    <div id="load-blocks-from-ids-load-column" style="display: none;">
+      <textarea class="toolbar-column" type="text" id="load-blocks-from-ids" placeholder="user ID or IDs separated by comma"
+      onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+      ></textarea>
+    </div>
+
+
+    <div id="load-load-from-users" style="display: none; flex-direction: row;"> 
+      <button id="load-msgs-from-ids-button" class="toolbar-column-first-settings-btns">Filter
+      </button>
+      <button id="save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+      </button>
+      <button id="load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+      </button>
+    </div>
+
+
+
     <div id="load-block-from-users" style="display: none;">
       <button id="load-block-from-users-button" class="toolbar-column-first-settings-btns">Filter
       </button>
-      <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+      <button id="save-blocks-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
       </button>
-      <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+      <button id="load-blocks-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
       </button>
     </div>
 
@@ -1682,10 +1690,16 @@ button[type="submit"],
 
 <div class="flex-container">
   <div id="wallet-section">
-    <button id="connect-wallet-btn">Create Wallet
-    </button>
     <button id="disconnect-wallet-btn">Disconnect
     </button>
+    <div style="display: flex;" id="wallet-buttons-container">
+    <button id="wallet-wallet-btn" class="connect-wallet-buttons" style="display: none;">Wallet
+    </button>
+    <button id="connect-wallet-btn" class="connect-wallet-buttons" style="display: none;" >Connect
+    </button>
+    <button id="connect-new-wallet-btn" class="connect-wallet-buttons" style="display: none;">Create
+    </button>
+    </div>
     <div class="account-info">
     <div id="account-id" style="margin-left: 0.5vh;"></div>
     </div>
@@ -1784,7 +1798,7 @@ button[type="submit"],
 </div>
 
 <div id="load-load-from-users-label-from-topic-chat" style="display: none;">
-  <label style="font-size: 2vh; padding: 0px;">Load Users:
+  <label style="font-size: 2vh; padding: 0px;">Load From Users:
   </label>
 </div>
 
@@ -1794,7 +1808,13 @@ button[type="submit"],
 </div>
 
 <div id="load-msgs-from-ids-from-topic-chat" style="display: none;">
-  <textarea class="toolbar-column" type="text" id="load-msgs-from-ids" placeholder="user ID or IDs separated by comma"
+  <textarea class="toolbar-column" type="text" id="load-msgs-from-ids-topic-chat" placeholder="user ID or IDs separated by comma"
+  onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+  ></textarea>
+</div>
+
+<div id="load-blocks-from-ids-from-topic-chat" style="display: none;">
+  <textarea class="toolbar-column" type="text" id="load-blocks-from-ids-topic-chat" placeholder="user ID or IDs separated by comma"
   onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
   ></textarea>
 </div>
@@ -1803,9 +1823,9 @@ button[type="submit"],
 <div id="load-load-from-users-from-topic-chat" style="display: none;"> 
   <button id="load-msgs-from-ids-button" class="toolbar-column-first-settings-btns">Filter
   </button>
-  <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+  <button id="save-filters-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
   </button>
-  <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+  <button id="load-filters-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
   </button>
 </div>
 
@@ -1814,9 +1834,9 @@ button[type="submit"],
 <div id="load-block-from-users-from-topic-chat" style="display: none;">
   <button id="load-block-from-users-button" class="toolbar-column-first-settings-btns">Filter
   </button>
-  <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+  <button id="save-blocks-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
   </button>
-  <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+  <button id="load-blocks-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
   </button>
 </div>
 
@@ -1924,7 +1944,7 @@ button[type="submit"],
 
 
 <div id="load-load-from-users-label-from-encrypted-chat" style="display: none;">
-  <label style="font-size: 2vh; padding: 0px;">Load Users:
+  <label style="font-size: 2vh; padding: 0px;">Load From Users:
   </label>
 </div>
 
@@ -1934,29 +1954,35 @@ button[type="submit"],
 </div>
 
 <div id="load-msgs-from-ids-from-encrypted-chat" style="display: none;">
-  <textarea class="toolbar-column" type="text" id="load-msgs-from-ids" placeholder="user ID or IDs separated by comma"
+  <textarea class="toolbar-column" type="text" id="load-msgs-from-ids-encrypted-chat" placeholder="user ID or IDs separated by comma"
+  onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
+  ></textarea>
+</div>
+
+<div id="load-blocks-from-ids-from-encrypted-chat" style="display: none;">
+  <textarea class="toolbar-column" type="text" id="load-blocks-from-ids-encrypted-chat" placeholder="user ID or IDs separated by comma"
   onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
   ></textarea>
 </div>
 
 
 <div id="load-load-from-users-from-encrypted-chat" style="display: none;"> 
-  <button id="load-msgs-from-ids-button" class="toolbar-column-first-settings-btns">Filter
+  <button id="load-msgs-from-ids-button-encrypted-chat" class="toolbar-column-first-settings-btns">Filter
   </button>
-  <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+  <button id="load-save-filters-from-users-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
   </button>
-  <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+  <button id="load-load-filters-from-users-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
   </button>
 </div>
 
 
 
 <div id="load-block-from-users-from-encrypted-chat" style="display: none;">
-  <button id="load-block-from-users-button" class="toolbar-column-first-settings-btns">Filter
+  <button id="load-block-from-users-button-encrypted-chat" class="toolbar-column-first-settings-btns">Filter
   </button>
-  <button id="load-save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
+  <button id="load-save-blocks-from-users-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
   </button>
-  <button id="load-load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
+  <button id="load-load-blocks-from-users-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
   </button>
 </div>
 
@@ -2760,7 +2786,7 @@ trackOpacity(); // Start the process
 
 
 async function updateAccountInfo(accountId, balance) {
-  document.getElementById("connect-wallet-btn").style.display ="block";
+  document.getElementById("wallet-wallet-btn").style.display ="block";
   document.getElementById("disconnect-wallet-btn").style.display ="none";
   document.getElementById("account-id").textContent = `NO ID (mail is optional)`;
   connectWallet();
@@ -2770,7 +2796,7 @@ async function updateAccountInfo(accountId, balance) {
 
 async function loadProfile(accountId, balance) {
   document.getElementById("account-id").textContent = `Acc: ${accountId}`;
-  document.getElementById("connect-wallet-btn").style.display = "none";
+  document.getElementById("wallet-wallet-btn").style.display = "none";
   document.getElementById("disconnect-wallet-btn").style.display ="block";
   globalAccountId = accountId;
   const profileObjectUrl = await loadProfileObject();
@@ -2926,17 +2952,17 @@ function makeScrollable(el) {
 
   // ------------------------------------------------- START
   const start = (e, clientY, isTouch = false) => {
-    // Only allow starting if it's a real press (mouse or touch)
-    mouseDownTarget = e.target;
-    startY = clientY;
-    startScroll = el.scrollTop;
-    isDragging = false;
-    hasMoved = false;
+  mouseDownTarget = e.target;
+  startY = clientY;
+  startScroll = el.scrollTop;
+  startTime = performance.now(); // Add timestamp
+  isDragging = false;
+  hasMoved = false;
 
-    e.stopPropagation();
+  e.stopPropagation();
 
-    if (isTouch) disableSelection();
-  };
+  if (isTouch) disableSelection();
+};
 
   // ------------------------------------------------- MOVE
   const move = (e, clientY, isTouch = false) => {
@@ -2963,15 +2989,18 @@ function makeScrollable(el) {
 
   // ------------------------------------------------- END
   const end = (e, isTouch = false) => {
-    if (isDragging) enableSelection();
+  if (isDragging) enableSelection();
 
-    // Only simulate click on mouse + no movement
-    if (!isTouch && !hasMoved && mouseDownTarget) {
+  // Only simulate click on mouse + no movement + sufficient time
+  if (!isTouch && !hasMoved && mouseDownTarget) {
+    const timeSinceStart = performance.now() - startTime; // Track start time
+    if (timeSinceStart > 300) { // Adjust threshold as needed
       mouseDownTarget.click();
     }
+  }
 
-    cleanup();
-  };
+  cleanup();
+};
 
   const cleanup = () => {
     // Remove global listeners
@@ -3103,7 +3132,8 @@ async function loadMessagesFromEncryptedChat() {
     }
 
     const result = await window.HashinalsWalletConnectSDK.getMessages(topicId);
-
+    allLoadedMessagesEncryptedChat = [];
+    allLoadedMessagesEncryptedChat.push(result);
 
 
     if (!result || !Array.isArray(result.messages)) {
@@ -4118,8 +4148,9 @@ document.getElementById('go-to-top-msgs-encrypted-chat').addEventListener('click
 
 
 
-
-
+const allLoadedMessages = [];
+const allLoadedMessagesTopicChat = [];
+const allLoadedMessagesEncryptedChat = [];
 
 
 
@@ -4191,8 +4222,8 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
 
 
         const result = sanitizeWalletMessages(uniqueMessages);
-
-
+        allLoadedMessagesTopicChat = [];
+        allLoadedMessagesTopicChat.push(result);
 
         if (!result || !Array.isArray(result.messages)) {
           console.log("No messages found or result is not an array.");
@@ -4865,8 +4896,25 @@ async function main() {
 
 main();
 
-document.getElementById("connect-wallet-btn").addEventListener("click", () => {
+document.getElementById("connect-new-wallet-btn").addEventListener("click", () => {
   window.open("https://wallet.hashpack.app", "_blank");
+});
+
+document.getElementById("connect-wallet-btn").addEventListener("click", () => {
+  window.location.reload();
+  localStorage.clear();
+  sessionStorage.clear();
+  document.cookie = "accountId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  document.cookie = "balance=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  document.cookie = "privateKey=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  document.cookie = "publicKey=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+});
+
+document.getElementById("wallet-wallet-btn").addEventListener("click", () => {
+  document.getElementById("connect-new-wallet-btn").style.display = "block";
+  document.getElementById("connect-wallet-btn").style.display = "block";
+  document.getElementById("disconnect-wallet-btn").style.display = "none";
+  document.getElementById("wallet-wallet-btn").style.display = "none";
 });
 
 document.getElementById("disconnect-wallet-btn").addEventListener("click", disconnectWallet);
@@ -5410,7 +5458,8 @@ try{
 
 
     const result = await sdk.getMessages(topicId);
-
+    allLoadedMessages = [];
+    allLoadedMessages.push(result);
 
     let hasMoreThanOneTopic = false;
 
@@ -6099,6 +6148,8 @@ document.getElementById("Edit_Profile").addEventListener("click", (event) => {
 document.getElementById("Load_Everything").addEventListener("click", (event) => {
   event.stopPropagation();
   CloseALL();
+  loadColumnsEverything()
+  loadColumnsShowOptionsload()
   document.getElementById("load-column").style.display = "block";
   document.getElementById("load-column-container").style.display = "block";
   const loaded_text_area = document.getElementById("loaded-topics");
@@ -6211,6 +6262,7 @@ document.getElementById("show-options-from-topic-chat-btn").addEventListener("cl
 const allShowButtonsFromTopicChat = [
   document.getElementById("time-from-topic-chat"),
   document.getElementById("load-msgs-from-ids-from-topic-chat"),
+  document.getElementById("load-blocks-from-ids-from-topic-chat"),
   document.getElementById("load-load-from-users-label-from-topic-chat"),
   document.getElementById("load-load-from-users-from-topic-chat"),
   document.getElementById("load-block-from-users-label-from-topic-chat"),
@@ -6274,7 +6326,7 @@ document.getElementById("show-block-from-topic-chat").addEventListener("click", 
   hideAllShowButtonsFromTopicChat()
   showAllShowButtonsFromTopicChatOptions()
   document.getElementById("load-block-from-users-from-topic-chat").style.display = "flex";
-  document.getElementById("load-msgs-from-ids-from-topic-chat").style.display = "block";
+  document.getElementById("load-blocks-from-ids-from-topic-chat").style.display = "block";
   document.getElementById("load-block-from-users-label-from-topic-chat").style.display = "block";
   document.getElementById("hide-block-from-topic-chat").style.display = "block";
   document.getElementById("show-block-from-topic-chat").style.display = "none";
@@ -6292,6 +6344,7 @@ document.getElementById("hide-block-from-topic-chat").addEventListener("click", 
 const allShowButtonsFromEncryptedChat = [
   document.getElementById("time-from-encrypted-chat"),
   document.getElementById("load-msgs-from-ids-from-encrypted-chat"),
+  document.getElementById("load-blocks-from-ids-from-encrypted-chat"),
   document.getElementById("load-load-from-users-label-from-encrypted-chat"),
   document.getElementById("load-load-from-users-from-encrypted-chat"),
   document.getElementById("load-block-from-users-label-from-encrypted-chat"),
@@ -6358,7 +6411,7 @@ document.getElementById("show-block-from-encrypted-chat").addEventListener("clic
   hideAllShowButtonsFromEncryptedChat()
   showAllShowButtonsFromEncryptedChatOptions()
   document.getElementById("load-block-from-users-from-encrypted-chat").style.display = "flex";
-  document.getElementById("load-msgs-from-ids-from-encrypted-chat").style.display = "block";
+  document.getElementById("load-blocks-from-ids-from-encrypted-chat").style.display = "block";
   document.getElementById("load-block-from-users-label-from-encrypted-chat").style.display = "block";
   document.getElementById("hide-block-from-encrypted-chat").style.display = "block";
   document.getElementById("show-block-from-encrypted-chat").style.display = "none";
@@ -6871,47 +6924,63 @@ document.getElementById("hide-check-domain-availability-from-edit-profile").addE
   document.getElementById("edit-profile-domain-time-left").style.display = "none";
 });
 
+const allLoadColumns = [
+  document.getElementById("load-msgs-from-ids-load-column"),
+  document.getElementById("load-blocks-from-ids-load-column"),
+  document.getElementById("load-load-from-users"),
+  document.getElementById("load-block-from-users"),
+  document.getElementById("load-load-from-users-label"),
+  document.getElementById("load-block-from-users-label"),
+  document.getElementById("hide-load-from-users"),
+  document.getElementById("hide-block-from-users"),
+];
 
+function loadColumnsEverything() {
+  allLoadColumns.forEach(element => {
+  element.style.display = "none";
+});
+}
+
+const loadColumnsShowOptions = [
+  document.getElementById("show-load-from-users"),
+  document.getElementById("show-block-from-users"),
+];
+
+
+function loadColumnsShowOptionsload() {
+  loadColumnsShowOptions.forEach(element => {
+  element.style.display = "block";
+});
+}
 
 document.getElementById("show-load-from-users").addEventListener("click", (event) => {
-  document.getElementById("load-msgs-from-ids").style.display = "block";
-  document.getElementById("hide-load-from-users").style.display = "block";
-  document.getElementById("show-load-from-users").style.display = "none";
+  loadColumnsEverything()
+  loadColumnsShowOptionsload()
+  document.getElementById("load-msgs-from-ids-load-column").style.display = "block";
   document.getElementById("load-load-from-users").style.display = "flex";
   document.getElementById("load-load-from-users-label").style.display = "block";
-  document.getElementById("load-block-from-users").style.display = "none";
-  document.getElementById("hide-block-from-users").style.display = "none";
-  document.getElementById("show-block-from-users").style.display = "block";
-  document.getElementById("load-block-from-users-label").style.display = "none";
+  document.getElementById("show-load-from-users").style.display = "none";
+  document.getElementById("hide-load-from-users").style.display = "block";
 });
 
 document.getElementById("hide-load-from-users").addEventListener("click", (event) => {
-  document.getElementById("show-load-from-users").style.display = "block";
-  document.getElementById("load-msgs-from-ids").style.display = "none";
-  document.getElementById("hide-load-from-users").style.display = "none";
-  document.getElementById("load-load-from-users").style.display = "none";
-  document.getElementById("load-load-from-users-label").style.display = "none";
+  loadColumnsEverything()
+  loadColumnsShowOptionsload()
 });
 
 document.getElementById("show-block-from-users").addEventListener("click", (event) => {
-  document.getElementById("load-msgs-from-ids").style.display = "block";
-  document.getElementById("load-block-from-users").style.display = "block";
-  document.getElementById("hide-block-from-users").style.display = "block";
-  document.getElementById("show-block-from-users").style.display = "none";
+  loadColumnsEverything()
+  loadColumnsShowOptionsload()
+  document.getElementById("load-blocks-from-ids-load-column").style.display = "block";
   document.getElementById("load-block-from-users").style.display = "flex";
-  document.getElementById("hide-load-from-users").style.display = "none";
-  document.getElementById("load-load-from-users").style.display = "none";
-  document.getElementById("show-load-from-users").style.display = "block";
-  document.getElementById("load-load-from-users-label").style.display = "none";
   document.getElementById("load-block-from-users-label").style.display = "block";
+  document.getElementById("show-block-from-users").style.display = "none";
+  document.getElementById("hide-block-from-users").style.display = "block";
 });
 
 document.getElementById("hide-block-from-users").addEventListener("click", (event) => {
-  document.getElementById("load-msgs-from-ids").style.display = "none";
-  document.getElementById("hide-block-from-users").style.display = "none";
-  document.getElementById("load-block-from-users").style.display = "none";
-  document.getElementById("show-block-from-users").style.display = "block";
-  document.getElementById("load-block-from-users-label").style.display = "none";
+  loadColumnsEverything()
+  loadColumnsShowOptionsload()
 });
 
 const everythinginsidemodelcolumn = [
@@ -7068,6 +7137,304 @@ try {
 
 
 
+
+
+
+
+
+document.getElementById("save-filters-from-users").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("input-field").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+
+    const loadColumnsFromUsers = document.getElementById("load-msgs-from-ids").value;
+    console.log("loadColumnsFromUsers", loadColumnsFromUsers);
+    const meesageobject = {
+      loadColumnsFromUsers: loadColumnsFromUsers
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
+document.getElementById("load-filters-from-users").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessages[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].loadColumnsFromUsers) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("load-msgs-from-ids").value = lastValidMessage.loadColumnsFromUsers;
+    } else {
+      console.log("No valid user message found with loadMsgsFromIds");
+    }
+    console.log("messagesObject", messages);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+document.getElementById("save-blocks-from-users").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("input-field").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+    const loadColumnChatBlocks = document.getElementById("load-blocks-from-ids").value;
+      console.log("loadColumnChatBlocks", loadColumnChatBlocks);
+    const meesageobject = {
+      loadColumnChatBlocks: loadColumnChatBlocks
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
+document.getElementById("load-blocks-from-users").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessages[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].loadColumnChatBlocks) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("load-blocks-from-ids").value = lastValidMessage.loadColumnChatBlocks;
+    } else {
+      console.log("No valid user message found with loadColumnChatBlocks");
+    }
+    console.log("messagesObject", messages);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
+
+
+
+
+
+
+
+document.getElementById("save-filters-from-topic-chat").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("topic-chat-topic-id").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+    const topicChatFromUsers = document.getElementById("load-msgs-from-ids-topic-chat").value;
+    console.log("topicChatFromUsers", topicChatFromUsers);
+    const meesageobject = {
+      topicChatFromUsers: topicChatFromUsers
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
+document.getElementById("load-filters-from-topic-chat").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessagesTopicChat[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].topicChatFromUsers) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("load-msgs-from-ids-topic-chat").value = lastValidMessage.topicChatFromUsers;
+    } else {
+      console.log("No valid user message found with topicChatFromUsers");
+    }
+    console.log("messagesObject", messages);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+document.getElementById("save-blocks-from-topic-chat").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("topic-chat-topic-id").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+    const topicChatBlocks = document.getElementById("load-blocks-from-ids-topic-chat").value;
+      console.log("topicChatBlocks", topicChatBlocks);
+    const meesageobject = {
+      topicChatBlocks: topicChatBlocks
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
+document.getElementById("load-blocks-from-topic-chat").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessagesTopicChat[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].topicChatBlocks) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("load-blocks-from-ids-topic-chat").value = lastValidMessage.topicChatBlocks;
+    } else {
+      console.log("No valid user message found with topicChatBlocks");
+    }
+    console.log("messagesObject", messages);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
+
+
+
+
+
+
+
+
+document.getElementById("load-save-filters-from-users-encrypted-chat").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("encrypted-chat-topic-id").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+    const encryptedChatFromUsers = document.getElementById("load-msgs-from-ids-encrypted-chat").value;
+    console.log("encryptedChatFromUsers", encryptedChatFromUsers);
+    const meesageobject = {
+      encryptedChatFromUsers: encryptedChatFromUsers
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
+document.getElementById("load-load-filters-from-users-encrypted-chat").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessagesEncryptedChat[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].encryptedChatFromUsers) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("load-msgs-from-ids-encrypted-chat").value = lastValidMessage.encryptedChatFromUsers;
+    } else {
+      console.log("No valid user message found with encryptedChatFromUsers");
+    }
+    console.log("messagesObject", messages);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+document.getElementById("load-save-blocks-from-users-encrypted-chat").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("encrypted-chat-topic-id").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+    const encryptedChatBlocks = document.getElementById("load-blocks-from-ids-encrypted-chat").value;
+      console.log("encryptedChatBlocks", encryptedChatBlocks);
+    const meesageobject = {
+      encryptedChatBlocks: encryptedChatBlocks
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
+document.getElementById("load-load-blocks-from-users-encrypted-chat").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessagesEncryptedChat[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].encryptedChatBlocks) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("load-blocks-from-ids-encrypted-chat").value = lastValidMessage.encryptedChatBlocks;
+    } else {
+      console.log("No valid user message found with encryptedChatBlocks");
+    }
+    console.log("messagesObject", messages);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
 
 
 
@@ -9234,17 +9601,10 @@ async function loadMainButtonSettings() {
         const colorMainButton = document.getElementById("main-button-color").value;
 
         const disconnectButton = document.querySelectorAll('#disconnect-wallet-btn');
-        const connectButton = document.querySelectorAll('#connect-wallet-btn');
         const menuButtons = document.querySelectorAll('.menu_buttons');
         const optionsButtons = document.querySelectorAll('.options-and-topic');
 
-
-
         disconnectButton.forEach(button => {
-            button.style.backgroundColor = colorDisconnect;
-        });
-
-        connectButton.forEach(button => {
             button.style.backgroundColor = colorDisconnect;
         });
 
@@ -9548,8 +9908,6 @@ async function loadTopicChatSettings() {
                 textContainerTopicChatColor: textContainerTopicChatColor,
                 innerContainerTopicChatColor: innerContainerTopicChatColor,
             });
-
-            console.log(accountObjectSettings);
 
             document.getElementById("accid-topic-chat-color").value = accidTopicChatColor;
             document.getElementById("username-topic-chat-color").value = usernameTopicChatColor;
