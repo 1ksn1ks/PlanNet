@@ -947,33 +947,10 @@ button[type="submit"],
   100% { transform: rotate(360deg); }
 }
 
-.popup-welcome-msg {
-  position: fixed;
-  top: 1vh; /* Use vh for vertical positioning */
-  left: 50%;
-  transform: translate(-50%,0);
-  background-color: white;
-  border: 0.5vh solid #ccc; /* Use vh for border thickness */
-  padding: 0.1em; /* Use em for padding */
-  z-index: 1003;
-  box-shadow: 0 0 1vh rgba(0, 0, 0, 0.1); /* Use vh for shadow */
-  border-radius: 3em; /* Use em for border radius */
-  height: auto; /* Allow height to adjust based on content */
-  line-height: 1.5em; /* Improve line spacing */
-  z-index: 100400000;
-}
-
 </style>
 </head>
  
 <body>
-
-  <div class="popup-welcome-msg" id="welcome-msg" style="display: none;">
-    <div class="popup-content-welcome" style="text-align: center;">
-      <p style="font-size: 2vh;">This is the only time when u can connect.</p>
-      <p style="font-size: 2vh;">If not, u will need to refresh the page.</p>
-    </div>
-  </div>
 
 <div id="map"></div>
 
@@ -2731,7 +2708,6 @@ function trackOpacity() {
           const crosshair = document.getElementById("crosshair");
           if (opacity === '1') {
             initialload = true;
-            document.getElementById("welcome-msg").style.display = "block";
             if (crosshair) {
               crosshair.style.display = "none";
             } else {
@@ -2744,7 +2720,6 @@ function trackOpacity() {
             if (initialload === true) {
 
             if (toolbarload === false) {
-              document.getElementById("welcome-msg").style.display = "none";
         extractTopicId();
         handleAllMessages();
         const toolbarLoad = document.getElementById("toolbar-load");
