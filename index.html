@@ -53,19 +53,21 @@
   type="e5a3c1b79eab779120034ec1-text/javascript"
 ></script>
 
-<link data-src="hcs://1/0.0.8287094"data-script-id="map css"/>
+<link data-src="hcs://1/0.0.8287094" data-script-id="map css"/>
 
-<script data-src="hcs://1/0.0.8269272" data-script-id="maplibre"></script>
+<script data-src="hcs://1/0.0.8269272" data-script-id="map"></script>
 
 <script data-src="hcs://1/0.0.8269285" data-script-id="supercluster"></script>
 
-<script data-src="hcs://1/0.0.8355670" data-script-id="threejs 137 + GLTFLoader"></script>
-
 <script data-src="hcs://1/0.0.9740486" data-script-id="walletconnect"></script>
+
+<script data-src="hcs://1/0.0.8355670" data-script-id="threejs 137 + GLTF"></script>
 
 <script data-src="hcs://1/0.0.9678314" data-script-id="DRACOLoader"></script>
 
 <script data-src="hcs://1/0.0.9705945" data-script-id="dracoBase64"></script>
+
+<script data-src="hcs://1/0.0.10040862" data-script-id="sodium"></script>
 
 <script data-src="hcs://1/0.0.9961904" data-script-id="helia@5.5.1"></script>
 
@@ -73,21 +75,19 @@
 
 <script data-src="hcs://1/0.0.9966383" data-script-id="libp2p.bundle"></script>
 
-<script data-src="hcs://1/0.0.10013779" data-script-id="multiformats@13.4.1"></script>
-
-<script data-src="hcs://1/0.0.10013806" data-script-id="delegated-peer-routing@4.0.14"></script>
-
-<script data-src="hcs://1/0.0.10013810" data-script-id="kubo-rpc-client@latest"></script>
-
-<script data-src="hcs://1/0.0.10013813" data-script-id="libp2p-noise@17.0.0"></script>
-
-<script data-src="hcs://1/0.0.10015601" data-script-id="helia-verified-fetch@3.2.3"></script>
+<script data-src="hcs://1/0.0.10034692" data-script-id="HeliaBlockBrokers"></script>
 
 <script data-src="hcs://1/0.0.10017498" data-script-id="helia-bitswap@3.0.3"></script>
 
-<script data-src="hcs://1/0.0.10034692" data-script-id="HeliaBlockBrokers"></script>
+<script data-src="hcs://1/0.0.10013813" data-script-id="libp2p-noise@17.0.0"></script>
 
-<script data-src="hcs://1/0.0.10040862" data-script-id="sodium"></script>
+<script data-src="hcs://1/0.0.10013779" data-script-id="multiformats@13.4.1"></script>
+
+<script data-src="hcs://1/0.0.10013810" data-script-id="kubo-rpc-client@latest"></script>
+
+<script data-src="hcs://1/0.0.10015601" data-script-id="helia-verified-fetch@3.2.3"></script>
+
+<script data-src="hcs://1/0.0.10013806" data-script-id="delegated-peer-routing@4.0.14"></script>
 
 <style>
 
@@ -947,10 +947,33 @@ button[type="submit"],
   100% { transform: rotate(360deg); }
 }
 
+.popup-welcome-msg {
+  position: fixed;
+  top: 1vh; /* Use vh for vertical positioning */
+  left: 50%;
+  transform: translate(-50%,0);
+  background-color: white;
+  border: 0.5vh solid #ccc; /* Use vh for border thickness */
+  padding: 0.1em; /* Use em for padding */
+  z-index: 1003;
+  box-shadow: 0 0 1vh rgba(0, 0, 0, 0.1); /* Use vh for shadow */
+  border-radius: 3em; /* Use em for border radius */
+  height: auto; /* Allow height to adjust based on content */
+  line-height: 1.5em; /* Improve line spacing */
+  z-index: 100400000;
+}
+
 </style>
 </head>
  
 <body>
+
+  <div class="popup-welcome-msg" id="welcome-msg" style="display: none;">
+    <div class="popup-content-welcome" style="text-align: center;">
+      <p style="font-size: 2vh;">This is the only time when u can connect.</p>
+      <p style="font-size: 2vh;">If not, u will need to refresh the page.</p>
+    </div>
+  </div>
 
 <div id="map"></div>
 
@@ -1122,7 +1145,7 @@ button[type="submit"],
     <button id="toolbar-load" class="toolbar-column-btns">Load Data
     </button>
 
-    <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">Loaded Topics with names not domains:
+    <label for="loaded-topics" style=" font-size: 2vh;padding: 0px;">TopicID-TopicID name:
     </label>
 
     <div class="toolbar-column" style="user-select: text;" id="loaded-topics" placeholder="Loaded Topics" onclick="event.stopPropagation();"
@@ -2708,6 +2731,7 @@ function trackOpacity() {
           const crosshair = document.getElementById("crosshair");
           if (opacity === '1') {
             initialload = true;
+            document.getElementById("welcome-msg").style.display = "block";
             if (crosshair) {
               crosshair.style.display = "none";
             } else {
@@ -2720,6 +2744,7 @@ function trackOpacity() {
             if (initialload === true) {
 
             if (toolbarload === false) {
+              document.getElementById("welcome-msg").style.display = "none";
         extractTopicId();
         handleAllMessages();
         const toolbarLoad = document.getElementById("toolbar-load");
@@ -6185,6 +6210,7 @@ document.getElementById("Stack_topic_IDs").addEventListener("click", (event) => 
 document.getElementById("topic-chat-btn").addEventListener("click", (event) => {
   event.stopPropagation();
   CloseALL();
+  hideAllShowButtonsFromTopicChat()
   activePolygonPopups.forEach((popup) => popup.remove());
   activeMarkerPopups.forEach((popup) => popup.remove());
   document.getElementById("topic-chat-container").style.display = "block";
@@ -6364,7 +6390,6 @@ document.getElementById("show-block-from-encrypted-chat").addEventListener("clic
   document.getElementById("show-block-from-encrypted-chat").style.display = "none";
 });
 
-
 document.getElementById("hide-block-from-encrypted-chat").addEventListener("click", (event) => {
   hideAllShowButtonsFromEncryptedChat()
   showAllShowButtonsFromEncryptedChatOptions()
@@ -6417,6 +6442,7 @@ document.getElementById("toggle-encrypted-chat-btn").addEventListener("click", (
   CloseALL();
   activePolygonPopups.forEach((popup) => popup.remove());
   activeMarkerPopups.forEach((popup) => popup.remove());
+  hideAllShowButtonsFromEncryptedChat()
   document.getElementById("encrypted-chat-container").style.display = "block";
   document.getElementById("options-from-encrypted-chat").style.display = "none";
   document.getElementById("show-options-from-encrypted-chat").style.display = "block";
