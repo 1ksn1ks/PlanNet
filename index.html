@@ -17,30 +17,6 @@
   </div>
 </div>
 
-
-<script>
-  // Step 1: Create your global log array
-  window.HCS_LOGS = [];
-
-  // Step 2: Override console.log ONLY for HCS messages
-  (function() {
-    const original = console.log;
-    console.log = function(...args) {
-      const msg = args.join(' ');
-      if (msg.startsWith('[HCS SDK] Loaded script:')) {
-        const scriptName = msg.replace('[HCS SDK] Loaded script:', '').trim();
-        window.HCS_LOGS.push({
-          name: scriptName,
-          timestamp: new Date().toISOString(),
-          step: window.HCS_LOGS.length + 1
-        });
-      }
-      // Always call original
-      return original.apply(this, args);
-    };
-  })();
-</script>
-
 <script
   data-hcs-config=""
   data-hcs-cdn-url="https://kiloscribe.com/api/inscription-cdn/"
@@ -287,8 +263,24 @@ html, body {
   width: 100%;
   color: white;
   border: 0.1vh solid white;
-  padding-top: 0.5em;
+  padding-top: 0.25em;
   padding-bottom: 0.5em;
+  border-radius: 1vh;
+  box-sizing: border-box;
+  border: 0.1vh solid #ffc107;
+  overflow: hidden; /* Hide scrollbars */
+  resize: none; /* Prevent manual resizing */
+  background-color: transparent;
+  touch-action: auto; /* Enable touch interactions */
+}
+
+.toolbar-group-messages-header {
+  margin-bottom: -0.5em !important;
+  border: 0.1vh solid white;
+  padding-top: 0.05em;
+  padding-bottom: 0.1em;
+  padding-left: 0.25em;
+  padding-right: 0.25em;
   border-radius: 1vh;
   box-sizing: border-box;
   border: 0.1vh solid #ffc107;
@@ -2467,6 +2459,11 @@ button[type="submit"],
       <input type="color" id="inner-container-topic-chat-color" class="yourfov" value="#ffc107">
     </div>
 
+    <div>
+      <label style="font-size: 1.5vh;">Header Color:</label>
+      <input type="color" id="topic-chat-header-color" class="yourfov" value="#00ff00">
+    </div>
+
   </div>
 </div>
 
@@ -2527,10 +2524,34 @@ button[type="submit"],
           loader.updateProgress();
 
 
-          setInterval(() => {
-    document.getElementById('logs').innerHTML = 
-      window.HCS_LOGS.map((l, i) => `${l.name}`).join('<br>');
-  }, 500);
+
+
+
+          window.HCS_LOGS = [];
+
+          const intervalId = setInterval(() => {
+  document.getElementById('logs').innerHTML = 
+    window.HCS_LOGS.map((l, i) => `${l.name}`).join('<br>');
+}, 10);
+
+// Modify console.log override to stop interval
+(function() {
+  const original = console.log;
+  console.log = function(...args) {
+    const msg = args.join(' ');
+    if (msg.startsWith('[HCS SDK] Loaded script:')) {
+      const scriptName = msg.replace('[HCS SDK] Loaded script:', '').trim();
+      window.HCS_LOGS.push({
+        name: scriptName,
+        timestamp: new Date().toISOString(),
+        step: window.HCS_LOGS.length + 1
+      });
+    } else if (msg === '[HCS SDK] All HCS resources loaded') {
+      clearInterval(intervalId); // Stop the interval
+    }
+    return original.apply(this, args);
+  };
+})();
 
 
       window.HCSReady = async function () {
@@ -2764,7 +2785,7 @@ function trackOpacity() {
             } else {
             }
           }
-        }, 50); // Check every 50ms
+        }, 10); // Check every 50ms
 
         setTimeout(() => {
           if (!toolbarload) {
@@ -2927,9 +2948,11 @@ document.getElementById("stack-encrypted-chat-public-key-button").addEventListen
 let storedMessagesEncryptedChat = [];
 let storedMessages = [];
 let accidTopicChatColor = '#800080';
-let usernameTopicChatColor = '#ffffff';
+let usernameTopicChatColor = '#00ff00';
 let textTopicChatColor = '#ffffff';
 let innerContainerTopicChatColor = '#ffc107';
+let topicChatHeaderColor = '#ffffff';
+
 
 function makeScrollable(el) {
   let startY = 0, startScroll = 0;
@@ -3334,7 +3357,8 @@ const payerInfo = message.payer ? `${message.payer}` : 'Anonymous';
                 '';
 
                 const displayHeader = 
-        `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>&nbsp;` +
+        `<div class="toolbar-group-messages-header" style="display: flex; align-items: center; border-color: ${topicChatHeaderColor};"> 
+        <a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>&nbsp;` +
         (click2link ?
           `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor}; text-decoration: none;">${username}</a>` :
           `<span style="color: ${usernameTopicChatColor};">${username}</span>`);
@@ -3358,9 +3382,9 @@ groupHTML = `<div class="toolbar-group-messages" style="position: relative; padd
                   style="position: absolute; left: 0.25em; top: 0.5em; width: 2em; height: 2em; border-radius: 1em; cursor: pointer;"
                   onclick="loadTOPIC4PIC('${message.payer}');">
                 <div style="display: flex; flex-direction: column;">
-                <div style="display: flex; align-items: center; height: 0.5em;">
+                <div style="display: flex; align-items: center;">
                   ${displayHeader}
-                </div>`;
+                </div></div>`;
 
   groupOpen = true;
 }
@@ -4339,7 +4363,8 @@ for (let index = 0; index < result.messages.length; index++) {
         ` ${click2url[message.payer].click2url}` : '';
 
       const displayHeader = 
-        `<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>&nbsp;` +
+        `<div class="toolbar-group-messages-header" style="display: flex; align-items: center; border-color: ${topicChatHeaderColor};"> 
+        <a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>&nbsp;` +
         (click2link ?
           `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor}; text-decoration: none;">${username}</a>` :
           `<span style="color: ${usernameTopicChatColor};">${username}</span>`);
@@ -4362,9 +4387,9 @@ groupHTML = `<div class="toolbar-group-messages" style="position: relative; padd
                   style="position: absolute; left: 0.25em; top: 0.5em; width: 2em; height: 2em; border-radius: 1em; cursor: pointer;"
                   onclick="loadTOPIC4PIC('${message.payer}');">
                 <div style="display: flex; flex-direction: column;">
-                <div style="display: flex; align-items: center; height: 0.5em;">
+                <div style="display: flex; align-items: center;">
                   ${displayHeader}
-                </div>`;
+                </div></div>`;
 
   groupOpen = true;
 }
@@ -9853,6 +9878,7 @@ document.getElementById("save-topic-chat-settings").addEventListener("click", as
         const textTopicChatColor = document.getElementById("text-topic-chat-color").value;
         const textContainerTopicChatColor = document.getElementById("text-container-topic-chat-color").value;
         const innerContainerTopicChatColor = document.getElementById("inner-container-topic-chat-color").value;
+        const topicChatHeaderColor = document.getElementById("topic-chat-header-color").value;
 
         const messageData = {
             data: {
@@ -9861,6 +9887,7 @@ document.getElementById("save-topic-chat-settings").addEventListener("click", as
                 textTopicChatColor: textTopicChatColor,
                 textContainerTopicChatColor: textContainerTopicChatColor,
                 innerContainerTopicChatColor: innerContainerTopicChatColor,
+                topicChatHeaderColor: topicChatHeaderColor,
             }
         };
 
@@ -9898,7 +9925,7 @@ async function loadTopicChatSettings() {
         // Check if the last message has valid data
         if (lastMessage && lastMessage.data) {
             // Extract relevant data and clamp to max 255
-            const { accidTopicChatColor, usernameTopicChatColor, textTopicChatColor, textContainerTopicChatColor, innerContainerTopicChatColor } = lastMessage.data;
+            const { accidTopicChatColor, usernameTopicChatColor, textTopicChatColor, textContainerTopicChatColor, innerContainerTopicChatColor, topicChatHeaderColor } = lastMessage.data;
 
 
             accountObjectSettings.push({
@@ -9907,6 +9934,7 @@ async function loadTopicChatSettings() {
                 textTopicChatColor: textTopicChatColor,
                 textContainerTopicChatColor: textContainerTopicChatColor,
                 innerContainerTopicChatColor: innerContainerTopicChatColor,
+                topicChatHeaderColor: topicChatHeaderColor,
             });
 
             document.getElementById("accid-topic-chat-color").value = accidTopicChatColor;
@@ -9914,6 +9942,7 @@ async function loadTopicChatSettings() {
             document.getElementById("text-topic-chat-color").value = textTopicChatColor;
             document.getElementById("text-container-topic-chat-color").value = textContainerTopicChatColor;
             document.getElementById("inner-container-topic-chat-color").value = innerContainerTopicChatColor;
+            document.getElementById("topic-chat-header-color").value = topicChatHeaderColor;
 
             updateTopicChatSettings();
         }
@@ -9932,12 +9961,14 @@ async function loadTopicChatSettings() {
     const newTextTopicChatColor = document.getElementById("text-topic-chat-color").value;
     const newTextContainerTopicChatColor = document.getElementById("text-container-topic-chat-color").value;
     const newInnerContainerTopicChatColor = document.getElementById("inner-container-topic-chat-color").value;
+    const newTopicChatHeaderColor = document.getElementById("topic-chat-header-color").value;
 
     accidTopicChatColor = newAccidTopicChatColor;
     usernameTopicChatColor = newUsernameTopicChatColor;
     textTopicChatColor = newTextTopicChatColor;
     textContainerTopicChatColor = newTextContainerTopicChatColor;
     innerContainerTopicChatColor = newInnerContainerTopicChatColor;
+    topicChatHeaderColor = newTopicChatHeaderColor;
 
     const topicChatSettings = document.querySelectorAll('.chat-container');
     topicChatSettings.forEach(topicChat => {
@@ -9949,7 +9980,12 @@ async function loadTopicChatSettings() {
         topicChatInner.style.borderColor = innerContainerTopicChatColor;
     });
 
-    return { accidTopicChatColor, usernameTopicChatColor, textTopicChatColor, textContainerTopicChatColor, innerContainerTopicChatColor };
+    const topicChatSettingsHeader = document.querySelectorAll('.toolbar-group-messages-header');
+    topicChatSettingsHeader.forEach(topicChatHeader => {
+        topicChatHeader.style.borderColor = topicChatHeaderColor;
+    });
+
+    return { accidTopicChatColor, usernameTopicChatColor, textTopicChatColor, textContainerTopicChatColor, innerContainerTopicChatColor, topicChatHeaderColor };
 
 }
 
@@ -9958,6 +9994,7 @@ document.getElementById("username-topic-chat-color").addEventListener("input", (
 document.getElementById("text-topic-chat-color").addEventListener("input", (event) => {updateTopicChatSettings();});
 document.getElementById("text-container-topic-chat-color").addEventListener("input", (event) => {updateTopicChatSettings();});
 document.getElementById("inner-container-topic-chat-color").addEventListener("input", (event) => {updateTopicChatSettings();});
+document.getElementById("topic-chat-header-color").addEventListener("input", (event) => {updateTopicChatSettings();});
 
 
 
