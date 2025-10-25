@@ -6004,13 +6004,12 @@ function CloseALL() {
   document.getElementById("toggle-encrypted-chat-btn").style.display = "block";
   document.getElementById("toggle-toolbar-btn-btn").style.display = "none";
   document.getElementById("toggle-your-fov-btn-btn").style.display = "none";
-  if (popIsOpen === true) {
+  if (popIsOpen === false) {
     if (currentUfoModel) {
             scene.add(currentUfoModel);
             crosshair.style.display = "block";
           }
   }
-  popIsOpen = false;
 }
 
 document.addEventListener('click', function(event) {
@@ -6022,7 +6021,6 @@ function removeUfoModel() {
     scene.remove(currentUfoModel);
     crosshair.style.display = "none";
   }
-  popIsOpen = true;
 }
 
 document.getElementById("main-toggle-btn").addEventListener("click", function(event) {
@@ -8567,6 +8565,7 @@ function updateClusters() {
         animateMapTo(map, cluster.geometry.coordinates, null);
         popup.setLngLat(cluster.geometry.coordinates).addTo(map);
         applyAllStyles();
+        popIsOpen = true;
         if (currentUfoModel) {
           scene.remove(currentUfoModel);
           crosshair.style.display = "none";
@@ -8751,7 +8750,7 @@ async function addPolygonWithImageFill(map, polygon) {
           activePolygonPopups.push(popup);
           applyAllStyles();
         }
-        popIsOpen = false;
+        popIsOpen = true;
         if (currentUfoModel) {
           scene.remove(currentUfoModel);
           crosshair.style.display = "none";
@@ -8760,6 +8759,7 @@ async function addPolygonWithImageFill(map, polygon) {
 
       // Add a listener for the popup's close event
       popup.on('close', () => {
+        popIsOpen = false;
         if (currentUfoModel) {
           scene.add(currentUfoModel);
           crosshair.style.display = "block";
