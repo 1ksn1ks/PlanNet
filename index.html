@@ -2300,7 +2300,7 @@ button[type="submit"],
 
     <div id="popup-column-3-username" style="display: none; align-items: center;">
       <label style="font-size: 1.5vh;">Username:</label>
-      <input type="color" id="color-picker-popup-username" class="yourfov" value="#ffffff">
+      <input type="color" id="color-picker-popup-username" class="yourfov" value="#00ff00">
     </div>
 
     <div id="popup-column-3-titles" style="display: none; align-items: center;">
@@ -10669,9 +10669,9 @@ async function processTopicMessages(topicId) {
 
               const displayHeader = `
               <h2>
-                <a href="https://explore.hashpack.app/${payerInfo}" target="_blank" class="payer-info" style="color: #00ff00; text-decoration: none;">${payerInfo}</a>
+                <a href="https://explore.hashpack.app/${payerInfo}" target="_blank" class="payer-info" style="text-decoration: none;">${payerInfo}</a>
                 <br>
-                ${click2link ? `<a href="${click2link}" target="_blank" class="username" style="color: #FFFFFF; text-decoration: none;">${username}</a>` : `${username}`}
+                ${click2link ? `<a href="${click2link}" target="_blank" class="username" style="text-decoration: none;">${username}</a>` : `${username}`}
               </h2>`;
 
               if (parsedMessage.marker && parsedMessage.marker.data) {
