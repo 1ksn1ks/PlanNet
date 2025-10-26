@@ -1122,15 +1122,41 @@ button[type="submit"],
 
 
     <div style="display: flex;">
-      <button id="show-load-from-users" class="toolbar-column-first-settings-btns">From
+      <button id="show-time-from-users-load-column" class="toolbar-column-first-settings-btns">Time
       </button>
-      <button id="hide-load-from-users" style="display: none;" class="toolbar-column-first-settings-btns">From
+      <button id="hide-time-from-users-load-column" style="display: none;" class="toolbar-column-first-settings-btns">Time
       </button>
-      <button id="show-block-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
+      <button id="show-load-from-users" class="toolbar-column-settings-btns">From
       </button>
-      <button id="hide-block-from-users" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
+      <button id="hide-load-from-users" style="display: none;" class="toolbar-column-settings-btns">From
+      </button>
+      <button id="show-block-from-users" class="toolbar-column-settings-btns">Block
+      </button>
+      <button id="hide-block-from-users" style="display: none;" class="toolbar-column-settings-btns">Block
       </button>
     </div>
+
+
+    <div id="time-from-users-load-column" style="display: none;">
+      <label style="font-size: 2vh; padding-bottom: 0.5vh;">Month Day Year:
+        <div style="display: flex; align-items: center;">
+          <input type="number" id="from-mmddyyyy-users-load-column" class="toolbar-column" step="1" placeholder="MMDDYYYY" oninput="restrictLength(this, 8)" />
+          <input type="number" id="to-mmddyyyy-users-load-column" class="toolbar-column" step="1" placeholder="MMDDYYYY" style="margin-left: 1vw;" oninput="restrictLength(this, 8)" />
+          <button id="users-load-column-filter" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
+          </button>
+        </div>
+    </label>
+  
+    <label style="font-size: 2vh; padding-bottom: 0.5vh;">Hour Minute Second:
+      <div style="display: flex; align-items: center;">
+        <input type="number" id="from-hhmmss-users-load-column" class="toolbar-column" step="1" placeholder="HHMMSS" oninput="restrictLength(this, 6)" />
+        <input type="number" id="to-hhmmss-users-load-column" class="toolbar-column" step="1" placeholder="HHMMSS" style="margin-left: 1vw;" oninput="restrictLength(this, 6)" />
+        <button id="users-load-column-filter-time" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
+        </button>
+      </div>
+    </label>
+  </div>
+
 
     <div id="load-load-from-users-label" style="display: none;">
       <label style="font-size: 2vh; padding: 0px;">Load From Users:
@@ -3809,42 +3835,141 @@ for (const gateway of gateways) {
   }
 }
 
-document.getElementById("load-msgs-from-ids-button").addEventListener("click", async () => {
-  const ids = document.getElementById("load-msgs-from-ids").value.toLowerCase();
-  const idsArray = ids.split(",").map(id => id.trim()).filter(id => id.length > 0); // Trim whitespace and filter out empty strings
+let storedMarkers = [];
+let sotredMarkersFiltered = [];
+let storedPolygons = [];
+let storedPolygonsFiltered = [];
 
-  idsArray.forEach(id => {
-    if (!id.startsWith("0.0.")) {
-      const domainEntry = loadedDomains.find(domain => domain.domain === id); // Assuming loadedDomains is an array of objects with an 'id' property
-      idsArray.splice(idsArray.indexOf(id), 1); // Remove the id from idsArray
-      if (domainEntry) {
-      idsArray.push(domainEntry.lastMessage.topic); // Add the domain entry to idsArray
+async function handleGeoFilter() {
+  console.log("handleGeoFilter", storedMarkers);
+  console.log("handleGeoFilter", storedPolygons);
+  // Get values from all input fields
+  const loadIds = document.getElementById("load-msgs-from-ids").value.toLowerCase();
+  const blockIds = document.getElementById("load-blocks-from-ids").value.toLowerCase();
+  const fromDateValue = document.getElementById("from-mmddyyyy-users-load-column").value;
+  const toDateValue = document.getElementById("to-mmddyyyy-users-load-column").value;
+  const fromTimeValue = document.getElementById("from-hhmmss-users-load-column").value;
+  const toTimeValue = document.getElementById("to-hhmmss-users-load-column").value;
+
+  // Process loadIds into idsArray
+  let idsArray = loadIds ? loadIds.split(",").map(id => id.trim()).filter(id => id.length > 0) : [];
+
+  // Process blockIds into blockIdsArray
+  let blockIdsArray = blockIds ? blockIds.split(",").map(id => id.trim()).filter(id => id.length > 0) : [];
+
+  // Convert domain names to topic IDs for loadIds
+  if (idsArray.length > 0) {
+    idsArray = idsArray.map(id => {
+      if (!id.startsWith("0.0.")) {
+        const domainEntry = loadedDomains.find(domain => domain.domain === id);
+        return domainEntry ? domainEntry.lastMessage.topic : id;
       }
+      return id;
+    }).filter(id => id);
+  }
+
+  // Convert domain names to topic IDs for blockIds
+  if (blockIdsArray.length > 0) {
+    blockIdsArray = blockIdsArray.map(id => {
+      if (!id.startsWith("0.0.")) {
+        const domainEntry = loadedDomains.find(domain => domain.domain === id);
+        return domainEntry ? domainEntry.lastMessage.topic : id;
+      }
+      return id;
+    }).filter(id => id);
+  }
+
+  // Parse date and time
+  let fromDate;
+  let toDate;
+
+  if (fromTimeValue && toTimeValue && fromDateValue && toDateValue) {
+    fromDate = new Date(
+      fromDateValue.slice(4, 8),
+      fromDateValue.slice(0, 2) - 1,
+      fromDateValue.slice(2, 4),
+      fromTimeValue.slice(0, 2), // Hours
+      fromTimeValue.slice(2, 4), // Minutes
+      fromTimeValue.slice(4, 6)  // Seconds
+    );
+    toDate = new Date(
+      toDateValue.slice(4, 8),
+      toDateValue.slice(0, 2) - 1,
+      toDateValue.slice(2, 4),
+      toTimeValue.slice(0, 2), // Hours
+      toTimeValue.slice(2, 4), // Minutes
+      toTimeValue.slice(4, 6)  // Seconds
+    );
+  } else if (fromDateValue && toDateValue) {
+    fromDate = new Date(fromDateValue.slice(4, 8), fromDateValue.slice(0, 2) - 1, fromDateValue.slice(2, 4));
+    toDate = new Date(toDateValue.slice(4, 8), toDateValue.slice(0, 2) - 1, toDateValue.slice(2, 4));
+  }
+
+  // Filter storedMarkers
+  const filteredFeatures = storedMarkers[0].filter(feature => {
+    const conditions = [];
+    const featureDate = new Date(feature.created); // Assuming 'created' property exists
+
+    // Date range filter (apply only if both fromDate and toDate are defined)
+    if (fromDate && toDate) {
+      conditions.push(featureDate >= fromDate && featureDate <= toDate);
     }
+
+    // Load users filter (apply only if idsArray has values)
+    if (idsArray.length > 0) {
+      conditions.push(idsArray.includes(feature.payer));
+    }
+
+    // Block users filter (apply only if blockIdsArray has values)
+    if (blockIdsArray.length > 0) {
+      conditions.push(!blockIdsArray.includes(feature.payer));
+    }
+
+    // If no conditions, include all features
+    if (conditions.length === 0) {
+      return true;
+    }
+
+    // Include feature if all conditions are true
+    return conditions.every(condition => condition);
   });
 
-  await handleAllMessages();
+  // Filter storedPolygons
+  const filteredPolygons = storedPolygons[0].filter(polygon => {
+    const conditions = [];
+    const polygonDate = new Date(polygon.created); // Assuming 'created' property exists
 
-  geojson.features = [];
-      // Filter geojson.features based on the specified payers
-  const filteredFeatures = geojson.features.filter(feature => {
-    const match = idsArray.includes(feature.payer);
-    return match;
+    // Date range filter (apply only if both fromDate and toDate are defined)
+    if (fromDate && toDate) {
+      conditions.push(polygonDate >= fromDate && polygonDate <= toDate);
+    }
+
+    // Load users filter (apply only if idsArray has values)
+    if (idsArray.length > 0) {
+      conditions.push(idsArray.includes(polygon.payer));
+    }
+
+    // Block users filter (apply only if blockIdsArray has values)
+    if (blockIdsArray.length > 0) {
+      conditions.push(!blockIdsArray.includes(polygon.payer));
+    }
+
+    // If no conditions, include all polygons
+    if (conditions.length === 0) {
+      return true;
+    }
+
+    // Include polygon if all conditions are true
+    return conditions.every(condition => condition);
   });
 
-  const filteredPolygons = polygons.filter(polygon => {
-    const match = idsArray.includes(polygon.payer);
-    return match;
-  });
+  // Update storedMarkers and storedPolygons
+  storedMarkersFiltered = filteredFeatures;
+  console.log("storedMarkersFiltered", storedMarkersFiltered);
+  storedPolygonsFiltered = filteredPolygons;
+  console.log("storedPolygonsFiltered", storedPolygonsFiltered);
 
-
-
-  geojson.features = filteredFeatures;
-  polygons.length = 0; // Clear existing polygons
-  polygons.push(...filteredPolygons); // Add filtered polygons
-
-
-
+  // Clear existing markers and layers
   setTimeout(() => {
     existingMarkers.forEach(marker => marker.remove());
     existingMarkers = [];
@@ -3852,29 +3977,44 @@ document.getElementById("load-msgs-from-ids-button").addEventListener("click", a
 
   map.getStyle().layers.forEach(layer => {
     if (layer.id.includes('-layer')) {
-    map.removeLayer(layer.id);
-  }
+      map.removeLayer(layer.id);
+    }
   });
 
   const sourceIds = Object.keys(map.getStyle().sources);
-      sourceIds.forEach(sourceId => {
-      if (sourceId.includes('-source')) {
+  sourceIds.forEach(sourceId => {
+    if (sourceId.includes('-source')) {
       map.removeSource(sourceId);
     }
   });
 
+  // Load filtered markers and polygons
+  if (storedMarkersFiltered.length > 0) {
+    index.load(storedMarkersFiltered);
+    updateClusters();
+  }
 
-      if (geojson.features.length > 0) {
-          index.load(geojson.features);
-          updateClusters(); // Assuming you have a function to update clusters
-        }
-        
-      if (polygons.length > 0) {
-          polygons.forEach(polygon => {
-          addPolygonWithImageFill(map, polygon);
-      });
+  if (storedPolygonsFiltered.length > 0) {
+    storedPolygonsFiltered.forEach(polygon => {
+      addPolygonWithImageFill(map, polygon);
+    });
+  }
+
+  // Optional: Display a message if no markers or polygons are found
+  if (storedMarkersFiltered.length === 0 && storedPolygonsFiltered.length === 0) {
+    // Add UI feedback, e.g., update a div or alert
+    const mapContainer = document.getElementById('loaded-topics'); // Adjust ID as needed
+    if (mapContainer) {
+      mapContainer.innerHTML = `<div style="text-align: center; color: gray;">No markers or polygons found</div>`;
     }
-});
+  }
+}
+
+// Attach the handler to both buttons
+document.getElementById("load-msgs-from-ids-button").addEventListener("click", handleGeoFilter);
+document.getElementById("load-block-from-users-button").addEventListener("click", handleGeoFilter);
+document.getElementById("users-load-column-filter").addEventListener("click", handleGeoFilter);
+document.getElementById("users-load-column-filter-time").addEventListener("click", handleGeoFilter);
 
 loader.updateProgress();
 
@@ -4238,7 +4378,6 @@ if (groupOpen) {
     }
   
   adjustTextareaHeight(messagesContainer);
-  console.log(storedMessages);
 
   // Scroll to the bottom of the message container
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -5559,16 +5698,16 @@ window.loadTOPIC4PIC = async function(payer) {
   }
 }
 
-const geojson = {
+let geojson = {
   type: "FeatureCollection",
   features: []
 };
 
-const polygons = [
+let polygons = [
 ];
 
-const loadedNFTsForModel = [];
-const loadedNFTScaleForModel = [];
+let loadedNFTsForModel = [];
+let loadedNFTScaleForModel = [];
 let hasRulesForModelNFT = false;
 
 function updateRulesForModelNFTState() {
@@ -5583,6 +5722,8 @@ let globalLoadedTopicIdsWithNames = [];
 
 async function handleAllMessages() {
   try {
+    storedMarkers = [];
+    storedPolygons = [];
     const profilePics = await loadProfilePicture();
     const usernames = await loadUsername();
     const click2url = await loadCLICK2URL();
@@ -5724,6 +5865,11 @@ try{
     for (const topicId of loadedTopicsIds) {
       const { topicGeojsonFeatures, topicPolygons, loadedTopicName } = await processTopicMessages(topicId); // Ensure this is awaited if it's async
 
+
+
+
+      storedMarkers.push(topicGeojsonFeatures);
+      storedPolygons.push(topicPolygons);
       // Update markers/clusters
       if (geojson.features.length > 0) {
         index.load(geojson.features);
@@ -7112,6 +7258,7 @@ document.getElementById("hide-check-domain-availability-from-edit-profile").addE
 });
 
 const allLoadColumns = [
+  document.getElementById("time-from-users-load-column"),
   document.getElementById("load-msgs-from-ids-load-column"),
   document.getElementById("load-blocks-from-ids-load-column"),
   document.getElementById("load-load-from-users"),
@@ -7120,6 +7267,7 @@ const allLoadColumns = [
   document.getElementById("load-block-from-users-label"),
   document.getElementById("hide-load-from-users"),
   document.getElementById("hide-block-from-users"),
+  document.getElementById("hide-time-from-users-load-column"),
 ];
 
 function loadColumnsEverything() {
@@ -7131,6 +7279,7 @@ function loadColumnsEverything() {
 const loadColumnsShowOptions = [
   document.getElementById("show-load-from-users"),
   document.getElementById("show-block-from-users"),
+  document.getElementById("show-time-from-users-load-column"),
 ];
 
 
@@ -7139,6 +7288,22 @@ function loadColumnsShowOptionsload() {
   element.style.display = "block";
 });
 }
+
+document.getElementById("show-time-from-users-load-column").addEventListener("click", (event) => {
+  loadColumnsEverything()
+  loadColumnsShowOptionsload()
+  document.getElementById("time-from-users-load-column").style.display = "block";
+  document.getElementById("hide-time-from-users-load-column").style.display = "block";
+  document.getElementById("show-time-from-users-load-column").style.display = "none";
+});
+
+document.getElementById("hide-time-from-users-load-column").addEventListener("click", (event) => {
+  loadColumnsEverything()
+  loadColumnsShowOptionsload()
+  document.getElementById("time-from-users-load-column").style.display = "none";
+  document.getElementById("hide-time-from-users-load-column").style.display = "none";
+  document.getElementById("show-time-from-users-load-column").style.display = "block";
+});
 
 document.getElementById("show-load-from-users").addEventListener("click", (event) => {
   loadColumnsEverything()
@@ -10381,8 +10546,8 @@ function isValidUrl(url) {
 
 
 async function processTopicMessages(topicId) {
-        const topicGeojsonFeatures = []; // Store geojson features for this topic
-        const topicPolygons = []; // Store polygons for this topic
+        let topicGeojsonFeatures = []; // Store geojson features for this topic
+        let topicPolygons = []; // Store polygons for this topic
         let loadedTopicName = ''; // Initialize loadedTopicName
         const profilePics = await loadProfilePicture();
         const usernames = await loadUsername();
@@ -10674,6 +10839,8 @@ async function processTopicMessages(topicId) {
                     }
 
                     topicGeojsonFeatures.push({
+                      created: parsedMessage.created,
+                      msgNumber: parsedMessage.marker.data.numberOfMarker,
                       type: "Feature",
                       payer: message.payer,
                       properties: {
@@ -10758,6 +10925,8 @@ async function processTopicMessages(topicId) {
 
 
                         topicPolygons.push({
+                          created: parsedMessage.created,
+                          msgNumber: parsedMessage.polygon.data.numberOfPolygon,
                           id: `
                           polygon-${index}`,
                           payer: message.payer,
