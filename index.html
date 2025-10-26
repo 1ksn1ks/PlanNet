@@ -1142,8 +1142,6 @@ button[type="submit"],
         <div style="display: flex; align-items: center;">
           <input type="number" id="from-mmddyyyy-users-load-column" class="toolbar-column" step="1" placeholder="MMDDYYYY" oninput="restrictLength(this, 8)" />
           <input type="number" id="to-mmddyyyy-users-load-column" class="toolbar-column" step="1" placeholder="MMDDYYYY" style="margin-left: 1vw;" oninput="restrictLength(this, 8)" />
-          <button id="users-load-column-filter" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
-          </button>
         </div>
     </label>
   
@@ -1151,12 +1149,19 @@ button[type="submit"],
       <div style="display: flex; align-items: center;">
         <input type="number" id="from-hhmmss-users-load-column" class="toolbar-column" step="1" placeholder="HHMMSS" oninput="restrictLength(this, 6)" />
         <input type="number" id="to-hhmmss-users-load-column" class="toolbar-column" step="1" placeholder="HHMMSS" style="margin-left: 1vw;" oninput="restrictLength(this, 6)" />
-        <button id="users-load-column-filter-time" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
-        </button>
       </div>
     </label>
   </div>
 
+  <div id="time-from-users-load-column-filter" style="display: none;">
+    <button id="users-load-column-filter" class="toolbar-column-first-settings-btns">Filter
+    </button>
+    <button id="save-time-from-users-load-column" class="toolbar-column-settings-btns">Save Filters
+    </button>
+    <button id="load-time-from-users-load-column" class="toolbar-column-settings-btns">Load Filters
+    </button>
+  </div>
+  
 
     <div id="load-load-from-users-label" style="display: none;">
       <label style="font-size: 2vh; padding: 0px;">Load From Users:
@@ -1800,8 +1805,6 @@ button[type="submit"],
       <div style="display: flex; align-items: center;">
         <input type="number" id="from-mmddyyyy" class="toolbar-column" step="1" placeholder="MMDDYYYY" oninput="restrictLength(this, 8)" />
         <input type="number" id="to-mmddyyyy" class="toolbar-column" step="1" placeholder="MMDDYYYY" style="margin-left: 1vw;" oninput="restrictLength(this, 8)" />
-        <button id="topic-msgs-filter" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
-        </button>
       </div>
   </label>
 
@@ -1809,10 +1812,17 @@ button[type="submit"],
     <div style="display: flex; align-items: center;">
       <input type="number" id="from-hhmmss" class="toolbar-column" step="1" placeholder="HHMMSS" oninput="restrictLength(this, 6)" />
       <input type="number" id="to-hhmmss" class="toolbar-column" step="1" placeholder="HHMMSS" style="margin-left: 1vw;" oninput="restrictLength(this, 6)" />
-      <button id="topic-msgs-filter-time" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
-      </button>
     </div>
   </label>
+</div>
+
+<div id="time-from-topic-chat-filter" style="display: none;">
+  <button id="topic-msgs-filter" class="toolbar-column-first-settings-btns">Filter
+  </button>
+  <button id="save-time-from-topic-chat" class="toolbar-column-settings-btns">Save Filters
+  </button>
+  <button id="load-time-from-topic-chat" class="toolbar-column-settings-btns">Load Filters
+  </button>
 </div>
 
 <div id="load-load-from-users-label-from-topic-chat" style="display: none;">
@@ -1945,8 +1955,6 @@ button[type="submit"],
       <div style="display: flex; align-items: center;">
         <input type="number" id="from-mmddyyyy-encrypted-chat" class="toolbar-column" step="1" placeholder="MMDDYYYY" oninput="restrictLength(this, 8)" />
         <input type="number" id="to-mmddyyyy-encrypted-chat" class="toolbar-column" step="1" placeholder="MMDDYYYY" style="margin-left: 1vw;" oninput="restrictLength(this, 8)" />
-        <button id="topic-msgs-filter-encrypted-chat" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
-        </button>
       </div>
     </label>
 
@@ -1954,10 +1962,17 @@ button[type="submit"],
       <div style="display: flex; align-items: center;">
         <input type="number" id="from-hhmmss-encrypted-chat" class="toolbar-column" step="1" placeholder="HHMMSS"  oninput="restrictLength(this, 6)" />
         <input type="number" id="to-hhmmss-encrypted-chat" class="toolbar-column" step="1" placeholder="HHMMSS" style="margin-left: 1vw;" oninput="restrictLength(this, 6)" />
-        <button id="topic-msgs-filter-time-encrypted-chat" class="toolbar-column-btns" style="width: 50vw; margin-left: 1vw;">Filter
-        </button>
       </div>
     </label>
+</div>
+
+<div id="time-from-encrypted-chat-filter" style="display: none;">
+  <button id="topic-msgs-filter-encrypted-chat" class="toolbar-column-first-settings-btns">Filter
+  </button>
+  <button id="save-time-from-encrypted-chat" class="toolbar-column-settings-btns">Save Filters
+  </button>
+  <button id="load-time-from-encrypted-chat" class="toolbar-column-settings-btns">Load Filters
+  </button>
 </div>
 
 
@@ -4000,7 +4015,6 @@ async function handleGeoFilter() {
     });
   }
 
-  
 
   // Optional: Display a message if no markers or polygons are found
   if (storedMarkersFiltered.length === 0 && storedPolygonsFiltered.length === 0) {
@@ -4016,7 +4030,6 @@ async function handleGeoFilter() {
 document.getElementById("load-msgs-from-ids-button").addEventListener("click", handleGeoFilter);
 document.getElementById("load-block-from-users-button").addEventListener("click", handleGeoFilter);
 document.getElementById("users-load-column-filter").addEventListener("click", handleGeoFilter);
-document.getElementById("users-load-column-filter-time").addEventListener("click", handleGeoFilter);
 
 loader.updateProgress();
 
@@ -4598,9 +4611,63 @@ async function handleFilterMessagesEncryptedChat() {
 
 // Attach the same handler to all buttons
 document.getElementById("topic-msgs-filter-encrypted-chat").addEventListener("click", handleFilterMessagesEncryptedChat);
-document.getElementById("topic-msgs-filter-time-encrypted-chat").addEventListener("click", handleFilterMessagesEncryptedChat);
 document.getElementById("load-msgs-from-ids-button-encrypted-chat").addEventListener("click", handleFilterMessagesEncryptedChat);
 document.getElementById("load-block-from-users-button-encrypted-chat").addEventListener("click", handleFilterMessagesEncryptedChat);
+
+document.getElementById("save-time-from-encrypted-chat").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("encrypted-chat-topic-id").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+    const fromMmddyyyy = document.getElementById("from-mmddyyyy-encrypted-chat").value;
+    const toMmddyyyy = document.getElementById("to-mmddyyyy-encrypted-chat").value;
+    const fromHhmmss = document.getElementById("from-hhmmss-encrypted-chat").value;
+    const toHhmmss = document.getElementById("to-hhmmss-encrypted-chat").value;
+
+    const meesageobject = {
+      saveTimeFromEncryptedChat: {
+      fromMmddyyyy: fromMmddyyyy,
+        toMmddyyyy: toMmddyyyy,
+        fromHhmmss: fromHhmmss,
+        toHhmmss: toHhmmss
+      }
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error saving time from encrypted chat:", error);
+  }
+});
+
+document.getElementById("load-time-from-encrypted-chat").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessagesEncryptedChat[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].saveTimeFromEncryptedChat) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("from-mmddyyyy-encrypted-chat").value = lastValidMessage.saveTimeFromEncryptedChat.fromMmddyyyy || '';
+      document.getElementById("to-mmddyyyy-encrypted-chat").value = lastValidMessage.saveTimeFromEncryptedChat.toMmddyyyy || '';
+      document.getElementById("from-hhmmss-encrypted-chat").value = lastValidMessage.saveTimeFromEncryptedChat.fromHhmmss || '000000';
+      document.getElementById("to-hhmmss-encrypted-chat").value = lastValidMessage.saveTimeFromEncryptedChat.toHhmmss || '000000';
+    } else {
+      console.log("No valid user message found with saveTimeFromEncryptedChat");
+    }
+  } catch (error) {
+    console.error("Error loading time from encrypted chat:", error);
+  }
+});
 
 
 document.getElementById("load-save-filters-from-users-encrypted-chat").addEventListener("click", async () => {
@@ -4901,9 +4968,64 @@ async function handleFilterMessages() {
 
 // Attach the same handler to all buttons
 document.getElementById("topic-msgs-filter").addEventListener("click", handleFilterMessages);
-document.getElementById("topic-msgs-filter-time").addEventListener("click", handleFilterMessages);
 document.getElementById("load-msgs-from-ids-button-topic-chat").addEventListener("click", handleFilterMessages);
 document.getElementById("load-block-from-users-button-topic-chat").addEventListener("click", handleFilterMessages);
+
+
+document.getElementById("save-time-from-topic-chat").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("topic-chat-topic-id").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+    const fromMmddyyyy = document.getElementById("from-mmddyyyy").value;
+    const toMmddyyyy = document.getElementById("to-mmddyyyy").value;
+    const fromHhmmss = document.getElementById("from-hhmmss").value;
+    const toHhmmss = document.getElementById("to-hhmmss").value;
+
+    const meesageobject = {
+      saveTimeFromTopicChat: {
+      fromMmddyyyy: fromMmddyyyy,
+        toMmddyyyy: toMmddyyyy,
+        fromHhmmss: fromHhmmss,
+        toHhmmss: toHhmmss
+      }
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error saving time from topic chat:", error);
+  }
+});
+
+document.getElementById("load-time-from-topic-chat").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessagesTopicChat[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].saveTimeFromTopicChat) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("from-mmddyyyy").value = lastValidMessage.saveTimeFromTopicChat.fromMmddyyyy || '';
+      document.getElementById("to-mmddyyyy").value = lastValidMessage.saveTimeFromTopicChat.toMmddyyyy || '';
+      document.getElementById("from-hhmmss").value = lastValidMessage.saveTimeFromTopicChat.fromHhmmss || '000000';
+      document.getElementById("to-hhmmss").value = lastValidMessage.saveTimeFromTopicChat.toHhmmss || '000000';
+    } else {
+      console.log("No valid user message found with saveTimeFromTopicChat");
+    }
+  } catch (error) {
+    console.error("Error loading time from users load column:", error);
+  }
+});
 
 document.getElementById("save-filters-from-topic-chat").addEventListener("click", async () => {
   try {
@@ -6596,6 +6718,7 @@ document.getElementById("show-options-from-topic-chat-btn").addEventListener("cl
 
 const allShowButtonsFromTopicChat = [
   document.getElementById("time-from-topic-chat"),
+  document.getElementById("time-from-topic-chat-filter"),
   document.getElementById("load-msgs-from-ids-from-topic-chat"),
   document.getElementById("load-blocks-from-ids-from-topic-chat"),
   document.getElementById("load-load-from-users-label-from-topic-chat"),
@@ -6629,6 +6752,7 @@ document.getElementById("show-time-from-topic-chat").addEventListener("click", (
   hideAllShowButtonsFromTopicChat()
   showAllShowButtonsFromTopicChatOptions()
   document.getElementById("time-from-topic-chat").style.display = "block";
+  document.getElementById("time-from-topic-chat-filter").style.display = "flex";
   document.getElementById("hide-time-from-topic-chat").style.display = "block";
   document.getElementById("show-time-from-topic-chat").style.display = "none";
 });
@@ -6678,6 +6802,7 @@ document.getElementById("hide-block-from-topic-chat").addEventListener("click", 
 
 const allShowButtonsFromEncryptedChat = [
   document.getElementById("time-from-encrypted-chat"),
+  document.getElementById("time-from-encrypted-chat-filter"),
   document.getElementById("load-msgs-from-ids-from-encrypted-chat"),
   document.getElementById("load-blocks-from-ids-from-encrypted-chat"),
   document.getElementById("load-load-from-users-label-from-encrypted-chat"),
@@ -6714,6 +6839,7 @@ document.getElementById("show-time-from-encrypted-chat").addEventListener("click
   hideAllShowButtonsFromEncryptedChat()
   showAllShowButtonsFromEncryptedChatOptions()
   document.getElementById("time-from-encrypted-chat").style.display = "block";
+  document.getElementById("time-from-encrypted-chat-filter").style.display = "flex";
   document.getElementById("hide-time-from-encrypted-chat").style.display = "block";
   document.getElementById("show-time-from-encrypted-chat").style.display = "none";
 });
@@ -7261,6 +7387,7 @@ document.getElementById("hide-check-domain-availability-from-edit-profile").addE
 
 const allLoadColumns = [
   document.getElementById("time-from-users-load-column"),
+  document.getElementById("time-from-users-load-column-filter"),
   document.getElementById("load-msgs-from-ids-load-column"),
   document.getElementById("load-blocks-from-ids-load-column"),
   document.getElementById("load-load-from-users"),
@@ -7295,6 +7422,7 @@ document.getElementById("show-time-from-users-load-column").addEventListener("cl
   loadColumnsEverything()
   loadColumnsShowOptionsload()
   document.getElementById("time-from-users-load-column").style.display = "block";
+  document.getElementById("time-from-users-load-column-filter").style.display = "flex";
   document.getElementById("hide-time-from-users-load-column").style.display = "block";
   document.getElementById("show-time-from-users-load-column").style.display = "none";
 });
@@ -7520,6 +7648,38 @@ document.getElementById("save-filters-from-users").addEventListener("click", asy
   }
 });
 
+document.getElementById("save-time-from-users-load-column").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("input-field").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+    const fromMmddyyyy = document.getElementById("from-mmddyyyy-users-load-column").value;
+    const toMmddyyyy = document.getElementById("to-mmddyyyy-users-load-column").value;
+    const fromHhmmss = document.getElementById("from-hhmmss-users-load-column").value;
+    const toHhmmss = document.getElementById("to-hhmmss-users-load-column").value;
+
+    const meesageobject = {
+      saveTimeFromUsersLoadColumn: {
+      fromMmddyyyy: fromMmddyyyy,
+        toMmddyyyy: toMmddyyyy,
+        fromHhmmss: fromHhmmss,
+        toHhmmss: toHhmmss
+      }
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
 
 document.getElementById("load-filters-from-users").addEventListener("click", async () => {
   try {
@@ -7540,6 +7700,31 @@ document.getElementById("load-filters-from-users").addEventListener("click", asy
     console.log("messagesObject", messages);
   } catch (error) {
     console.error("Error loading filters from users:", error);
+  }
+});
+
+
+document.getElementById("load-time-from-users-load-column").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessages[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].saveTimeFromUsersLoadColumn) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("from-mmddyyyy-users-load-column").value = lastValidMessage.saveTimeFromUsersLoadColumn.fromMmddyyyy || '';
+      document.getElementById("to-mmddyyyy-users-load-column").value = lastValidMessage.saveTimeFromUsersLoadColumn.toMmddyyyy || '';
+      document.getElementById("from-hhmmss-users-load-column").value = lastValidMessage.saveTimeFromUsersLoadColumn.fromHhmmss || '000000';
+      document.getElementById("to-hhmmss-users-load-column").value = lastValidMessage.saveTimeFromUsersLoadColumn.toHhmmss || '000000';
+    } else {
+      console.log("No valid user message found with loadTimeFromUsersLoadColumn");
+    }
+  } catch (error) {
+    console.error("Error loading time from users load column:", error);
   }
 });
 
