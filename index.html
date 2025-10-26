@@ -3991,7 +3991,7 @@ async function handleGeoFilter() {
   // Load filtered markers and polygons
   if (storedMarkersFiltered.length > 0) {
     index.load(storedMarkersFiltered);
-    updateClusters();
+    debouncedUpdateClusters();
   }
 
   if (storedPolygonsFiltered.length > 0) {
@@ -3999,6 +3999,8 @@ async function handleGeoFilter() {
       addPolygonWithImageFill(map, polygon);
     });
   }
+
+  
 
   // Optional: Display a message if no markers or polygons are found
   if (storedMarkersFiltered.length === 0 && storedPolygonsFiltered.length === 0) {
