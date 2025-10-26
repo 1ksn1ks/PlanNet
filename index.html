@@ -959,7 +959,7 @@ button[type="submit"],
   </button>
   <button id="toggle-toolbar-btn-btn" class="options-and-topic" style="margin-left: 0.3vh; display: none;">TOOLBAR
   </button>
-  <button id="toggle-your-fov-btn-btn" class="options-and-topic" style="margin-left: 0.3vh; display: none;">YOUR POV
+  <button id="toggle-your-fov-btn-btn" class="options-and-topic" style="margin-left: 0.3vh; display: none;">SETTINGS
   </button>
   <button id="topic-chat-btn" class="options-and-topic" style="margin-left: 1vw;">TOPIC CHAT
   </button>
@@ -971,7 +971,7 @@ button[type="submit"],
 <button id="toggle-controls-btn" class="menu_buttons" style="top: 6.5vh;">CONTROLS
 </button>
 
-<button id="toggle-your-fov-btn" class="menu_buttons" style="top: 11vh;">YOUR POV
+<button id="toggle-your-fov-btn" class="menu_buttons" style="top: 11vh;">SETTINGS
 </button>
 
 <button id="toggle-visibility-controls-btn" class="menu_buttons" style="top: 15.5vh;">VISIBILITY
@@ -1770,7 +1770,7 @@ button[type="submit"],
 
   
   <div id="time-from-topic-chat" style="display: none;">
-    <label for="from-mmddyyyy-encrypted-chat" style="font-size: 2vh; padding-bottom: 0.5vh;">Month Day Year:
+    <label style="font-size: 2vh; padding-bottom: 0.5vh;">Month Day Year:
       <div style="display: flex; align-items: center;">
         <input type="number" id="from-mmddyyyy" class="toolbar-column" step="1" placeholder="MMDDYYYY" oninput="restrictLength(this, 8)" />
         <input type="number" id="to-mmddyyyy" class="toolbar-column" step="1" placeholder="MMDDYYYY" style="margin-left: 1vw;" oninput="restrictLength(this, 8)" />
@@ -1779,7 +1779,7 @@ button[type="submit"],
       </div>
   </label>
 
-  <label for="from-mmddyyyy-encrypted-chat" style="font-size: 2vh; padding-bottom: 0.5vh;">Hour Minute Second:
+  <label style="font-size: 2vh; padding-bottom: 0.5vh;">Hour Minute Second:
     <div style="display: flex; align-items: center;">
       <input type="number" id="from-hhmmss" class="toolbar-column" step="1" placeholder="HHMMSS" oninput="restrictLength(this, 6)" />
       <input type="number" id="to-hhmmss" class="toolbar-column" step="1" placeholder="HHMMSS" style="margin-left: 1vw;" oninput="restrictLength(this, 6)" />
@@ -3299,11 +3299,9 @@ async function loadMessagesFromEncryptedChat() {
 
 
 
-// Process messages
 let allMessages = '';
 let previousPayer = null;
-
-// Buffer for the current group
+storedMessagesEncryptedChat = [];
 let groupHTML = '';
 let groupOpen = false;
 let decryptedMessage = null;
@@ -3463,223 +3461,6 @@ if (groupOpen) {
 }
 
 
-
-
-
-
-
-document.getElementById("topic-msgs-filter-encrypted-chat").addEventListener("click", async () => {
-  const fromDateInput = document.getElementById("from-mmddyyyy-encrypted-chat").value;
-  const toDateInput = document.getElementById("to-mmddyyyy-encrypted-chat").value;
-
-  if (!fromDateInput || !toDateInput) {
-    console.error("Please provide both from and to dates.");
-    return;
-  }
-
-  const profilePictures = await loadProfilePicture(); // Load profile pictures
-  const usernames = await loadUsername(); // Load usernames
-  const click2url = await loadCLICK2URL();
-  const topic2pic = await loadTOPIC2PIC();
-
-  const fromDate = new Date(fromDateInput.slice(4, 8), fromDateInput.slice(0, 2) - 1, fromDateInput.slice(2, 4));
-  const toDate = new Date(toDateInput.slice(4, 8), toDateInput.slice(0, 2) - 1, toDateInput.slice(2, 4));
-
-  // Adjust toDate to include the entire day
-  toDate.setHours(23, 59, 59, 999);
-
-  const filteredMessagesEncryptedChat = storedMessagesEncryptedChat.filter(message => {
-    const messageDate = new Date(message.created); // Parse the created date string
-    return messageDate >= fromDate && messageDate <= toDate;
-  });
-
-  let filteredMessagesHtml = '';
-  let previousPayer = null;
-
-  filteredMessagesEncryptedChat.forEach(parsedMessage => {
-    const userMessage = parsedMessage.decryptedMessage;
-    const payer = parsedMessage.payer || 'Unknown';
-    const payerImage = profilePictures[payer]?.url || 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
-
-// Function to validate URL
-function isValidUrl(string) {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
-// Check if payerImage is valid, if not use fallback
-const validPayerImage = isValidUrl(payerImage) ? payerImage : 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
-const timestamp = new Date(parsedMessage.created)
-  .toLocaleString('en-US', {
-    hour12: false,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  })
-  .replace(/[/]/g, '') // Remove slashes
-  .replace(/[:]/g, ''); // Remove colons
-
-const payerInfo = parsedMessage.payer ? `${parsedMessage.payer}` : 'Anonymous';
-              const username = parsedMessage.payer && usernames[parsedMessage.payer] ?
-                ` ${usernames[parsedMessage.payer].username}` :
-                '';
-
-                const click2link= parsedMessage.payer && click2url[parsedMessage.payer] ?
-                ` ${click2url[parsedMessage.payer].click2url}` :
-                '';
-
-const displayHeader = 
-`<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>
-${click2link ? `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor};
-text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicChatColor};">${username}</span>`}`;
-
-
-      if (payer !== previousPayer) {
-  filteredMessagesHtml += `<div style="display: flex; align-items: center; margin-top: 0.1em;">
-    <img src="${validPayerImage}" alt="Profile photo"
-    style="width: 2em; height: 2em; margin-right: 0.5em; border-radius: 1em; cursor: pointer;"
-    onclick="loadTOPIC4PIC('${parsedMessage.payer}');">
-                    <div style="display: flex; flex-direction: column; justify-content: center;">
-                      <div>${displayHeader}</div>
-                      <span style="font-size: 0.8em; color: gray;">${timestamp}</span>
-                      <div style="color: ${textTopicChatColor};">${userMessage}</div>
-                    </div>
-                  </div><br>`;
-} else {
-  filteredMessagesHtml += `<div style="display: flex; align-items: center; margin-left: 2.5em; margin-top: -1.25em;">
-                    <div style="color: ${textTopicChatColor};">${userMessage}</div>
-                  </div><br>`;
-}
-      previousPayer = payer; // Update the previous payer
-  });
-
-  const messageContainer = document.getElementById("messages-from-encrypted-chat");
-  messageContainer.innerHTML = filteredMessagesHtml;
-  adjustTextareaHeight(messageContainer);
-  messageContainer.scrollTop = messageContainer.scrollHeight;
-
-});
-
-
-document.getElementById("topic-msgs-filter-time-encrypted-chat").addEventListener("click", async () => {
-  const fromDateInput = document.getElementById("from-mmddyyyy-encrypted-chat").value;
-  const toDateInput = document.getElementById("to-mmddyyyy-encrypted-chat").value;
-  const fromTimeInput = document.getElementById("from-hhmmss-encrypted-chat").value;
-  const toTimeInput = document.getElementById("to-hhmmss-encrypted-chat").value;
-
-  if (!fromDateInput || !toDateInput || !fromTimeInput || !toTimeInput) {
-    console.error("Please provide both from and to dates and times.");
-    return;
-  }
-
-  const profilePictures = await loadProfilePicture(); // Load profile pictures
-  const usernames = await loadUsername(); // Load usernames
-  const click2url = await loadCLICK2URL();
-  const topic2pic = await loadTOPIC2PIC();
-
-  const fromDate = new Date(
-    fromDateInput.slice(4, 8),
-    fromDateInput.slice(0, 2) - 1,
-    fromDateInput.slice(2, 4),
-    fromTimeInput.slice(0, 2), // Hours
-    fromTimeInput.slice(2, 4), // Minutes
-    fromTimeInput.slice(4, 6)  // Seconds
-  );
-
-  const toDate = new Date(
-    toDateInput.slice(4, 8),
-    toDateInput.slice(0, 2) - 1,
-    toDateInput.slice(2, 4),
-    toTimeInput.slice(0, 2), // Hours
-    toTimeInput.slice(2, 4), // Minutes
-    toTimeInput.slice(4, 6)  // Seconds
-  );
-
-  const filteredMessagesEncryptedChat = storedMessagesEncryptedChat.filter(message => {
-    const messageDate = new Date(message.created); // Parse the created date string
-    return messageDate >= fromDate && messageDate <= toDate;
-  });
-
-  let filteredMessagesHtml = '';
-  let previousPayer = null;
-
-  filteredMessagesEncryptedChat.forEach(parsedMessage => {
-    const userMessage = parsedMessage.decryptedMessage;
-    const payer = parsedMessage.payer || 'Unknown';
-    const payerImage = profilePictures[payer]?.url || 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
-
-// Function to validate URL
-function isValidUrl(string) {
-  try {
-    new URL(string);
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
-// Check if payerImage is valid, if not use fallback
-const validPayerImage = isValidUrl(payerImage) ? payerImage : 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
-const timestamp = new Date(parsedMessage.created)
-  .toLocaleString('en-US', {
-    hour12: false,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  })
-  .replace(/[/]/g, '') // Remove slashes
-  .replace(/[:]/g, ''); // Remove colons
-
-const payerInfo = parsedMessage.payer ? `${parsedMessage.payer}` : 'Anonymous';
-              const username = parsedMessage.payer && usernames[parsedMessage.payer] ?
-                ` ${usernames[parsedMessage.payer].username}` :
-                '';
-
-                const click2link= parsedMessage.payer && click2url[parsedMessage.payer] ?
-                ` ${click2url[parsedMessage.payer].click2url}` :
-                '';
-
-const displayHeader = 
-`<a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>
-${click2link ? `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor};
-text-decoration: none;">${username}</a>` : `<span style="color: ${usernameTopicChatColor};">${username}</span>`}`;
-
-
-      if (payer !== previousPayer) {
-  filteredMessagesHtml += `<div style="display: flex; align-items: center; margin-top: 0.1em;">
-    <img src="${validPayerImage}" alt="Profile photo"
-    style="width: 2em; height: 2em; margin-right: 0.5em; border-radius: 1em; cursor: pointer;"
-    onclick="loadTOPIC4PIC('${parsedMessage.payer}');">
-                    <div style="display: flex; flex-direction: column; justify-content: center;">
-                      <div>${displayHeader}</div>
-                      <span style="font-size: 0.8em; color: gray;">${timestamp}</span>
-                      <div style="color: ${textTopicChatColor};">${userMessage}</div>
-                    </div>
-                  </div><br>`;
-} else {
-  filteredMessagesHtml += `<div style="display: flex; align-items: center; margin-left: 2.5em; margin-top: -1.25em;">
-                    <div style="color: ${textTopicChatColor};">${userMessage}</div>
-                  </div><br>`;
-}
-      previousPayer = payer;
-  });
-
-  const messageContainer = document.getElementById("messages-from-encrypted-chat");
-  messageContainer.innerHTML = filteredMessagesHtml;
-  adjustTextareaHeight(messageContainer);
-  messageContainer.scrollTop = messageContainer.scrollHeight;
-
-});
 
 
 document.getElementById('upload-to-ipfs-button').disabled = true;
@@ -4323,11 +4104,9 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
     }
 
 
-// Process messages
 let allMessages = '';
 let previousPayer = null;
-
-// Buffer for the current group
+storedMessages = [];
 let groupHTML = '';
 let groupOpen = false;
 
@@ -4354,6 +4133,7 @@ for (let index = 0; index < result.messages.length; index++) {
     } else {
       payerHasNFT = true;
     }
+
 
     if (payerHasNFT && parsedMessage.userMessage) {
       const userMessage = parsedMessage.userMessage;
@@ -4469,12 +4249,310 @@ if (groupOpen) {
   }
 });
 
+async function filterEncryptedChatMessages(fromDateValue, toDateValue, fromTimeValue, toTimeValue, loadUsersArray, blockUsersArray) {
+  const profilePictures = await loadProfilePicture();
+  const usernames = await loadUsername();
+  const click2url = await loadCLICK2URL();
+  const topic2pic = await loadTOPIC2PIC();
+
+  let loadedUsersEncryptedChat = loadUsersArray || [];
+  let blockUsersEncryptedChat = blockUsersArray || [];
+
+  let fromDate;
+  let toDate;
+
+
+  // Handle date and time parsing
+  if (fromTimeValue && toTimeValue && fromDateValue && toDateValue) {
+    fromDate = new Date(
+      fromDateValue.slice(4, 8),
+      fromDateValue.slice(0, 2) - 1,
+      fromDateValue.slice(2, 4),
+      fromTimeValue.slice(0, 2), // Hours
+      fromTimeValue.slice(2, 4), // Minutes
+      fromTimeValue.slice(4, 6)  // Seconds
+    );
+    toDate = new Date(
+      toDateValue.slice(4, 8),
+      toDateValue.slice(0, 2) - 1,
+      toDateValue.slice(2, 4),
+      toTimeValue.slice(0, 2), // Hours
+      toTimeValue.slice(2, 4), // Minutes
+      toTimeValue.slice(4, 6)  // Seconds
+    );
+  } else if (fromDateValue && toDateValue) {
+    fromDate = new Date(fromDateValue.slice(4, 8), fromDateValue.slice(0, 2) - 1, fromDateValue.slice(2, 4));
+    toDate = new Date(toDateValue.slice(4, 8), toDateValue.slice(0, 2) - 1, toDateValue.slice(2, 4));
+  } else {
+    // Default to a wide date range if no dates are provided
+    fromDate = new Date(0); // Unix epoch start
+    toDate = new Date(); // Current time
+  }
+
+  const filteredMessagesEncryptedChat = storedMessagesEncryptedChat.filter(parsedMessage => {
+  const messageDate = new Date(parsedMessage.created);
+
+  // Initialize an array to hold active filter conditions
+  const conditions = [];
+
+  // Date range filter (apply only if both fromDate and toDate are defined)
+  if (fromDate && toDate) {
+    conditions.push(messageDate >= fromDate && messageDate <= toDate);
+  }
+
+  // Load users filter (apply only if loadedUsers has values)
+  if (loadedUsersEncryptedChat.length > 0) {
+    conditions.push(loadedUsersEncryptedChat.includes(parsedMessage.payer));
+  }
+
+  // Block users filter (apply only if blockUsers has values)
+  if (blockUsersEncryptedChat.length > 0) {
+    conditions.push(!blockUsersEncryptedChat.includes(parsedMessage.payer));
+  }
+
+  // If no conditions are defined, include all messages
+  if (conditions.length === 0) {
+    return true;
+  }
+
+  // Return true only if all defined conditions are true
+  return conditions.every(condition => condition);
+});
+
+  let filteredMessagesEncryptedChatHtml = '';
+  let previousPayer = null;
+  let groupHTML = '';
+  let groupOpen = false;
+
+filteredMessagesEncryptedChat.forEach(parsedMessage => {
+    const decryptedMessage = parsedMessage.decryptedMessage;
+    const payer = parsedMessage.payer || 'Unknown';
+    const payerImage = profilePictures[payer]?.url || 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
 
 
 
+  function isValidUrl(string) {
+      try {
+        new URL(string);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+const validPayerImage = isValidUrl(payerImage) ? payerImage : 'https://kiloscribe.com/api/inscription-cdn/0.0.4819119';
+    const timestamp = new Date(parsedMessage.created).toLocaleString('en-US', {
+      hour12: false,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+  const payerInfo = parsedMessage.payer ? `${parsedMessage.payer}` : 'Anonymous';
+    const username = parsedMessage.payer && usernames[parsedMessage.payer] ?
+      ` ${usernames[parsedMessage.payer].username}` : '';
+    const click2link = parsedMessage.payer && click2url[parsedMessage.payer] ?
+      ` ${click2url[parsedMessage.payer].click2url}` : '';
+
+  const displayHeader = 
+      `<div class="toolbar-group-messages-header" style="display: flex; align-items: center; border-color: ${topicChatHeaderColor};"> 
+      <a href="https://explore.hashpack.app/${payerInfo}" target="_blank" style="color: ${accidTopicChatColor}; text-decoration: none;">${payerInfo}</a>&nbsp;` +
+      (click2link ?
+        `<a href="${click2link}" target="_blank" style="color: ${usernameTopicChatColor}; text-decoration: none;">${username}</a>` :
+        `<span style="color: ${usernameTopicChatColor};">${username}</span>`);
+
+    if (payer !== previousPayer) {
+      if (groupOpen) {
+        groupHTML += '</div></div></div><br></div>';
+        filteredMessagesHtml += groupHTML;
+        groupHTML = '';
+        groupOpen = false;
+      }
+
+      groupHTML = `<div class="toolbar-group-messages" style="position: relative; padding-left: 2.5em; min-height: 2.5em; border-color: ${innerContainerTopicChatColor};">
+                    <img src="${validPayerImage}" alt="Profile photo"
+                        style="position: absolute; left: 0.25em; top: 0.5em; width: 2em; height: 2em; border-radius: 1em; cursor: pointer;"
+                        onclick="loadTOPIC4PIC('${parsedMessage.payer}');">
+                      <div style="display: flex; flex-direction: column;">
+                      <div style="display: flex; align-items: center;">
+                        ${displayHeader}
+                      </div></div>`;
+      groupOpen = true;
+    }
+
+    if (payer !== previousPayer) {
+      groupHTML += `<div style="color: ${textTopicChatColor}; margin-top: 0.5em;">${decryptedMessage}</div>
+                    <span style="font-size: 0.5em; color: gray;">${timestamp}</span>`;
+    } else {
+      groupHTML += `
+        <div style="display: flex; flex-direction: column; justify-content: center; margin-top: 0.5em;">
+          <div style="color: ${textTopicChatColor};">${decryptedMessage}</div>
+          <span style="font-size: 0.5em; color: gray;">${timestamp}</span>
+        </div>`;
+    }
+
+      previousPayer = payer;
+    }); 
 
 
+// ----- Flush the very last group -----
+if (groupOpen) {
+  groupHTML += '</div></div></div><br></div>';
+  filteredMessagesEncryptedChatHtml += groupHTML;
+}
 
+const messagesContainer = document.getElementById('messages-from-encrypted-chat');
+  messagesContainer.innerHTML = filteredMessagesEncryptedChatHtml;
+
+  if (filteredMessagesEncryptedChatHtml.length === 0) {
+    messagesContainer.innerHTML = 
+    `<div style="display: flex; justify-content: left; align-items: left; height: 100%;">
+       <span style="margin-left: 1vw;">No messages found</span>
+      </div>`;
+      return;
+  }
+
+  adjustTextareaHeight(messagesContainer);
+
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+};
+  
+
+async function handleFilterMessagesEncryptedChat() {
+  console.log("handleFilterMessagesEncryptedChat");
+  // Get values from all input fields
+  const fromDateValue = document.getElementById("from-mmddyyyy-encrypted-chat").value;
+  const toDateValue = document.getElementById("to-mmddyyyy-encrypted-chat").value;
+  const fromTimeValue = document.getElementById("from-hhmmss-encrypted-chat").value;
+  const toTimeValue = document.getElementById("to-hhmmss-encrypted-chat").value;
+  const topicChatFromUsers = document.getElementById("load-msgs-from-ids-encrypted-chat").value;
+  const topicChatBlockUsers = document.getElementById("load-blocks-from-ids-encrypted-chat")?.value || ''; // Assuming a block users input field
+
+  // Process loadUsersArray
+  let loadUsersArrayEncryptedChat = [];
+  if (topicChatFromUsers) {
+    loadUsersArrayEncryptedChat = topicChatFromUsers.split(',').map(user => user.trim()).filter(user => user !== '');
+  }
+
+  // Process blockUsersArray
+  let blockUsersArrayEncryptedChat = [];
+  if (topicChatBlockUsers) {
+    blockUsersArrayEncryptedChat = topicChatBlockUsers.split(',').map(user => user.trim()).filter(user => user !== '');
+  }
+
+  // Call filterTopicMessages with all parameters, passing undefined for empty fields
+  await filterEncryptedChatMessages(
+    fromDateValue || undefined,
+    toDateValue || undefined,
+    fromTimeValue || undefined,
+    toTimeValue || undefined,
+    loadUsersArrayEncryptedChat.length > 0 ? loadUsersArrayEncryptedChat : undefined,
+    blockUsersArrayEncryptedChat.length > 0 ? blockUsersArrayEncryptedChat : undefined
+  );
+}
+
+// Attach the same handler to all buttons
+document.getElementById("topic-msgs-filter-encrypted-chat").addEventListener("click", handleFilterMessagesEncryptedChat);
+document.getElementById("topic-msgs-filter-time-encrypted-chat").addEventListener("click", handleFilterMessagesEncryptedChat);
+document.getElementById("load-msgs-from-ids-button-encrypted-chat").addEventListener("click", handleFilterMessagesEncryptedChat);
+document.getElementById("load-block-from-users-button-encrypted-chat").addEventListener("click", handleFilterMessagesEncryptedChat);
+
+
+document.getElementById("load-save-filters-from-users-encrypted-chat").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("encrypted-chat-topic-id").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+    const encryptedChatFromUsers = document.getElementById("load-msgs-from-ids-encrypted-chat").value;
+    console.log("encryptedChatFromUsers", encryptedChatFromUsers);
+    const meesageobject = {
+      encryptedChatFromUsers: encryptedChatFromUsers
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
+document.getElementById("load-load-filters-from-users-encrypted-chat").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessagesEncryptedChat[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].encryptedChatFromUsers) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("load-msgs-from-ids-encrypted-chat").value = lastValidMessage.encryptedChatFromUsers;
+    } else {
+      console.log("No valid user message found with encryptedChatFromUsers");
+    }
+    console.log("messagesObject", messages);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+document.getElementById("load-save-blocks-from-users-encrypted-chat").addEventListener("click", async () => {
+  try {
+    let userInput = document.getElementById("encrypted-chat-topic-id").value;
+    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
+    let topicId;
+
+      if (domainEntry && domainEntry.lastMessage) {
+      topicId = domainEntry.lastMessage.topic;
+    } else {
+      topicId = userInput;
+    }
+    const encryptedChatBlocks = document.getElementById("load-blocks-from-ids-encrypted-chat").value;
+      console.log("encryptedChatBlocks", encryptedChatBlocks);
+    const meesageobject = {
+      encryptedChatBlocks: encryptedChatBlocks
+    };
+    const meesage = JSON.stringify(meesageobject);
+    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
+
+
+document.getElementById("load-load-blocks-from-users-encrypted-chat").addEventListener("click", async () => {
+  try {
+    const messages = allLoadedMessagesEncryptedChat[0];
+    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
+    let lastValidMessage = null;
+    for (let i = userMessages.length - 1; i >= 0; i--) {
+      if (userMessages[i] && userMessages[i].encryptedChatBlocks) {
+        lastValidMessage = userMessages[i];
+        break; // Stop at the first valid message
+      }
+    }
+    if (lastValidMessage) {
+      document.getElementById("load-blocks-from-ids-encrypted-chat").value = lastValidMessage.encryptedChatBlocks;
+    } else {
+      console.log("No valid user message found with encryptedChatBlocks");
+    }
+    console.log("messagesObject", messages);
+  } catch (error) {
+    console.error("Error loading filters from users:", error);
+  }
+});
 
 
 
@@ -4642,7 +4720,7 @@ async function filterTopicMessages(fromDateValue, toDateValue, fromTimeValue, to
 
   adjustTextareaHeight(messagesContainer);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
+};
 
 
 
@@ -5715,7 +5793,7 @@ async function confirmNFTFunction(accountId) {
     BetaNFTScaleFactor = 1.5;
     finalScaleForModel = BetaNFTScaleFactor*scaleForModel;
   } else {
-    BetaNFTScaleFactor = 1; // Set to 1 if no beta NFTs
+    BetaNFTScaleFactor = 1;
   }
 
 
@@ -7343,119 +7421,6 @@ document.getElementById("load-blocks-from-users").addEventListener("click", asyn
     console.error("Error loading filters from users:", error);
   }
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-document.getElementById("load-save-filters-from-users-encrypted-chat").addEventListener("click", async () => {
-  try {
-    let userInput = document.getElementById("encrypted-chat-topic-id").value;
-    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
-    let topicId;
-
-      if (domainEntry && domainEntry.lastMessage) {
-      topicId = domainEntry.lastMessage.topic;
-    } else {
-      topicId = userInput;
-    }
-    const encryptedChatFromUsers = document.getElementById("load-msgs-from-ids-encrypted-chat").value;
-    console.log("encryptedChatFromUsers", encryptedChatFromUsers);
-    const meesageobject = {
-      encryptedChatFromUsers: encryptedChatFromUsers
-    };
-    const meesage = JSON.stringify(meesageobject);
-    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
-  } catch (error) {
-    console.error("Error loading filters from users:", error);
-  }
-});
-
-
-document.getElementById("load-load-filters-from-users-encrypted-chat").addEventListener("click", async () => {
-  try {
-    const messages = allLoadedMessagesEncryptedChat[0];
-    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
-    let lastValidMessage = null;
-    for (let i = userMessages.length - 1; i >= 0; i--) {
-      if (userMessages[i] && userMessages[i].encryptedChatFromUsers) {
-        lastValidMessage = userMessages[i];
-        break; // Stop at the first valid message
-      }
-    }
-    if (lastValidMessage) {
-      document.getElementById("load-msgs-from-ids-encrypted-chat").value = lastValidMessage.encryptedChatFromUsers;
-    } else {
-      console.log("No valid user message found with encryptedChatFromUsers");
-    }
-    console.log("messagesObject", messages);
-  } catch (error) {
-    console.error("Error loading filters from users:", error);
-  }
-});
-
-document.getElementById("load-save-blocks-from-users-encrypted-chat").addEventListener("click", async () => {
-  try {
-    let userInput = document.getElementById("encrypted-chat-topic-id").value;
-    let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
-    let topicId;
-
-      if (domainEntry && domainEntry.lastMessage) {
-      topicId = domainEntry.lastMessage.topic;
-    } else {
-      topicId = userInput;
-    }
-    const encryptedChatBlocks = document.getElementById("load-blocks-from-ids-encrypted-chat").value;
-      console.log("encryptedChatBlocks", encryptedChatBlocks);
-    const meesageobject = {
-      encryptedChatBlocks: encryptedChatBlocks
-    };
-    const meesage = JSON.stringify(meesageobject);
-    const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
-  } catch (error) {
-    console.error("Error loading filters from users:", error);
-  }
-});
-
-
-document.getElementById("load-load-blocks-from-users-encrypted-chat").addEventListener("click", async () => {
-  try {
-    const messages = allLoadedMessagesEncryptedChat[0];
-    const userMessages = messages.messages.filter(message => message.payer === globalAccountId);
-    let lastValidMessage = null;
-    for (let i = userMessages.length - 1; i >= 0; i--) {
-      if (userMessages[i] && userMessages[i].encryptedChatBlocks) {
-        lastValidMessage = userMessages[i];
-        break; // Stop at the first valid message
-      }
-    }
-    if (lastValidMessage) {
-      document.getElementById("load-blocks-from-ids-encrypted-chat").value = lastValidMessage.encryptedChatBlocks;
-    } else {
-      console.log("No valid user message found with encryptedChatBlocks");
-    }
-    console.log("messagesObject", messages);
-  } catch (error) {
-    console.error("Error loading filters from users:", error);
-  }
-});
-
-
 
 
 
@@ -11454,7 +11419,7 @@ function retryWebRTCConnection(peerId) {
         // Update the existing model
         models[modelIndex] = {
             peer_id: peer_id,
-            url: url || 'https://kiloscribe.com/api/inscription-cdn/0.0.8392276',
+            url: url || 'https://kiloscribe.com/api/inscription-cdn/0.0.9742046',
             origin: [coordinates.x, coordinates.y],
             altitude: coordinates.z,
             scaleFactorNFT: scaleFactorNFT
@@ -11463,7 +11428,7 @@ function retryWebRTCConnection(peerId) {
         // Append new message to models array
         models.push({
             peer_id: peer_id,
-            url: url || 'https://kiloscribe.com/api/inscription-cdn/0.0.8392276',
+            url: url || 'https://kiloscribe.com/api/inscription-cdn/0.0.9742046',
             origin: [coordinates.x, coordinates.y],
             altitude: coordinates.z,
             scaleFactorNFT: scaleFactorNFT
