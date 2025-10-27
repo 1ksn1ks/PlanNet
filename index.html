@@ -3022,7 +3022,34 @@ function makeScrollable(el) {
   let isDragging = false;
   let hasMoved = false;
   let mouseDownTarget = null;
+  let startTime = 0;
   const DRAG_THRESHOLD = 5;
+
+  // Find the next scrollable element (parent or sibling)
+  const getNextScrollable = () => {
+    // Check parent for scrollability
+    let parent = el.parentElement;
+    while (parent) {
+      if (parent.scrollHeight > parent.clientHeight) {
+        return parent;
+      }
+      parent = parent.parentElement;
+    }
+    // If no scrollable parent, check siblings (optional, adjust as needed)
+    const siblings = el.parentElement ? Array.from(el.parentElement.children) : [];
+    const index = siblings.indexOf(el);
+    for (let i = index + 1; i < siblings.length; i++) {
+      if (siblings[i].scrollHeight > siblings[i].clientHeight) {
+        return siblings[i];
+      }
+    }
+    for (let i = index - 1; i >= 0; i--) {
+      if (siblings[i].scrollHeight > siblings[i].clientHeight) {
+        return siblings[i];
+      }
+    }
+    return null; // No scrollable element found
+  };
 
   // ------------------------------------------------- Selection
   const disableSelection = () => {
@@ -3038,26 +3065,48 @@ function makeScrollable(el) {
 
   // ------------------------------------------------- START
   const start = (e, clientY, isTouch = false) => {
-  mouseDownTarget = e.target;
-  startY = clientY;
-  startScroll = el.scrollTop;
-  startTime = performance.now(); // Add timestamp
-  isDragging = false;
-  hasMoved = false;
+    mouseDownTarget = e.target;
+    startY = clientY;
+    startScroll = el.scrollTop;
+    startTime = performance.now();
+    isDragging = false;
+    hasMoved = false;
 
-  e.stopPropagation();
+    e.stopPropagation();
 
-  if (isTouch) disableSelection();
-};
+    if (isTouch) disableSelection();
+  };
 
   // ------------------------------------------------- MOVE
   const move = (e, clientY, isTouch = false) => {
-    // If no press happened → ignore all movement
     if (!mouseDownTarget && !isTouch) return;
 
+    const walk = (startY - clientY) * 2;
+    const newScrollTop = startScroll + walk;
+
+    // Check if at top or bottom
+    const atTop = newScrollTop <= 0;
+    const atBottom = newScrollTop >= el.scrollHeight - el.clientHeight;
+
     if (isDragging) {
-      const walk = (startY - clientY) * 2;
-      el.scrollTop = startScroll + walk;
+      if (atTop && walk < 0) {
+        // Reached top and scrolling up
+        const nextEl = getNextScrollable();
+        if (nextEl) {
+          nextEl.scrollTop += walk; // Propagate scroll to next element
+          e.preventDefault();
+          return;
+        }
+      } else if (atBottom && walk > 0) {
+        // Reached bottom and scrolling down
+        const nextEl = getNextScrollable();
+        if (nextEl) {
+          nextEl.scrollTop += walk; // Propagate scroll to next element
+          e.preventDefault();
+          return;
+        }
+      }
+      el.scrollTop = newScrollTop;
       e.preventDefault();
       return;
     }
@@ -3075,21 +3124,19 @@ function makeScrollable(el) {
 
   // ------------------------------------------------- END
   const end = (e, isTouch = false) => {
-  if (isDragging) enableSelection();
+    if (isDragging) enableSelection();
 
-  // Only simulate click on mouse + no movement + sufficient time
-  if (!isTouch && !hasMoved && mouseDownTarget) {
-    const timeSinceStart = performance.now() - startTime; // Track start time
-    if (timeSinceStart > 300) { // Adjust threshold as needed
-      mouseDownTarget.click();
+    if (!isTouch && !hasMoved && mouseDownTarget) {
+      const timeSinceStart = performance.now() - startTime;
+      if (timeSinceStart > 300) {
+        mouseDownTarget.click();
+      }
     }
-  }
 
-  cleanup();
-};
+    cleanup();
+  };
 
   const cleanup = () => {
-    // Remove global listeners
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
 
@@ -3119,25 +3166,34 @@ function makeScrollable(el) {
 
   // ==================== MOUSE ====================
   const onMouseMove = e => move(e, e.clientY, false);
-  const onMouseUp   = e => end(e, false);
+  const onMouseUp = e => end(e, false);
 
-  // Only attach global listeners **after** mousedown
   el.addEventListener('mousedown', e => {
     start(e, e.clientY, false);
-
-    // Attach global move/up listeners **once per click**
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
 
-  // If mouse leaves during drag → cancel
   el.addEventListener('mouseleave', () => {
     if (isDragging || mouseDownTarget) cleanup();
   });
 
   // ==================== WHEEL ====================
   el.addEventListener('wheel', e => {
-    el.scrollTop += e.deltaY;
+    const delta = e.deltaY;
+    const atTop = el.scrollTop === 0;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight;
+
+    if ((atTop && delta < 0) || (atBottom && delta > 0)) {
+      const nextEl = getNextScrollable();
+      if (nextEl) {
+        nextEl.scrollTop += delta; // Propagate wheel scroll to next element
+        e.preventDefault();
+        return;
+      }
+    }
+
+    el.scrollTop += delta;
     if (el.scrollHeight > el.clientHeight) e.stopPropagation();
   }, { passive: false });
 
