@@ -357,7 +357,9 @@ html, body {
 .toolbar-column-first-settings-btns:hover,
 .toolbar-column-first-settings-btns:active,
 .toolbar-column-settings-btns:hover,
-.toolbar-column-settings-btns:active {
+.toolbar-column-settings-btns:active,
+.pin-public-key-from-encrypted-chat:hover,
+.pin-public-key-from-encrypted-chat:active {
   background-color: #007bff;
   color: white;
 }
@@ -367,7 +369,9 @@ html, body {
 .toolbar-column-first-settings-btns:hover,
 .toolbar-column-first-settings-btns.active,
 .toolbar-column-settings-btns:hover,
-.toolbar-column-settings-btns.active {
+.toolbar-column-settings-btns.active,
+.pin-public-key-from-encrypted-chat:hover,
+.pin-public-key-from-encrypted-chat.active {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -1122,17 +1126,17 @@ button[type="submit"],
 
 
     <div style="display: flex;">
-      <button id="show-time-from-users-load-column" class="toolbar-column-first-settings-btns">Time
+      <button id="show-block-from-users" class="toolbar-column-first-settings-btns">Block
       </button>
-      <button id="hide-time-from-users-load-column" style="display: none;" class="toolbar-column-first-settings-btns">Time
+      <button id="hide-block-from-users" style="display: none;" class="toolbar-column-first-settings-btns">Block
+      </button>
+      <button id="show-time-from-users-load-column" class="toolbar-column-settings-btns">Time
+      </button>
+      <button id="hide-time-from-users-load-column" style="display: none;" class="toolbar-column-settings-btns">Time
       </button>
       <button id="show-load-from-users" class="toolbar-column-settings-btns">From
       </button>
       <button id="hide-load-from-users" style="display: none;" class="toolbar-column-settings-btns">From
-      </button>
-      <button id="show-block-from-users" class="toolbar-column-settings-btns">Block
-      </button>
-      <button id="hide-block-from-users" style="display: none;" class="toolbar-column-settings-btns">Block
       </button>
     </div>
 
@@ -1154,11 +1158,11 @@ button[type="submit"],
   </div>
 
   <div id="time-from-users-load-column-filter" style="display: none;">
-    <button id="users-load-column-filter" class="toolbar-column-first-settings-btns">Filter
+    <button id="load-time-from-users-load-column" class="toolbar-column-first-settings-btns">Load Filters
+    </button>
+    <button id="users-load-column-filter" class="toolbar-column-settings-btns">Apply Filter
     </button>
     <button id="save-time-from-users-load-column" class="toolbar-column-settings-btns">Save Filters
-    </button>
-    <button id="load-time-from-users-load-column" class="toolbar-column-settings-btns">Load Filters
     </button>
   </div>
   
@@ -1187,22 +1191,22 @@ button[type="submit"],
 
 
     <div id="load-load-from-users" style="display: none; flex-direction: row;"> 
-      <button id="load-msgs-from-ids-button" class="toolbar-column-first-settings-btns">Filter
+      <button id="load-filters-from-users" class="toolbar-column-first-settings-btns">Load Filters
+      </button>
+      <button id="load-msgs-from-ids-button" class="toolbar-column-settings-btns">Apply Filter
       </button>
       <button id="save-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
-      </button>
-      <button id="load-filters-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
       </button>
     </div>
 
 
 
     <div id="load-block-from-users" style="display: none;">
-      <button id="load-block-from-users-button" class="toolbar-column-first-settings-btns">Filter
+      <button id="load-blocks-from-users" class="toolbar-column-first-settings-btns">Load Filters
+      </button>
+      <button id="load-block-from-users-button" class="toolbar-column-settings-btns">Apply Filter
       </button>
       <button id="save-blocks-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
-      </button>
-      <button id="load-blocks-from-users" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
       </button>
     </div>
 
@@ -1783,17 +1787,17 @@ button[type="submit"],
   <div id="options-from-topic-chat" style="display: none;">
 
     <div style="display: flex;">
-      <button id="show-time-from-topic-chat" class="toolbar-column-first-settings-btns">Time
+      <button id="show-block-from-topic-chat" class="toolbar-column-first-settings-btns">Block
       </button>
-      <button id="hide-time-from-topic-chat" style="display: none;" class="toolbar-column-first-settings-btns">Time
+      <button id="hide-block-from-topic-chat" style="display: none;" class="toolbar-column-first-settings-btns">Block
+      </button>
+      <button id="show-time-from-topic-chat" class="toolbar-column-settings-btns">Time
+      </button>
+      <button id="hide-time-from-topic-chat" style="display: none;" class="toolbar-column-settings-btns">Time
       </button>
       <button id="show-from-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">From
       </button>
       <button id="hide-from-from-topic-chat" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">From
-      </button>
-      <button id="show-block-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
-      </button>
-      <button id="hide-block-from-topic-chat" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
       </button>
     </div>
 
@@ -1817,11 +1821,11 @@ button[type="submit"],
 </div>
 
 <div id="time-from-topic-chat-filter" style="display: none;">
-  <button id="topic-msgs-filter" class="toolbar-column-first-settings-btns">Filter
+  <button id="load-time-from-topic-chat" class="toolbar-column-first-settings-btns">Load Filters
+  </button>
+  <button id="topic-msgs-filter" class="toolbar-column-settings-btns">Apply Filter
   </button>
   <button id="save-time-from-topic-chat" class="toolbar-column-settings-btns">Save Filters
-  </button>
-  <button id="load-time-from-topic-chat" class="toolbar-column-settings-btns">Load Filters
   </button>
 </div>
 
@@ -1849,22 +1853,22 @@ button[type="submit"],
 
 
 <div id="load-load-from-users-from-topic-chat" style="display: none;"> 
-  <button id="load-msgs-from-ids-button-topic-chat" class="toolbar-column-first-settings-btns">Filter
+  <button id="load-filters-from-topic-chat" class="toolbar-column-first-settings-btns">Load Filters
+  </button>
+  <button id="load-msgs-from-ids-button-topic-chat" class="toolbar-column-settings-btns">Apply Filter
   </button>
   <button id="save-filters-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
-  </button>
-  <button id="load-filters-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
   </button>
 </div>
 
 
 
 <div id="load-block-from-users-from-topic-chat" style="display: none;">
-  <button id="load-block-from-users-button-topic-chat" class="toolbar-column-first-settings-btns">Filter
+  <button id="load-blocks-from-topic-chat" class="toolbar-column-first-settings-btns">Load Filters
+  </button>
+  <button id="load-block-from-users-button-topic-chat" class="toolbar-column-settings-btns">Apply Filter
   </button>
   <button id="save-blocks-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
-  </button>
-  <button id="load-blocks-from-topic-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
   </button>
 </div>
 
@@ -1907,9 +1911,11 @@ button[type="submit"],
 <label style="font-size: 2vh; padding-bottom: 0.5vh;">Install BitWarden to save details for future use:
   </label>
 
+  <div id="encrypted-chat-private-key-container">
   <textarea class="toolbar-column" type="text" id="encrypted-chat-private-key" placeholder="Private Key"
   onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
   ></textarea>
+</div>
 
     <div style="display: flex; align-items: center;">
 
@@ -1930,17 +1936,17 @@ button[type="submit"],
     <div id="options-from-encrypted-chat" style="display: none;">
 
       <div style="display: flex;">
-        <button id="show-time-from-encrypted-chat" class="toolbar-column-first-settings-btns">Time
+        <button id="show-block-from-encrypted-chat" class="toolbar-column-first-settings-btns">Block
         </button>
-        <button id="hide-time-from-encrypted-chat" style="display: none;" class="toolbar-column-first-settings-btns">Time
+        <button id="hide-block-from-encrypted-chat" style="display: none;" class="toolbar-column-first-settings-btns">Block
+        </button>
+        <button id="show-time-from-encrypted-chat" class="toolbar-column-settings-btns">Time
+        </button>
+        <button id="hide-time-from-encrypted-chat" style="display: none;" class="toolbar-column-settings-btns">Time
         </button>
         <button id="show-from-from-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">From
         </button>
         <button id="hide-from-from-encrypted-chat" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">From
-        </button>
-        <button id="show-block-from-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
-        </button>
-        <button id="hide-block-from-encrypted-chat" style="display: none;" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Block
         </button>
         <button id="show-pin-public-key-from-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Pin
         </button>
@@ -1967,11 +1973,11 @@ button[type="submit"],
 </div>
 
 <div id="time-from-encrypted-chat-filter" style="display: none;">
-  <button id="topic-msgs-filter-encrypted-chat" class="toolbar-column-first-settings-btns">Filter
+  <button id="load-time-from-encrypted-chat" class="toolbar-column-first-settings-btns">Load Filters
+  </button>
+  <button id="topic-msgs-filter-encrypted-chat" class="toolbar-column-settings-btns">Apply Filter
   </button>
   <button id="save-time-from-encrypted-chat" class="toolbar-column-settings-btns">Save Filters
-  </button>
-  <button id="load-time-from-encrypted-chat" class="toolbar-column-settings-btns">Load Filters
   </button>
 </div>
 
@@ -2000,22 +2006,22 @@ button[type="submit"],
 
 
 <div id="load-load-from-users-from-encrypted-chat" style="display: none;"> 
-  <button id="load-msgs-from-ids-button-encrypted-chat" class="toolbar-column-first-settings-btns">Filter
+  <button id="load-load-filters-from-users-encrypted-chat" class="toolbar-column-first-settings-btns">Load Filters
+  </button>
+  <button id="load-msgs-from-ids-button-encrypted-chat" class="toolbar-column-settings-btns">Apply Filter
   </button>
   <button id="load-save-filters-from-users-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
-  </button>
-  <button id="load-load-filters-from-users-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
   </button>
 </div>
 
 
 
 <div id="load-block-from-users-from-encrypted-chat" style="display: none;">
-  <button id="load-block-from-users-button-encrypted-chat" class="toolbar-column-first-settings-btns">Filter
+  <button id="load-load-blocks-from-users-encrypted-chat" class="toolbar-column-first-settings-btns">Load Filters
+  </button>
+  <button id="load-block-from-users-button-encrypted-chat" class="toolbar-column-settings-btns">Apply Filter
   </button>
   <button id="load-save-blocks-from-users-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Save Filters
-  </button>
-  <button id="load-load-blocks-from-users-encrypted-chat" class="toolbar-column-settings-btns" style="margin-left: 1vw;">Load Filters
   </button>
 </div>
 
@@ -2031,7 +2037,9 @@ button[type="submit"],
     <textarea class="toolbar-column" type="text" id="encrypted-chat-public-key" placeholder="Public Key"
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
-    
+
+    <div id="encrypted-chat-public-key-container">
+
     <div style="position: relative;">
       <textarea
       class="toolbar-column"
@@ -2049,6 +2057,7 @@ button[type="submit"],
       <div id="char-counter-encrypted-chat" style="position: absolute; bottom: 5px; right: 10px; font-size: 2vh; color: #666;">0/256
       </div>
     </div>
+  </div>
 
     <div style="display: flex; align-items: center;">
       <button id="go-to-top-msgs-encrypted-chat" class="toolbar-column-btns">Go to the top
@@ -5717,7 +5726,6 @@ window.openPopupSettings = function() {
       document.getElementById("popup-column-container-2").style.display = "block";
       document.getElementById("popup-column-3").style.display = "block";
       document.getElementById("popup-column-container-3").style.display = "block";
-      OpenToggleYourFov();
       removeUfoModel();
     }
   });
@@ -6491,6 +6499,8 @@ function CloseALL() {
   document.getElementById("toggle-encrypted-chat-btn").style.display = "block";
   document.getElementById("toggle-toolbar-btn-btn").style.display = "none";
   document.getElementById("toggle-your-fov-btn-btn").style.display = "none";
+  document.getElementById("encrypted-chat-private-key-container").style.display = "block";
+  document.getElementById("encrypted-chat-public-key-container").style.display = "block";
   if (popIsOpen === false) {
     if (currentUfoModel) {
             scene.add(currentUfoModel);
@@ -6944,6 +6954,8 @@ document.getElementById("show-pin-public-key-from-encrypted-chat").addEventListe
   document.getElementById("pin-public-key-from-encrypted-chat").style.display = "block";
   document.getElementById("hide-pin-public-key-from-encrypted-chat").style.display = "block";
   document.getElementById("show-pin-public-key-from-encrypted-chat").style.display = "none";
+  document.getElementById("encrypted-chat-private-key-container").style.display = "none";
+  document.getElementById("encrypted-chat-public-key-container").style.display = "none";
 });
 
 document.getElementById("hide-pin-public-key-from-encrypted-chat").addEventListener("click", (event) => {
@@ -6952,6 +6964,8 @@ document.getElementById("hide-pin-public-key-from-encrypted-chat").addEventListe
   document.getElementById("hide-pin-public-key-from-encrypted-chat").style.display = "none";
   document.getElementById("show-pin-public-key-from-encrypted-chat").style.display = "block";
   document.getElementById("encrypted-chat-public-key").style.display = "block";
+  document.getElementById("encrypted-chat-private-key-container").style.display = "block";
+  document.getElementById("encrypted-chat-public-key-container").style.display = "block";
 });
 
 
