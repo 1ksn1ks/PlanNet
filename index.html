@@ -3918,8 +3918,6 @@ let storedPolygons = [];
 let storedPolygonsFiltered = [];
 
 async function handleGeoFilter() {
-  console.log("handleGeoFilter", storedMarkers);
-  console.log("handleGeoFilter", storedPolygons);
   // Get values from all input fields
   const loadIds = document.getElementById("load-msgs-from-ids").value.toLowerCase();
   const blockIds = document.getElementById("load-blocks-from-ids").value.toLowerCase();
@@ -8814,7 +8812,7 @@ function createLowQualityImage(imageUrl, size = 32) {
 
 let lastBounds = null;
 
-const activeMarkerPopups = [];
+let activeMarkerPopups = [];
 
 let currentMarkerSize = 5;
 
@@ -9009,8 +9007,8 @@ async function createResizedImage(imageUrl, maxWidth = 256, maxHeight = 256) {
 }
 
 // Track added layers to avoid duplicates
-const addedLayers = new Set();
-const activePolygonPopups = [];
+let addedLayers = new Set();
+let activePolygonPopups = [];
 
 async function addPolygonWithImageFill(map, polygon) {
   const sourceId = `${polygon.id}-source`;
@@ -10809,6 +10807,7 @@ async function processTopicMessages(topicId) {
 
         try {
           const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+          console.log('this is rawResult', rawResult)
 
           const seen = new Map();
           const uniqueMessages = {messages:[]};
@@ -10824,7 +10823,85 @@ async function processTopicMessages(topicId) {
           }
 
 
-          const response = sanitizeWalletMessages(uniqueMessages);
+
+// First pass: Count likes and dislikes by timestamp, ensuring one per payer
+// First pass: Count likes and dislikes by timestamp, ensuring one action per payer (most recent)
+const likeCountMapMarker = new Map();
+const dislikeCountMapMarker = new Map();
+const payerActionsPerTimestamp = new Map(); // Tracks latest action per payer per timestamp
+
+const response = sanitizeWalletMessages(uniqueMessages);
+console.log('this is response', response);
+
+if (response.messages && Array.isArray(response.messages)) {
+  for (const message of response.messages) {
+    try {
+      let parsedMessage = message;
+      if (typeof message === 'string') {
+        parsedMessage = JSON.parse(message);
+      }
+
+      const payerId = parsedMessage.payer;
+      let actionTimestamp, actionType;
+
+      // Check for like
+      if (parsedMessage.likeMarker && parsedMessage.likeMarker.timestamp && parsedMessage.payer) {
+        actionTimestamp = parsedMessage.likeMarker.timestamp;
+        actionType = 'like';
+      }
+      // Check for dislike
+      if (parsedMessage.dislikeMarker && parsedMessage.dislikeMarker.timestamp && parsedMessage.payer) {
+        const dislikeTimestamp = parsedMessage.dislikeMarker.timestamp;
+        // If no like or dislike timestamp is newer, update action
+        if (!actionTimestamp || dislikeTimestamp > actionTimestamp) {
+          actionTimestamp = dislikeTimestamp;
+          actionType = 'dislike';
+        }
+      }
+
+      // Process the action if it exists
+      if (actionTimestamp && actionType && payerId) {
+        // Initialize map for this timestamp if it doesn't exist
+        if (!payerActionsPerTimestamp.has(actionTimestamp)) {
+          payerActionsPerTimestamp.set(actionTimestamp, new Map());
+        }
+
+        // Update or set the latest action for this payer at this timestamp
+        const payerActions = payerActionsPerTimestamp.get(actionTimestamp);
+        const existingAction = payerActions.get(payerId);
+
+        // Only update if this is a new action or a newer timestamp
+        if (!existingAction || actionTimestamp >= existingAction.timestamp) {
+          // If there's an existing action, remove its previous count
+          if (existingAction) {
+            if (existingAction.type === 'like') {
+              likeCountMapMarker.set(actionTimestamp, (likeCountMapMarker.get(actionTimestamp) || 0) - 1);
+            } else if (existingAction.type === 'dislike') {
+              dislikeCountMapMarker.set(actionTimestamp, (dislikeCountMapMarker.get(actionTimestamp) || 0) - 1);
+            }
+          }
+
+          // Store the new action
+          payerActions.set(payerId, { type: actionType, timestamp: actionTimestamp });
+
+          // Increment the count for the new action
+          if (actionType === 'like') {
+            likeCountMapMarker.set(actionTimestamp, (likeCountMapMarker.get(actionTimestamp) || 0) + 1);
+          } else if (actionType === 'dislike') {
+            dislikeCountMapMarker.set(actionTimestamp, (dislikeCountMapMarker.get(actionTimestamp) || 0) + 1);
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`Error parsing message for likes/dislikes: ${error}`);
+    }
+  }
+}
+          
+
+console.log(likeCountMapMarker)
+console.log(dislikeCountMapMarker)
+console.log(payerActionsPerTimestamp)
           
 
           const topicInfo = await sdk.getTopicInfo(topicId);
@@ -11092,6 +11169,10 @@ async function processTopicMessages(topicId) {
                       throw new Error('Invalid coordinate format');
                     }
 
+                    // Use the final like and dislike counts from the maps
+            const likeCount = likeCountMapMarker.get(timestamp) || 0;
+            const dislikeCount = dislikeCountMapMarker.get(timestamp) || 0;
+
                     topicGeojsonFeatures.push({
                       created: parsedMessage.created,
                       msgNumber: parsedMessage.marker.data.numberOfMarker,
@@ -11100,27 +11181,35 @@ async function processTopicMessages(topicId) {
                       properties: {
                         message:
     `
-      <div style="position: absolute; top: -0.1em; left: 0.1em; font-weight: bold;" class="number">${markernumber}</div>
-      <div style="display: flex; align-items: center;">
-      <img src="${profileUrl}" alt="Profile photo"
-      style="width: 7vh; height: 7vh; margin-right: 1em; border-radius: 50%; cursor: pointer;"
-      onclick="loadTOPIC4PIC('${message.payer}');">
-        <div>${displayHeader}</div>
-      </div>
-      <div style="text-align: center;">
-        <div style='margin-bottom: 1vh;'>
-            <strong class="title_color">${parsedMessage.marker.data.title}</strong>
-        </div>
-        <div>
-          ${isValidUrl(parsedMessage.marker.data.image) ? `<img src="${parsedMessage.marker.data.image}" style="width: 20vh; height: 20vh; display: block; margin: 0 auto;" />` : ''} 
-        </div>
-        <div>
-          <p class="text_color">${parsedMessage.marker.data.msg}</p>
-        </div>
-      </div>
-      <div style="position: absolute; bottom: 0em; right: 1vh; font-size: 1vh; color: gray;">${timestamp}</div>
-      <span style="position: absolute; bottom: 0em; left: 1vh; font-size: 1.5vh; color: gray; cursor: pointer;"
-      onclick="openPopupSettings();">&#9881;</span>
+<div style="position: absolute; top: -0.1em; left: 0.1em; font-weight: bold;" class="number">${markernumber}</div>
+<div style="display: flex; align-items: center;">
+  <img src="${profileUrl}" alt="Profile photo"
+    style="width: 7vh; height: 7vh; margin-right: 1em; border-radius: 50%; cursor: pointer;"
+    onclick="loadTOPIC4PIC('${message.payer}');">
+  <div>${displayHeader}</div>
+</div>
+<div style="text-align: center;">
+  <div style="display: flex; align-items: center; justify-content: space-between; position: relative; margin-bottom: 1vh;">
+    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="prevMsgFromPayerMarker('${message.payer}', ${markernumber});">◀️</span>
+    <div style="text-align: center; flex-grow: 1;">
+      <strong class="title_color">${parsedMessage.marker.data.title}</strong>
+    </div>
+    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="nextMsgFromPayerMarker('${message.payer}', ${markernumber});">▶️</span>
+  </div>
+  <div>
+    ${isValidUrl(parsedMessage.marker.data.image) ? `<img src="${parsedMessage.marker.data.image}" style="width: 20vh; height: 20vh; display: block; margin: 0 auto;" />` : ''} 
+  </div>
+  <div>
+    <p class="text_color">${parsedMessage.marker.data.msg}</p>
+  </div>
+</div>
+<div style="position: absolute; bottom: 0em; right: 1vh; font-size: 1vh; color: gray;">${timestamp}</div>
+<div style="position: absolute; bottom: 0em; left: 50%; transform: translateX(-50%); display: flex; gap: 1vh;">
+  <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="likeMarker('${timestamp}', '${topicId}');">${likeCount || 0}👍</span>
+  <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="dislikeMarker('${timestamp}', '${topicId}');">${dislikeCount || 0}👎</span>
+</div>
+<span style="position: absolute; bottom: 0em; left: 1vh; font-size: 1.5vh; color: gray; cursor: pointer;"
+  onclick="openPopupSettings();">⚙️</span>
 
     `,
     imageUrl: isValidUrl(parsedMessage.marker.data.coverimage) ? parsedMessage.marker.data.coverimage : profileUrl
@@ -11238,6 +11327,180 @@ async function processTopicMessages(topicId) {
           return { topicGeojsonFeatures: [], topicPolygons: [] }; // Return empty arrays on error
         }
       }
+
+
+
+      window.nextMsgFromPayerMarker = function(payer, markerNumber) {
+    
+    if (!storedMarkers || !payer || markerNumber == null) {
+        console.error('Invalid input or missing storedMarkers');
+        return null;
+    }
+
+    // Sort by created timestamp for chronological order
+    const markers = storedMarkers[0].sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
+    console.log("markers", markers);
+    let currentIndex = -1;
+
+    // Find the current index
+    for (let i = 0; i < markers.length; i++) {
+        if (markers[i].payer === payer && markers[i].msgNumber === String(markerNumber)) {
+            currentIndex = i;
+            console.log("currentIndex", currentIndex);
+            break;
+        }
+    }
+
+    // Find the next marker for the same payer
+    for (let i = currentIndex + 1; i < markers.length; i++) {
+        if (markers[i].payer === payer) {
+            // Close all active popups
+            activePolygonPopups.forEach((popup) => popup.remove());
+            activeMarkerPopups.forEach((popup) => popup.remove());
+            activeMarkerPopups = []; // Clear the array
+
+            // Create and open new popup
+            const popup = new maplibregl.Popup()
+                .setLngLat(markers[i].geometry.coordinates)
+                .setHTML(markers[i].properties.message)
+                .addTo(map);
+
+            // Add popup to activeMarkerPopups and update popIsOpen
+            activeMarkerPopups.push(popup);
+            popIsOpen = true;
+
+            // Animate map to new marker's coordinates
+            animateMapTo(map, markers[i].geometry.coordinates, null);
+
+            // Handle popup close event (consistent with updateClusters)
+            popup.on("close", () => {
+                popIsOpen = false;
+                if (currentUfoModel) {
+                    scene.add(currentUfoModel);
+                    crosshair.style.display = "block";
+                }
+            });
+
+            // Apply styles (consistent with updateClusters)
+            applyAllStyles();
+
+            // Handle UFO model visibility (consistent with updateClusters)
+            if (currentUfoModel) {
+                scene.remove(currentUfoModel);
+                crosshair.style.display = "none";
+            }
+
+            return markers[i];
+        }
+    }
+
+    console.log('No next message found for payer:', payer);
+    return null;
+};
+
+window.prevMsgFromPayerMarker = function(payer, markerNumber) {
+    
+    if (!storedMarkers || !payer || markerNumber == null) {
+        console.error('Invalid input or missing storedMarkers');
+        return null;
+    }
+
+    // Sort by created timestamp for chronological order
+    const markers = storedMarkers[0].sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
+    let currentIndex = -1;
+
+    // Find the current index
+    for (let i = 0; i < markers.length; i++) {
+        if (markers[i].payer === payer && markers[i].msgNumber === String(markerNumber)) {
+            currentIndex = i;
+            console.log("currentIndex", currentIndex);
+            break;
+        }
+    }
+
+    // Find the next marker for the same payer
+    for (let i = currentIndex - 1; i >= 0; i--) {
+        if (markers[i].payer === payer) {
+            // Close all active popups
+            activePolygonPopups.forEach((popup) => popup.remove());
+            activeMarkerPopups.forEach((popup) => popup.remove());
+            activeMarkerPopups = []; // Clear the array
+
+            // Create and open new popup
+            const popup = new maplibregl.Popup()
+                .setLngLat(markers[i].geometry.coordinates)
+                .setHTML(markers[i].properties.message)
+                .addTo(map);
+
+            // Add popup to activeMarkerPopups and update popIsOpen
+            activeMarkerPopups.push(popup);
+            popIsOpen = true;
+
+            // Animate map to new marker's coordinates
+            animateMapTo(map, markers[i].geometry.coordinates, null);
+
+            // Handle popup close event (consistent with updateClusters)
+            popup.on("close", () => {
+                popIsOpen = false;
+                if (currentUfoModel) {
+                    scene.add(currentUfoModel);
+                    crosshair.style.display = "block";
+                }
+            });
+
+            // Apply styles (consistent with updateClusters)
+            applyAllStyles();
+
+            // Handle UFO model visibility (consistent with updateClusters)
+            if (currentUfoModel) {
+                scene.remove(currentUfoModel);
+                crosshair.style.display = "none";
+            }
+
+            return markers[i];
+        }
+    }
+
+    console.log('No previous message found for payer:', payer);
+    return null;
+};
+
+window.likeMarker = async function(timestamp, topicId) {
+
+    const meesageobject = {
+    likeMarker: {
+      timestamp: timestamp
+    }
+  };
+
+  const meesage = JSON.stringify(meesageobject);
+  const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+    
+};
+
+window.dislikeMarker = async function(timestamp, topicId) {
+
+    const meesageobject = {
+    dislikeMarker: {
+      timestamp: timestamp
+    }
+  };
+
+  const meesage = JSON.stringify(meesageobject);
+  const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+};
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // Array of models with their respective URLs, origins, and altitudes
