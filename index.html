@@ -11420,6 +11420,11 @@ let heartbeatInterval = null;
 let gossipInterval = null;
 let peerListRequestInterval = null; // Interval for requesting peer list
 
+const response = 
+await fetch("https://topicontopic.metered.live/api/v1/turn/credentials?apiKey=39dd49a26425c2cfbb2c3e92af8edcee930f");
+// Saving the response in the iceServers array
+const iceServers = await response.json();
+
 async function someFunction(accountId, topicId) {
     // Clean up any existing connections
     await cleanup();
@@ -11528,25 +11533,6 @@ function connectToBootstrapServer() {
 
 async function setupWebRTCConnections(peerIds) {
   console.log('Setting up WebRTC connections');
-  // Fetch ICE server configuration from the external server
-  let iceServers;
-  try {
-    const response = await fetch('https://creditentialsserver.onrender.com/webrtc-config', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      throw new Error('Failed to fetch ICE servers');
-    }
-    const data = await response.json();
-    console.log('ICE servers:', data);
-    iceServers = data.iceServers;
-  } catch (error) {
-    console.error('Error fetching ICE servers:', error);
-    return; // Exit if ICE servers cannot be fetched
-  }
 
     for (let remotePeerId of peerIds) {
         if (remotePeerId === peerId || knownPeers.has(remotePeerId)) continue;
@@ -11616,25 +11602,6 @@ const pendingCandidates = new Map();
 
 async function handleOffer(senderPeerId, offer) {
     if (knownPeers.has(senderPeerId)) return;
-
-    let iceServers;
-  try {
-    const response = await fetch('https://creditentialsserver.onrender.com/webrtc-config', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      throw new Error('Failed to fetch ICE servers');
-    }
-    const data = await response.json();
-    console.log('ICE servers:', data);
-    iceServers = data.iceServers;
-  } catch (error) {
-    console.error('Error fetching ICE servers:', error);
-    return; // Exit if ICE servers cannot be fetched
-  }
 
     const pc = new RTCPeerConnection({ iceServers });
     knownPeers.set(senderPeerId, pc);
