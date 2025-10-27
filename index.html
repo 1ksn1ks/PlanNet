@@ -3022,6 +3022,7 @@ function makeScrollable(el) {
   let isDragging = false;
   let hasMoved = false;
   let mouseDownTarget = null;
+  let startTime = 0;
   const DRAG_THRESHOLD = 5;
 
   // ------------------------------------------------- Selection
@@ -3036,29 +3037,64 @@ function makeScrollable(el) {
     el.style.touchAction = '';
   };
 
+  // ------------------------------------------------- Find Scrollable Parent
+  const getScrollableParent = (element) => {
+    let parent = element.parentElement;
+    while (parent) {
+      const overflowY = getComputedStyle(parent).overflowY;
+      if (overflowY === 'auto' || overflowY === 'scroll') {
+        if (parent.scrollHeight > parent.clientHeight) {
+          return parent;
+        }
+      }
+      parent = parent.parentElement;
+    }
+    return document.documentElement; // Fallback to document
+  };
+
   // ------------------------------------------------- START
   const start = (e, clientY, isTouch = false) => {
-  mouseDownTarget = e.target;
-  startY = clientY;
-  startScroll = el.scrollTop;
-  startTime = performance.now(); // Add timestamp
-  isDragging = false;
-  hasMoved = false;
+    mouseDownTarget = e.target;
+    startY = clientY;
+    startScroll = el.scrollTop;
+    startTime = performance.now();
+    isDragging = false;
+    hasMoved = false;
 
-  e.stopPropagation();
+    e.stopPropagation();
 
-  if (isTouch) disableSelection();
-};
+    if (isTouch) disableSelection();
+  };
 
   // ------------------------------------------------- MOVE
   const move = (e, clientY, isTouch = false) => {
-    // If no press happened → ignore all movement
     if (!mouseDownTarget && !isTouch) return;
 
+    const walk = (startY - clientY) * 2;
+    const newScrollTop = startScroll + walk;
+
+    // Check if at scroll boundaries
+    const atTop = newScrollTop <= 0;
+    const atBottom = newScrollTop >= el.scrollHeight - el.clientHeight;
+
     if (isDragging) {
-      const walk = (startY - clientY) * 2;
-      el.scrollTop = startScroll + walk;
-      e.preventDefault();
+      if (atTop && walk < 0) {
+        // Reached top, propagate upward scroll to parent
+        const parent = getScrollableParent(el);
+        parent.scrollTop -= walk; // Reverse walk for parent
+        e.preventDefault();
+        return;
+      } else if (atBottom && walk > 0) {
+        // Reached bottom, propagate downward scroll to parent
+        const parent = getScrollableParent(el);
+        parent.scrollTop -= walk;
+        e.preventDefault();
+        return;
+      } else {
+        // Normal scrolling within element
+        el.scrollTop = newScrollTop;
+        e.preventDefault();
+      }
       return;
     }
 
@@ -3075,21 +3111,19 @@ function makeScrollable(el) {
 
   // ------------------------------------------------- END
   const end = (e, isTouch = false) => {
-  if (isDragging) enableSelection();
+    if (isDragging) enableSelection();
 
-  // Only simulate click on mouse + no movement + sufficient time
-  if (!isTouch && !hasMoved && mouseDownTarget) {
-    const timeSinceStart = performance.now() - startTime; // Track start time
-    if (timeSinceStart > 300) { // Adjust threshold as needed
-      mouseDownTarget.click();
+    if (!isTouch && !hasMoved && mouseDownTarget) {
+      const timeSinceStart = performance.now() - startTime;
+      if (timeSinceStart > 300) {
+        mouseDownTarget.click();
+      }
     }
-  }
 
-  cleanup();
-};
+    cleanup();
+  };
 
   const cleanup = () => {
-    // Remove global listeners
     document.removeEventListener('mousemove', onMouseMove);
     document.removeEventListener('mouseup', onMouseUp);
 
@@ -3119,26 +3153,36 @@ function makeScrollable(el) {
 
   // ==================== MOUSE ====================
   const onMouseMove = e => move(e, e.clientY, false);
-  const onMouseUp   = e => end(e, false);
+  const onMouseUp = e => end(e, false);
 
-  // Only attach global listeners **after** mousedown
   el.addEventListener('mousedown', e => {
     start(e, e.clientY, false);
-
-    // Attach global move/up listeners **once per click**
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   });
 
-  // If mouse leaves during drag → cancel
   el.addEventListener('mouseleave', () => {
     if (isDragging || mouseDownTarget) cleanup();
   });
 
   // ==================== WHEEL ====================
   el.addEventListener('wheel', e => {
-    el.scrollTop += e.deltaY;
-    if (el.scrollHeight > el.clientHeight) e.stopPropagation();
+    const deltaY = e.deltaY;
+    const atTop = el.scrollTop === 0 && deltaY < 0;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight && deltaY > 0;
+
+    if (atTop || atBottom) {
+      // Propagate to parent if at scroll limits
+      const parent = getScrollableParent(el);
+      parent.scrollTop += deltaY;
+      e.preventDefault(); // Prevent default only when propagating
+    } else {
+      // Normal scrolling within element
+      el.scrollTop += deltaY;
+      if (el.scrollHeight > el.clientHeight) {
+        e.stopPropagation();
+      }
+    }
   }, { passive: false });
 
   // Initial state
@@ -11421,9 +11465,9 @@ let gossipInterval = null;
 let peerListRequestInterval = null; // Interval for requesting peer list
 
 const response = 
-await fetch("https://topicontopic.metered.live/api/v1/turn/credentials?apiKey=39dd49a26425c2cfbb2c3e92af8edcee930f");
-// Saving the response in the iceServers array
-const iceServers = await response.json();
+  await fetch("https://topicontopic.metered.live/api/v1/turn/credentials?apiKey=39dd49a26425c2cfbb2c3e92af8edcee930f");
+  // Saving the response in the iceServers array
+  const iceServers = await response.json();
 
 async function someFunction(accountId, topicId) {
     // Clean up any existing connections
