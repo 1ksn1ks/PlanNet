@@ -3024,10 +3024,11 @@ function makeScrollable(el) {
   let mouseDownTarget = null;
   let startTime = 0;
   const DRAG_THRESHOLD = 5;
+  const SCROLL_DAMPENING = 0.5; // Reduce scroll speed for next element
+  const BUFFER = 2; // Small buffer to ensure scroll limit is reached
 
   // Find the next scrollable element (parent or sibling)
   const getNextScrollable = () => {
-    // Check parent for scrollability
     let parent = el.parentElement;
     while (parent) {
       if (parent.scrollHeight > parent.clientHeight) {
@@ -3035,7 +3036,6 @@ function makeScrollable(el) {
       }
       parent = parent.parentElement;
     }
-    // If no scrollable parent, check siblings (optional, adjust as needed)
     const siblings = el.parentElement ? Array.from(el.parentElement.children) : [];
     const index = siblings.indexOf(el);
     for (let i = index + 1; i < siblings.length; i++) {
@@ -3048,7 +3048,7 @@ function makeScrollable(el) {
         return siblings[i];
       }
     }
-    return null; // No scrollable element found
+    return null;
   };
 
   // ------------------------------------------------- Selection
@@ -3084,24 +3084,18 @@ function makeScrollable(el) {
     const walk = (startY - clientY) * 2;
     const newScrollTop = startScroll + walk;
 
-    // Check if at top or bottom
-    const atTop = newScrollTop <= 0;
-    const atBottom = newScrollTop >= el.scrollHeight - el.clientHeight;
+    // Check if at top or bottom with buffer
+    const atTop = el.scrollTop <= BUFFER && walk < 0;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - BUFFER && walk > 0;
 
     if (isDragging) {
-      if (atTop && walk < 0) {
-        // Reached top and scrolling up
+      if (atTop || atBottom) {
         const nextEl = getNextScrollable();
         if (nextEl) {
-          nextEl.scrollTop += walk; // Propagate scroll to next element
-          e.preventDefault();
-          return;
-        }
-      } else if (atBottom && walk > 0) {
-        // Reached bottom and scrolling down
-        const nextEl = getNextScrollable();
-        if (nextEl) {
-          nextEl.scrollTop += walk; // Propagate scroll to next element
+          // Clamp current element to its bounds
+          el.scrollTop = atTop ? 0 : el.scrollHeight - el.clientHeight;
+          // Apply dampened scroll to next element
+          nextEl.scrollTop += walk * SCROLL_DAMPENING;
           e.preventDefault();
           return;
         }
@@ -3181,13 +3175,16 @@ function makeScrollable(el) {
   // ==================== WHEEL ====================
   el.addEventListener('wheel', e => {
     const delta = e.deltaY;
-    const atTop = el.scrollTop === 0;
-    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight;
+    const atTop = el.scrollTop <= BUFFER && delta < 0;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - BUFFER && delta > 0;
 
-    if ((atTop && delta < 0) || (atBottom && delta > 0)) {
+    if (atTop || atBottom) {
       const nextEl = getNextScrollable();
       if (nextEl) {
-        nextEl.scrollTop += delta; // Propagate wheel scroll to next element
+        // Clamp current element to its bounds
+        el.scrollTop = atTop ? 0 : el.scrollHeight - el.clientHeight;
+        // Apply dampened scroll to next element
+        nextEl.scrollTop += delta * SCROLL_DAMPENING;
         e.preventDefault();
         return;
       }
