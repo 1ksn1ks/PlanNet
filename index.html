@@ -5963,6 +5963,8 @@ try{
     let addedTopics = [];
     let removedTopics = [];
     let loadedTopicsIds = [];
+    activeMarkerPopups = [];
+    activePolygonPopups = [];
 
 
     const result = await sdk.getMessages(topicId);
@@ -11370,14 +11372,12 @@ if (response.messages && Array.isArray(response.messages)) {
 
     // Sort by created timestamp for chronological order
     const markers = storedMarkers[0].sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
-    console.log("markers", markers);
     let currentIndex = -1;
 
     // Find the current index
     for (let i = 0; i < markers.length; i++) {
         if (markers[i].payer === payer && markers[i].msgNumber === String(markerNumber)) {
             currentIndex = i;
-            console.log("currentIndex", currentIndex);
             break;
         }
     }
@@ -11386,9 +11386,7 @@ if (response.messages && Array.isArray(response.messages)) {
     for (let i = currentIndex + 1; i < markers.length; i++) {
         if (markers[i].payer === payer) {
             // Close all active popups
-            activePolygonPopups.forEach((popup) => popup.remove());
             activeMarkerPopups.forEach((popup) => popup.remove());
-            activeMarkerPopups = []; // Clear the array
 
             // Create and open new popup
             const popup = new maplibregl.Popup()
@@ -11425,7 +11423,6 @@ if (response.messages && Array.isArray(response.messages)) {
         }
     }
 
-    console.log('No next message found for payer:', payer);
     return null;
 };
 
@@ -11458,9 +11455,6 @@ window.nextMsgFromPayerPolygon = function(payer, polygonNumber) {
         if (polygons[i].payer === payer) {
             // Close all active popups
             activePolygonPopups.forEach(popup => popup.remove());
-            activeMarkerPopups.forEach(popup => popup.remove());
-            activePolygonPopups = [];
-            activeMarkerPopups = [];
 
             // Parse coordinates and compute bounds
             const coordinates = polygons[i].coordinates[0];
@@ -11516,7 +11510,6 @@ window.nextMsgFromPayerPolygon = function(payer, polygonNumber) {
         }
     }
 
-    console.log('No next message found for payer:', payer);
     return null;
 };
 
@@ -11535,7 +11528,6 @@ window.prevMsgFromPayerMarker = function(payer, markerNumber) {
     for (let i = 0; i < markers.length; i++) {
         if (markers[i].payer === payer && markers[i].msgNumber === String(markerNumber)) {
             currentIndex = i;
-            console.log("currentIndex", currentIndex);
             break;
         }
     }
@@ -11544,9 +11536,7 @@ window.prevMsgFromPayerMarker = function(payer, markerNumber) {
     for (let i = currentIndex - 1; i >= 0; i--) {
         if (markers[i].payer === payer) {
             // Close all active popups
-            activePolygonPopups.forEach((popup) => popup.remove());
             activeMarkerPopups.forEach((popup) => popup.remove());
-            activeMarkerPopups = []; // Clear the array
 
             // Create and open new popup
             const popup = new maplibregl.Popup()
@@ -11583,7 +11573,6 @@ window.prevMsgFromPayerMarker = function(payer, markerNumber) {
         }
     }
 
-    console.log('No previous message found for payer:', payer);
     return null;
 };
 
@@ -11616,9 +11605,6 @@ window.prevMsgFromPayerPolygon = function(payer, polygonNumber) {
         if (polygons[i].payer === payer) {
             // Close all active popups
             activePolygonPopups.forEach(popup => popup.remove());
-            activeMarkerPopups.forEach(popup => popup.remove());
-            activePolygonPopups = [];
-            activeMarkerPopups = [];
 
             // Parse coordinates and compute bounds
             const coordinates = polygons[i].coordinates[0];
@@ -11674,7 +11660,6 @@ window.prevMsgFromPayerPolygon = function(payer, polygonNumber) {
         }
     }
 
-    console.log('No previous message found for payer:', payer);
     return null;
 };
 
