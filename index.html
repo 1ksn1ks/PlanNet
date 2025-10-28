@@ -2491,7 +2491,7 @@ button[type="submit"],
 
     <div>
       <label style="font-size: 1.5vh;">Username Color:</label>
-      <input type="color" id="username-topic-chat-color" class="yourfov" value="#ffffff">
+      <input type="color" id="username-topic-chat-color" class="yourfov" value="#ff9933">
     </div>
 
     <div>
@@ -2511,7 +2511,7 @@ button[type="submit"],
 
     <div>
       <label style="font-size: 1.5vh;">Header Color:</label>
-      <input type="color" id="topic-chat-header-color" class="yourfov" value="#ff9933">
+      <input type="color" id="topic-chat-header-color" class="yourfov" value="#ffffff">
     </div>
 
   </div>
@@ -3229,6 +3229,26 @@ makeScrollable(document.getElementById('loaded-topic-rules-for-topic'));
 makeScrollable(document.getElementById('loaded-topic-rules-for-utility'));
 
 
+let profilePictures = [];
+let usernames = [];
+let click2url = [];
+let topic2pic = [];
+
+
+async function loadAllData() {
+   profilePictures = await loadProfilePicture();
+   usernames       = await loadUsername();
+   click2url       = await loadCLICK2URL();
+   topic2pic       = await loadTOPIC2PIC();
+
+  return { profilePictures, usernames, click2url, topic2pic };
+}
+
+loadAllData();
+
+    
+
+
 document.getElementById("load-msgs-from-encrypted-chat").addEventListener("click", async () => {
   await loadMessagesFromEncryptedChat();
 });
@@ -3348,14 +3368,6 @@ async function loadMessagesFromEncryptedChat() {
       return;
     }
 
-
-
-
-
-    const profilePictures = await loadProfilePicture(); // Load profile pictures
-    const usernames = await loadUsername(); // Load usernames
-    const click2url = await loadCLICK2URL();
-    const topic2pic = await loadTOPIC2PIC();
 
     const topicActions = new Map();
 
@@ -4272,10 +4284,6 @@ document.getElementById("load-msgs-from").addEventListener("click", async () => 
           return [];
         }
 
-    const profilePictures = await loadProfilePicture(); // Load profile pictures
-    const usernames = await loadUsername(); // Load usernames
-    const click2url = await loadCLICK2URL();
-    const topic2pic = await loadTOPIC2PIC();
 
 
 
@@ -4464,10 +4472,6 @@ if (groupOpen) {
 });
 
 async function filterEncryptedChatMessages(fromDateValue, toDateValue, fromTimeValue, toTimeValue, loadUsersArray, blockUsersArray) {
-  const profilePictures = await loadProfilePicture();
-  const usernames = await loadUsername();
-  const click2url = await loadCLICK2URL();
-  const topic2pic = await loadTOPIC2PIC();
 
   let loadedUsersEncryptedChat = loadUsersArray || [];
   let blockUsersEncryptedChat = blockUsersArray || [];
@@ -4826,10 +4830,6 @@ document.getElementById("load-load-blocks-from-users-encrypted-chat").addEventLi
 
 
 async function filterTopicMessages(fromDateValue, toDateValue, fromTimeValue, toTimeValue, loadUsersArray, blockUsersArray) {
-  const profilePictures = await loadProfilePicture();
-  const usernames = await loadUsername();
-  const click2url = await loadCLICK2URL();
-  const topic2pic = await loadTOPIC2PIC();
   let loadedUsersTopicChat = loadUsersArray || [];
   let blockUsersTopicChat = blockUsersArray || [];
 
@@ -5857,8 +5857,7 @@ window.loadTOPIC4PIC = async function(payer) {
       return idA - idB;
     });
 
-    const usernames = await loadUsername();
-    const username = usernames[payer]?.username;
+    let editUsername = usernames[payer]?.username;
 
     activePolygonPopups.forEach((popup) => popup.remove());
     activeMarkerPopups.forEach((popup) => popup.remove());
@@ -5870,7 +5869,7 @@ window.loadTOPIC4PIC = async function(payer) {
     inputarea.value = '';
     const loaded_text_area = document.getElementById("loaded-topics");
     loaded_text_area.innerHTML = '';
-    loaded_text_area.innerHTML = 'User ' + payer + ' ' + username + '<br><br>' + globalLoadedTopicIdsWithNames.join('<br>');
+    loaded_text_area.innerHTML = 'User ' + payer + ' ' + editUsername + '<br><br>' + globalLoadedTopicIdsWithNames.join('<br>');
     adjustTextareaHeight(loaded_text_area);
 
     return { loadedTopicIdsWithNames };
@@ -5907,9 +5906,6 @@ async function handleAllMessages() {
   try {
     storedMarkers = [];
     storedPolygons = [];
-    const profilePics = await loadProfilePicture();
-    const usernames = await loadUsername();
-    const click2url = await loadCLICK2URL();
     let userInput = document.getElementById("input-field").value.toLowerCase();
     let domainEntry = loadedDomains.find(entry => entry.domain === userInput);
     let topicId;
@@ -5929,7 +5925,6 @@ async function handleAllMessages() {
       </div>`;
     loaded_text_area.innerHTML = topicSpinnerChat;
     adjustTextareaHeight(loaded_text_area);
-
 
 
     const topicAdmin = [];
@@ -9117,11 +9112,12 @@ async function addPolygonWithImageFill(map, polygon) {
 
       map.on('click', maskLayerId, (e) => {
         if (polygon.description) {
+          const targetLngLat = e.lngLat.toArray()
           popup
             .setLngLat(e.lngLat)
             .setHTML(polygon.description)
             .addTo(map);
-          animateMapTo(map, e.lngLat, null);
+          animateMapTo(map, targetLngLat, null);
           activePolygonPopups.forEach((p) => p.remove());
           activeMarkerPopups.forEach((p) => p.remove());
           CloseALL();
@@ -9248,6 +9244,8 @@ async function addPolygonWithImageFill(map, polygon) {
 
           document.getElementById("toolbar-input").value = "";
 
+          debounce(loadAllData(), 30000);
+
         } catch (error) {
           console.error("Error updating profile picture:", error);
           // Removed alert
@@ -9278,6 +9276,9 @@ async function addPolygonWithImageFill(map, polygon) {
     console.log("Username updated successfully:", receipt);
 
     document.getElementById("toolbar-input").value = "";
+
+    debounce(loadAllData(), 30000);
+
   } catch (error) {
     console.error("Error updating username:", error);
   }
@@ -9307,6 +9308,8 @@ async function addPolygonWithImageFill(map, polygon) {
 
           document.getElementById("toolbar-input").value = "";
 
+          debounce(loadAllData(), 30000);
+
         } catch (error) {
           console.error("Error updating profile CLICK2URL:", error);
           // Removed alert
@@ -9334,6 +9337,9 @@ document.getElementById("button_for_topic2pic").addEventListener("click", async 
     );
     console.log("Profile TOPIC2PIC updated successfully:", receipt);
     document.getElementById("Edit_Profile-topic-id").value = "";
+
+    debounce(loadAllData(), 30000);
+
   } catch (error) {
     console.error("Error updating profile TOPIC2PIC:", error);
   }
@@ -10801,9 +10807,6 @@ async function processTopicMessages(topicId) {
         let topicGeojsonFeatures = []; // Store geojson features for this topic
         let topicPolygons = []; // Store polygons for this topic
         let loadedTopicName = ''; // Initialize loadedTopicName
-        const profilePics = await loadProfilePicture();
-        const usernames = await loadUsername();
-        const click2url = await loadCLICK2URL();
 
         try {
           const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
@@ -10828,6 +10831,8 @@ async function processTopicMessages(topicId) {
 // First pass: Count likes and dislikes by timestamp, ensuring one action per payer (most recent)
 const likeCountMapMarker = new Map();
 const dislikeCountMapMarker = new Map();
+const likeCountMapPolygon = new Map();
+const dislikeCountMapPolygon = new Map();
 const payerActionsPerTimestamp = new Map(); // Tracks latest action per payer per timestamp
 
 const response = sanitizeWalletMessages(uniqueMessages);
@@ -10847,7 +10852,7 @@ if (response.messages && Array.isArray(response.messages)) {
       // Check for like
       if (parsedMessage.likeMarker && parsedMessage.likeMarker.timestamp && parsedMessage.payer) {
         actionTimestamp = parsedMessage.likeMarker.timestamp;
-        actionType = 'like';
+        actionType = 'likeMarker';
       }
       // Check for dislike
       if (parsedMessage.dislikeMarker && parsedMessage.dislikeMarker.timestamp && parsedMessage.payer) {
@@ -10855,8 +10860,18 @@ if (response.messages && Array.isArray(response.messages)) {
         // If no like or dislike timestamp is newer, update action
         if (!actionTimestamp || dislikeTimestamp > actionTimestamp) {
           actionTimestamp = dislikeTimestamp;
-          actionType = 'dislike';
+          actionType = 'dislikeMarker';
         }
+      }
+      // Check for like
+      if (parsedMessage.likePolygon && parsedMessage.likePolygon.timestamp && parsedMessage.payer) {
+        actionTimestamp = parsedMessage.likePolygon.timestamp;
+        actionType = 'likePolygon';
+      }
+      // Check for dislike
+      if (parsedMessage.dislikePolygon && parsedMessage.dislikePolygon.timestamp && parsedMessage.payer) {
+        actionTimestamp = parsedMessage.dislikePolygon.timestamp;
+        actionType = 'dislikePolygon';
       }
 
       // Process the action if it exists
@@ -10874,10 +10889,15 @@ if (response.messages && Array.isArray(response.messages)) {
         if (!existingAction || actionTimestamp >= existingAction.timestamp) {
           // If there's an existing action, remove its previous count
           if (existingAction) {
-            if (existingAction.type === 'like') {
+            if (existingAction.type === 'likeMarker') {
               likeCountMapMarker.set(actionTimestamp, (likeCountMapMarker.get(actionTimestamp) || 0) - 1);
-            } else if (existingAction.type === 'dislike') {
+            } else if (existingAction.type === 'dislikeMarker') {
               dislikeCountMapMarker.set(actionTimestamp, (dislikeCountMapMarker.get(actionTimestamp) || 0) - 1);
+            }
+            if (existingAction.type === 'likePolygon') {
+              likeCountMapPolygon.set(actionTimestamp, (likeCountMapPolygon.get(actionTimestamp) || 0) - 1);
+            } else if (existingAction.type === 'dislikePolygon') {
+              dislikeCountMapPolygon.set(actionTimestamp, (dislikeCountMapPolygon.get(actionTimestamp) || 0) - 1);
             }
           }
 
@@ -10885,10 +10905,15 @@ if (response.messages && Array.isArray(response.messages)) {
           payerActions.set(payerId, { type: actionType, timestamp: actionTimestamp });
 
           // Increment the count for the new action
-          if (actionType === 'like') {
+          if (actionType === 'likeMarker') {
             likeCountMapMarker.set(actionTimestamp, (likeCountMapMarker.get(actionTimestamp) || 0) + 1);
-          } else if (actionType === 'dislike') {
+          } else if (actionType === 'dislikeMarker') {
             dislikeCountMapMarker.set(actionTimestamp, (dislikeCountMapMarker.get(actionTimestamp) || 0) + 1);
+          }
+          if (actionType === 'likePolygon') {
+            likeCountMapPolygon.set(actionTimestamp, (likeCountMapPolygon.get(actionTimestamp) || 0) + 1);
+          } else if (actionType === 'dislikePolygon') {
+            dislikeCountMapPolygon.set(actionTimestamp, (dislikeCountMapPolygon.get(actionTimestamp) || 0) + 1);
           }
         }
       }
@@ -10899,9 +10924,7 @@ if (response.messages && Array.isArray(response.messages)) {
 }
           
 
-console.log(likeCountMapMarker)
-console.log(dislikeCountMapMarker)
-console.log(payerActionsPerTimestamp)
+
           
 
           const topicInfo = await sdk.getTopicInfo(topicId);
@@ -11110,10 +11133,10 @@ console.log(payerActionsPerTimestamp)
 
 
               const defaultProfilePic = "https://kiloscribe.com/api/inscription-cdn/0.0.4819119";
-              const profileUrl = isValidUrl(message.payer && profilePics[message.payer] ?
-                profilePics[message.payer].url :
+              const profileUrl = isValidUrl(message.payer && profilePictures[message.payer] ?
+                profilePictures[message.payer].url :
                 defaultProfilePic) ?
-                (message.payer && profilePics[message.payer] ? profilePics[message.payer].url : defaultProfilePic) :
+                (message.payer && profilePictures[message.payer] ? profilePictures[message.payer].url : defaultProfilePic) :
                 defaultProfilePic;
 
               const payerInfo = message.payer ? `${message.payer}` : 'Anonymous';
@@ -11170,8 +11193,8 @@ console.log(payerActionsPerTimestamp)
                     }
 
                     // Use the final like and dislike counts from the maps
-            const likeCount = likeCountMapMarker.get(timestamp) || 0;
-            const dislikeCount = dislikeCountMapMarker.get(timestamp) || 0;
+            const likeCountMarker = likeCountMapMarker.get(timestamp) || 0;
+            const dislikeCountMarker = dislikeCountMapMarker.get(timestamp) || 0;
 
                     topicGeojsonFeatures.push({
                       created: parsedMessage.created,
@@ -11205,8 +11228,8 @@ console.log(payerActionsPerTimestamp)
 </div>
 <div style="position: absolute; bottom: 0em; right: 1vh; font-size: 1vh; color: gray;">${timestamp}</div>
 <div style="position: absolute; bottom: 0em; left: 50%; transform: translateX(-50%); display: flex; gap: 1vh;">
-  <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="likeMarker('${timestamp}', '${topicId}');">${likeCount || 0}👍</span>
-  <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="dislikeMarker('${timestamp}', '${topicId}');">${dislikeCount || 0}👎</span>
+  <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="likeMarker('${timestamp}', '${topicId}');">${likeCountMarker || 0}👍</span>
+  <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="dislikeMarker('${timestamp}', '${topicId}');">${dislikeCountMarker || 0}👎</span>
 </div>
 <span style="position: absolute; bottom: 0em; left: 1vh; font-size: 1.5vh; color: gray; cursor: pointer;"
   onclick="openPopupSettings();">⚙️</span>
@@ -11264,7 +11287,8 @@ console.log(payerActionsPerTimestamp)
                     if (Array.isArray(coordinates) && coordinates.length > 2) {
                       const polygonSize = hasRulesForPolygon ? loadedTopicRulesForPolygon[0].polygonSize : 1;
 
-
+                    const likeCountPolygon = likeCountMapPolygon.get(timestamp) || 0;
+                    const dislikeCountPolygon = dislikeCountMapPolygon.get(timestamp) || 0;
 
 
                         topicPolygons.push({
@@ -11275,28 +11299,35 @@ console.log(payerActionsPerTimestamp)
                           payer: message.payer,
                           coordinates: [coordinates],
                           description: `
-          <div style="position: absolute; top: -0.1em; left: 0.1em; font-weight: bold;" class="number">${parsedMessage.polygon.data.numberOfPolygon}</div>
-          <div style="display: flex; align-items: center;">
-<img src="${profileUrl}" alt="Profile photo"
-      style="width: 7vh; height: 7vh; margin-right: 1em; border-radius: 50%; cursor: pointer;"
-      onclick="loadTOPIC4PIC('${message.payer}');">
-            <div>${displayHeader}</div>
-          </div>
-          <div style="text-align: center;">
-            <div style='margin-bottom: 1vh;'>
-                <strong class="title_color">${parsedMessage.polygon.data.title}</strong>
-            </div>
-            <div>
-              ${isValidUrl(parsedMessage.polygon.data.image) ? `<img src="${parsedMessage.polygon.data.image}" 
-              style="width: 20vh; height: 20vh; display: block; margin: 0 auto;" />` : ''}
-            </div>
-            <div>
-              <p class="text_color">${parsedMessage.polygon.data.msg}</p>
-            </div>
-          </div>
-          <div style="position: absolute; bottom: 0em; right: 1vh; font-size: 1vh; color: gray;">${timestamp}</div>
-          <span style="position: absolute; bottom: 0em; left: 1vh; font-size: 1.5vh; color: gray; cursor: pointer;"
-          onclick="openPopupSettings();">&#9881;</span>
+          <div style="position: absolute; top: -0.1em; left: 0.1em; font-weight: bold;" class="number">${polygonnumber}</div>
+<div style="display: flex; align-items: center;">
+  <img src="${profileUrl}" alt="Profile photo"
+    style="width: 7vh; height: 7vh; margin-right: 1em; border-radius: 50%; cursor: pointer;"
+    onclick="loadTOPIC4PIC('${message.payer}');">
+  <div>${displayHeader}</div>
+</div>
+<div style="text-align: center;">
+  <div style="display: flex; align-items: center; justify-content: space-between; position: relative; margin-bottom: 1vh;">
+    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="prevMsgFromPayerPolygon('${message.payer}', ${polygonnumber});">◀️</span>
+    <div style="text-align: center; flex-grow: 1;">
+      <strong class="title_color">${parsedMessage.polygon.data.title}</strong>
+    </div>
+    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="nextMsgFromPayerPolygon('${message.payer}', ${polygonnumber});">▶️</span>
+  </div>
+  <div>
+    ${isValidUrl(parsedMessage.polygon.data.image) ? `<img src="${parsedMessage.polygon.data.image}" style="width: 20vh; height: 20vh; display: block; margin: 0 auto;" />` : ''} 
+  </div>
+  <div>
+    <p class="text_color">${parsedMessage.polygon.data.msg}</p>
+  </div>
+</div>
+<div style="position: absolute; bottom: 0em; right: 1vh; font-size: 1vh; color: gray;">${timestamp}</div>
+<div style="position: absolute; bottom: 0em; left: 50%; transform: translateX(-50%); display: flex; gap: 1vh;">
+  <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="likePolygon('${timestamp}', '${topicId}');">${likeCountPolygon || 0}👍</span>
+  <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="dislikePolygon('${timestamp}', '${topicId}');">${dislikeCountPolygon || 0}👎</span>
+</div>
+<span style="position: absolute; bottom: 0em; left: 1vh; font-size: 1.5vh; color: gray; cursor: pointer;"
+  onclick="openPopupSettings();">⚙️</span>
 
                           `,
                           imageUrl: isValidUrl(parsedMessage.polygon.data.coverimage) ? parsedMessage.polygon.data.coverimage : profileUrl
@@ -11398,6 +11429,97 @@ console.log(payerActionsPerTimestamp)
     return null;
 };
 
+window.nextMsgFromPayerPolygon = function(payer, polygonNumber) {
+    
+    if (!storedPolygons || !payer || polygonNumber == null) {
+        console.error('Invalid input or missing storedPolygons');
+        return null;
+    }
+    
+    // Sort by created timestamp for chronological order
+    const polygons = storedPolygons[1].sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
+    let currentIndex = -1;
+
+    // Find the current index
+    for (let i = 0; i < polygons.length; i++) {
+        if (polygons[i].payer === payer && polygons[i].msgNumber === String(polygonNumber)) {
+            currentIndex = i;
+            break;
+        }
+    }
+
+    if (currentIndex === -1) {
+        console.log('Current polygon not found');
+        return null;
+    }
+
+    // Find the next polygon for the same payer
+    for (let i = currentIndex + 1; i < polygons.length; i++) {
+        if (polygons[i].payer === payer) {
+            // Close all active popups
+            activePolygonPopups.forEach(popup => popup.remove());
+            activeMarkerPopups.forEach(popup => popup.remove());
+            activePolygonPopups = [];
+            activeMarkerPopups = [];
+
+            // Parse coordinates and compute bounds
+            const coordinates = polygons[i].coordinates[0];
+            const bounds = coordinates.reduce((b, coord) => ({
+                minLng: Math.min(b.minLng, coord[0]),
+                maxLng: Math.max(b.maxLng, coord[0]),
+                minLat: Math.min(b.minLat, coord[1]),
+                maxLat: Math.max(b.maxLat, coord[1])
+            }), {
+                minLng: Infinity,
+                maxLng: -Infinity,
+                minLat: Infinity,
+                maxLat: -Infinity
+            });
+
+            // Use center of the polygon (no `e` needed)
+            const centerLng = (bounds.minLng + bounds.maxLng) / 2;
+            const centerLat = (bounds.minLat + bounds.maxLat) / 2;
+            const targetLngLat = [centerLng, centerLat];
+
+            // Create popup at polygon center
+            const popup = new maplibregl.Popup()
+                .setLngLat(targetLngLat)
+                .setHTML(polygons[i].description)
+                .addTo(map);
+
+            // Track popup
+            activePolygonPopups.push(popup);
+            popIsOpen = true;
+
+            // Animate map to polygon center
+            animateMapTo(map, targetLngLat, null);
+
+            // Popup close handler
+            popup.on("close", () => {
+                popIsOpen = false;
+                if (currentUfoModel) {
+                    scene.add(currentUfoModel);
+                    crosshair.style.display = "block";
+                }
+            });
+
+            // Apply styles
+            applyAllStyles();
+
+            // Handle UFO model visibility
+            if (currentUfoModel) {
+                scene.remove(currentUfoModel);
+                crosshair.style.display = "none";
+            }
+
+            return polygons[i];
+        }
+    }
+
+    console.log('No next message found for payer:', payer);
+    return null;
+};
+
 window.prevMsgFromPayerMarker = function(payer, markerNumber) {
     
     if (!storedMarkers || !payer || markerNumber == null) {
@@ -11465,6 +11587,97 @@ window.prevMsgFromPayerMarker = function(payer, markerNumber) {
     return null;
 };
 
+window.prevMsgFromPayerPolygon = function(payer, polygonNumber) {
+    
+    if (!storedPolygons || !payer || polygonNumber == null) {
+        console.error('Invalid input or missing storedPolygons');
+        return null;
+    }
+    
+    // Sort by created timestamp for chronological order
+    const polygons = storedPolygons[1].sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
+    let currentIndex = -1;
+
+    // Find the current index
+    for (let i = 0; i < polygons.length; i++) {
+        if (polygons[i].payer === payer && polygons[i].msgNumber === String(polygonNumber)) {
+            currentIndex = i;
+            break;
+        }
+    }
+
+    if (currentIndex === -1) {
+        console.log('Current polygon not found');
+        return null;
+    }
+
+    // Find the previous polygon for the same payer
+    for (let i = currentIndex - 1; i >= 0; i--) {
+        if (polygons[i].payer === payer) {
+            // Close all active popups
+            activePolygonPopups.forEach(popup => popup.remove());
+            activeMarkerPopups.forEach(popup => popup.remove());
+            activePolygonPopups = [];
+            activeMarkerPopups = [];
+
+            // Parse coordinates and compute bounds
+            const coordinates = polygons[i].coordinates[0];
+            const bounds = coordinates.reduce((b, coord) => ({
+                minLng: Math.min(b.minLng, coord[0]),
+                maxLng: Math.max(b.maxLng, coord[0]),
+                minLat: Math.min(b.minLat, coord[1]),
+                maxLat: Math.max(b.maxLat, coord[1])
+            }), {
+                minLng: Infinity,
+                maxLng: -Infinity,
+                minLat: Infinity,
+                maxLat: -Infinity
+            });
+
+            // Use center of the polygon
+            const centerLng = (bounds.minLng + bounds.maxLng) / 2;
+            const centerLat = (bounds.minLat + bounds.maxLat) / 2;
+            const targetLngLat = [centerLng, centerLat];
+
+            // Create popup at polygon center
+            const popup = new maplibregl.Popup()
+                .setLngLat(targetLngLat)
+                .setHTML(polygons[i].description)
+                .addTo(map);
+
+            // Track popup
+            activePolygonPopups.push(popup);
+            popIsOpen = true;
+
+            // Animate map to polygon center
+            animateMapTo(map, targetLngLat, null);
+
+            // Popup close handler
+            popup.on("close", () => {
+                popIsOpen = false;
+                if (currentUfoModel) {
+                    scene.add(currentUfoModel);
+                    crosshair.style.display = "block";
+                }
+            });
+
+            // Apply styles
+            applyAllStyles();
+
+            // Handle UFO model visibility
+            if (currentUfoModel) {
+                scene.remove(currentUfoModel);
+                crosshair.style.display = "none";
+            }
+
+            return polygons[i];
+        }
+    }
+
+    console.log('No previous message found for payer:', payer);
+    return null;
+};
+
 window.likeMarker = async function(timestamp, topicId) {
 
     const meesageobject = {
@@ -11478,6 +11691,19 @@ window.likeMarker = async function(timestamp, topicId) {
     
 };
 
+window.likePolygon = async function(timestamp, topicId) {
+    
+    const meesageobject = {
+    likePolygon: {
+      timestamp: timestamp
+    }
+  };
+
+  const meesage = JSON.stringify(meesageobject);
+  const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+};
+
+
 window.dislikeMarker = async function(timestamp, topicId) {
 
     const meesageobject = {
@@ -11490,6 +11716,17 @@ window.dislikeMarker = async function(timestamp, topicId) {
   const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
 };
 
+window.dislikePolygon = async function(timestamp, topicId) {
+    
+    const meesageobject = {
+    dislikePolygon: {
+      timestamp: timestamp
+    }
+  };
+
+  const meesage = JSON.stringify(meesageobject);
+  const reciept = await window.HashinalsWalletConnectSDK.submitMessageToTopic(topicId, meesage);
+};
 
 
 
