@@ -2521,19 +2521,19 @@ button[type="submit"],
     <div style="display: flex; align-items: center; padding-bottom: 1vh;" >
       <label for="color-green" class="yourfov">Text Font Size:
       </label>
-      <input type="number" id="text-font-size-topic-chat" class="yourfov" style="margin-left: 1vw;" max="10" value="1.5"/>
+      <input type="number" id="text-font-size-topic-chat" class="yourfov" style="margin-left: 1vw;" max="10" value="2"/>
     </div>
 
     <div style="display: flex; align-items: center; padding-bottom: 1vh;" >
       <label for="color-green" class="yourfov">Timestamp Font Size:
       </label>
-      <input type="number" id="timestamp-font-size-topic-chat" class="yourfov" style="margin-left: 1vw;" max="10" value="1.5"/>
+      <input type="number" id="timestamp-font-size-topic-chat" class="yourfov" style="margin-left: 1vw;" max="10" value="1.25"/>
     </div>
 
     <div style="display: flex; align-items: center; padding-bottom: 1vh;" >
       <label for="color-green" class="yourfov">Header Font Size:
       </label>
-      <input type="number" id="header-font-size-topic-chat" class="yourfov" style="margin-left: 1vw;" max="10" value="1.5"/>
+      <input type="number" id="header-font-size-topic-chat" class="yourfov" style="margin-left: 1vw;" max="10" value="2"/>
     </div>
 
     <div>
@@ -3076,9 +3076,9 @@ let usernameTopicChatColor = '#ff9933';
 let textTopicChatColor = '#ffffff';
 let innerContainerTopicChatColor = '#ffc107';
 let topicChatHeaderColor = '#ffffff';
-let textFontSizeTopicChat = 1.5;
-let timestampFontSizeTopicChat = 1;
-let headerFontSizeTopicChat = 1.5;
+let textFontSizeTopicChat = 2;
+let timestampFontSizeTopicChat = 1.25;
+let headerFontSizeTopicChat = 2;
 
 
 function makeScrollable(el) {
@@ -10094,21 +10094,21 @@ async function loadMainButtonSettings() {
         disconnectButton.forEach(button => {
             button.style.backgroundColor = colorDisconnect;
             button.style.height = MainButtonHeight + "vh";
-            button.style.width = MainButtonWidth + "%";
+            button.style.width = MainButtonWidth + "vw";
             button.style.fontSize = MainButtonFontSize + "vh";
         });
 
         menuButtons.forEach(button => {
             button.style.backgroundColor = colorMainButton;
             button.style.height = MainButtonHeight + "vh";
-            button.style.width = MainButtonWidth + "%";
+            button.style.width = MainButtonWidth + "vw";
             button.style.fontSize = MainButtonFontSize + "vh";
         });
 
         optionsButtons.forEach(button => {
             button.style.backgroundColor = colorMainButton;
             button.style.height = MainButtonHeight + "vh";
-            button.style.width = MainButtonWidth + "%";
+            button.style.width = MainButtonWidth + "vw";
             button.style.fontSize = MainButtonFontSize + "vh";
         });
     }
