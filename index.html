@@ -3077,7 +3077,7 @@ let textTopicChatColor = '#ffffff';
 let innerContainerTopicChatColor = '#ffc107';
 let topicChatHeaderColor = '#ffffff';
 let textFontSizeTopicChat = 1.5;
-let timestampFontSizeTopicChat = 1.5;
+let timestampFontSizeTopicChat = 1;
 let headerFontSizeTopicChat = 1.5;
 
 
@@ -10208,7 +10208,7 @@ document.getElementById("save-button-button-input").addEventListener("click", as
         const FontForButtonInput = Math.min(parseFloat(document.getElementById("font-for-button-input").value) || 1.5, 10);
         const TransparencyButtonInput = Math.min(parseFloat(document.getElementById("transparency-button-input").value) || 0.5, 1);
         const ButtonInputHeight = Math.min(parseFloat(document.getElementById("Button-Input-Height").value) || 3, 100);
-        const ButtonInputWidth = Math.min(parseFloat(document.getElementById("Button-Input-Width").value) || 10, 100);
+        const ButtonInputWidth = Math.min(parseFloat(document.getElementById("Button-Input-Width").value) || 25, 100);
 
         const messageData = {
             data: {
@@ -10309,7 +10309,7 @@ async function loadButtonInputSettings() {
       const fontForButtonInput = Math.min(parseFloat(document.getElementById("font-for-button-input").value) || 1.5, 10);
       const transparencyButtonInput = Math.min(parseFloat(document.getElementById("transparency-button-input").value) || 0.5, 1);
       const ButtonInputHeight = Math.min(parseFloat(document.getElementById("Button-Input-Height").value) || 5, 100);
-      const ButtonInputWidth = Math.min(parseFloat(document.getElementById("Button-Input-Width").value) || 10, 100);
+      const ButtonInputWidth = Math.min(parseFloat(document.getElementById("Button-Input-Width").value) || 25, 100);
       const inputButtons = document.querySelectorAll('.toolbar-column, .yourfov');
 
       inputButtons.forEach(button => {
@@ -10377,7 +10377,7 @@ document.getElementById("save-topic-chat-settings").addEventListener("click", as
         const topicChatHeaderColor = document.getElementById("topic-chat-header-color").value;
         const textFontSizeTopicChat = Math.min(parseFloat(document.getElementById("text-font-size-topic-chat").value) || 1.5, 10);
         const timestampFontSizeTopicChat = Math.min(parseFloat(document.getElementById("timestamp-font-size-topic-chat").value) || 1.5, 10);
-        const headerFontSizeTopicChat = Math.min(parseFloat(document.getElementById("header-font-size-topic-chat").value) || 1.5, 10);
+        const headerFontSizeTopicChat = Math.min(parseFloat(document.getElementById("header-font-size-topic-chat").value) || 0.5, 10);
 
         const messageData = {
             data: {
