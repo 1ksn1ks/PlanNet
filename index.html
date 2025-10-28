@@ -2026,10 +2026,6 @@ button[type="submit"],
 </div>
 
 
-<div id="pin-public-key-from-encrypted-chat" style="display: none;">
-    <button id="stack-encrypted-chat-public-key-button" class="pin-public-key-from-encrypted-chat">Pin Public Key
-    </button>
-</div>
 
     <div class="chat-container" id="messages-from-encrypted-chat" onclick="event.stopPropagation();">
     </div>
@@ -2038,7 +2034,7 @@ button[type="submit"],
     onclick="event.stopPropagation();" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px';"
     ></textarea>
 
-    <div id="encrypted-chat-public-key-container">
+    <div id="encrypted-chat-chat-container">
 
     <div style="position: relative;">
       <textarea
@@ -2059,12 +2055,20 @@ button[type="submit"],
     </div>
   </div>
 
+  <div id="go-to-submit-message-encrypted-chat">
     <div style="display: flex; align-items: center;">
       <button id="go-to-top-msgs-encrypted-chat" class="toolbar-column-btns">Go to the top
       </button>
       <button id="post-msg-encrypted-chat" class="toolbar-column-btns" style="margin-left: 1vw ">Submit Message
       </button>
     </div>
+  </div>
+
+  <div id="pin-public-key-from-encrypted-chat" style="display: none;">
+    <button id="stack-encrypted-chat-public-key-button" class="pin-public-key-from-encrypted-chat">Pin Public Key
+    </button>
+</div>
+
 
   </div>
 </div>
@@ -6495,7 +6499,8 @@ function CloseALL() {
   document.getElementById("toggle-toolbar-btn-btn").style.display = "none";
   document.getElementById("toggle-your-fov-btn-btn").style.display = "none";
   document.getElementById("encrypted-chat-private-key-container").style.display = "block";
-  document.getElementById("encrypted-chat-public-key-container").style.display = "block";
+  document.getElementById("encrypted-chat-chat-container").style.display = "block";
+  document.getElementById("go-to-submit-message-encrypted-chat").style.display = "block";
   if (popIsOpen === false) {
     if (currentUfoModel) {
             scene.add(currentUfoModel);
@@ -6885,6 +6890,7 @@ const allShowButtonsFromEncryptedChatOptions = [
   document.getElementById("show-from-from-encrypted-chat"),
   document.getElementById("show-block-from-encrypted-chat"),
   document.getElementById("show-pin-public-key-from-encrypted-chat"),
+  document.getElementById("go-to-submit-message-encrypted-chat"),
 ];
 
 function showAllShowButtonsFromEncryptedChatOptions() {
@@ -6950,7 +6956,8 @@ document.getElementById("show-pin-public-key-from-encrypted-chat").addEventListe
   document.getElementById("hide-pin-public-key-from-encrypted-chat").style.display = "block";
   document.getElementById("show-pin-public-key-from-encrypted-chat").style.display = "none";
   document.getElementById("encrypted-chat-private-key-container").style.display = "none";
-  document.getElementById("encrypted-chat-public-key-container").style.display = "none";
+  document.getElementById("encrypted-chat-chat-container").style.display = "none";
+  document.getElementById("go-to-submit-message-encrypted-chat").style.display = "none";
 });
 
 document.getElementById("hide-pin-public-key-from-encrypted-chat").addEventListener("click", (event) => {
@@ -6958,9 +6965,10 @@ document.getElementById("hide-pin-public-key-from-encrypted-chat").addEventListe
   showAllShowButtonsFromEncryptedChatOptions()
   document.getElementById("hide-pin-public-key-from-encrypted-chat").style.display = "none";
   document.getElementById("show-pin-public-key-from-encrypted-chat").style.display = "block";
+  document.getElementById("go-to-submit-message-encrypted-chat").style.display = "block";
   document.getElementById("encrypted-chat-public-key").style.display = "block";
   document.getElementById("encrypted-chat-private-key-container").style.display = "block";
-  document.getElementById("encrypted-chat-public-key-container").style.display = "block";
+  document.getElementById("encrypted-chat-chat-container").style.display = "block";
 });
 
 
@@ -7012,6 +7020,10 @@ document.getElementById("show-options-from-encrypted-chat-btn").addEventListener
   document.getElementById("options-from-encrypted-chat").style.display = "none";
   document.getElementById("show-options-from-encrypted-chat-btn").style.display = "none";
   document.getElementById("show-options-from-encrypted-chat").style.display = "block";
+  document.getElementById("go-to-submit-message-encrypted-chat").style.display = "block";
+  document.getElementById("encrypted-chat-private-key-container").style.display = "block";
+  document.getElementById("encrypted-chat-chat-container").style.display = "block";
+
 });
 
 function closePopupColumn3options() {
