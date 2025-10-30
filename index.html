@@ -11498,7 +11498,7 @@ if (response.messages && Array.isArray(response.messages)) {
     }
 
     // Sort by created timestamp for chronological order
-    const markers = storedMarkers[0].sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
+    const markers = storedMarkers.flat().sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
     let currentIndex = -1;
 
     // Find the current index
@@ -11561,7 +11561,7 @@ window.nextMsgFromPayerPolygon = function(payer, polygonNumber) {
     }
     
     // Sort by created timestamp for chronological order
-    const polygons = storedPolygons[1].sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
+    const polygons = storedPolygons.flat().sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
     let currentIndex = -1;
 
     // Find the current index
@@ -11648,7 +11648,7 @@ window.prevMsgFromPayerMarker = function(payer, markerNumber) {
     }
 
     // Sort by created timestamp for chronological order
-    const markers = storedMarkers[0].sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
+    const markers = storedMarkers.flat().sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
     let currentIndex = -1;
 
     // Find the current index
@@ -11711,7 +11711,7 @@ window.prevMsgFromPayerPolygon = function(payer, polygonNumber) {
     }
     
     // Sort by created timestamp for chronological order
-    const polygons = storedPolygons[1].sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
+    const polygons = storedPolygons.flat().sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
     let currentIndex = -1;
 
     // Find the current index
@@ -12055,7 +12055,6 @@ async function updateMapLayer() {
     if (map.getLayer('3d-model')) {
         map.removeLayer('3d-model');
     }
-
     // Add the updated custom 3D model layer
     map.addLayer(await load3dModels());
 }
