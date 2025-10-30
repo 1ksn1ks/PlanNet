@@ -11919,7 +11919,7 @@ setInterval(() => {
         ...bot,
         origin: [newX, newY],
         altitude: newZ,
-        scaleFactorNFT: bot.scaleFactorNFT * (0.98 + Math.random() * 0.04) // slight scale flicker
+        scaleFactorNFT: bot.scaleFactorNFT
     };
 
 }, 10000); // every 3 seconds
@@ -12060,7 +12060,7 @@ async function updateMapLayer() {
 
 let updateMapLayerIntervalId = null; // Initialize the interval ID
 
-let updateInterval = 5000; // Default interval time in milliseconds
+let updateInterval = 15000; // Default interval time in milliseconds
 
 document.getElementById("update-loop").addEventListener("click", () => {
   const newInterval = parseFloat(document.getElementById("time-input").value, 10);
