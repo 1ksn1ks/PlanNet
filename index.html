@@ -12064,9 +12064,12 @@ let updateMapLayerIntervalId = null; // Initialize the interval ID
 
 let updateInterval = 60000; // Default interval time in milliseconds
 
+let isInitialUpdateLoop = true;
+
 document.getElementById("update-loop").addEventListener("click", () => {
   const newInterval = parseFloat(document.getElementById("time-input").value, 10);
   const updatesValue = document.getElementById("updates-value");
+  const updatesValue2 = document.getElementById("updates-value2");
   const visibilityValue = document.getElementById("3d-model-visibility-value");
   const toggle3DModelButton = document.getElementById("toggle-3d-model-visibility");
 
@@ -12076,6 +12079,7 @@ document.getElementById("update-loop").addEventListener("click", () => {
     startUpdateMapLayerLoop(); // Start a new loop with the updated interval
     console.log(`Update interval set to ${updateInterval} milliseconds.`);
     updatesValue.textContent = "On"; // Ensure updates are "On"
+    updatesValue2.textContent = "On";
 
     // Ensure 3D models are visible
     if (visibilityValue.textContent === "Off") {
@@ -12092,7 +12096,8 @@ document.getElementById("toggle-updates").addEventListener("click", () => {
   const visibilityValue = document.getElementById("3d-model-visibility-value");
   const toggle3DModelButton = document.getElementById("toggle-3d-model-visibility");
 
-  if (updatesValue.textContent === "On") {
+  if (isInitialUpdateLoop) {
+    console.log('stopping update loop');
     stopUpdateMapLayerLoop(); // Stop the update loop
     updatesValue.textContent = "Off";
     updatesValue2.textContent = "Off";
@@ -12113,6 +12118,7 @@ function startUpdateMapLayerLoop() {
       updateMapLayer();
     }, updateInterval); // Use the updated interval time
   }
+  isInitialUpdateLoop = true;
 }
 
 function stopUpdateMapLayerLoop() {
@@ -12120,6 +12126,7 @@ function stopUpdateMapLayerLoop() {
     clearInterval(updateMapLayerIntervalId);
     updateMapLayerIntervalId = null; // Reset the interval ID
   }
+  isInitialUpdateLoop = false;
 }
 // Call this function to start the loop
 startUpdateMapLayerLoop();
@@ -12133,6 +12140,7 @@ document.getElementById("toggle-3d-model-visibility").addEventListener("click", 
     const visibilityValue = document.getElementById("3d-model-visibility-value");
     const visibilityValue2 = document.getElementById("3d-model-visibility-value2");
     const updatesValue = document.getElementById("updates-value");
+    const updatesValue2 = document.getElementById("updates-value2");
 
     if (visibilityValue.textContent === "Off") {
         await updateMapLayer(); // Show 3D models
@@ -12141,6 +12149,7 @@ document.getElementById("toggle-3d-model-visibility").addEventListener("click", 
         visibilityValue2.textContent = "On";
         button.textContent = "Hide 3D models";
         updatesValue.textContent = "On"; // Ensure updates are "On"
+        updatesValue2.textContent = "On";
     } else {
         if (map.getLayer('3d-model')) {
             map.removeLayer('3d-model'); // Hide 3D models
@@ -12150,6 +12159,7 @@ document.getElementById("toggle-3d-model-visibility").addEventListener("click", 
         visibilityValue2.textContent = "Off";
         button.textContent = "Show 3D models";
         updatesValue.textContent = "Off"; // Turn updates "Off" when 3D models are hidden
+        updatesValue2.textContent = "Off";
     }
 });
 
