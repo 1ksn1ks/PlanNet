@@ -2103,7 +2103,7 @@ button[type="submit"],
     </div>
 
     <div style="display: flex; align-items: center; margin-bottom: 1vh;">
-      <input type="number" id="time-input" class="toolbar-column-btns" />
+      <input type="number" id="time-input" class="toolbar-column-btns" value="60000"/>
       <button id="update-loop" class="toolbar-column-btns" style="width: 50vw;  margin-left: 1vw; color: white; text-shadow: 0 0 0.5vh black;">Update time
       </button>
     </div>
@@ -10941,7 +10941,6 @@ async function processTopicMessages(topicId) {
 
         try {
           const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
-          console.log('this is rawResult', rawResult)
 
           const seen = new Map();
           const uniqueMessages = {messages:[]};
@@ -10967,7 +10966,6 @@ const dislikeCountMapPolygon = new Map();
 const payerActionsPerTimestamp = new Map(); // Tracks latest action per payer per timestamp
 
 const response = sanitizeWalletMessages(uniqueMessages);
-console.log('this is response', response);
 
 if (response.messages && Array.isArray(response.messages)) {
   for (const message of response.messages) {
@@ -12064,7 +12062,7 @@ async function updateMapLayer() {
 
 let updateMapLayerIntervalId = null; // Initialize the interval ID
 
-let updateInterval = 15000; // Default interval time in milliseconds
+let updateInterval = 60000; // Default interval time in milliseconds
 
 document.getElementById("update-loop").addEventListener("click", () => {
   const newInterval = parseFloat(document.getElementById("time-input").value, 10);
