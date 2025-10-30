@@ -11882,7 +11882,7 @@ for (let i = 0; i < 150; i++) {
     const coordinates = {
         x: -180 + Math.random() * 360,     // longitude:  -180 to +180
         y: -90 + Math.random() * 180,    // latitude: -90 to +90
-        z: Math.random() * 1000000       // altitude:  0 to 10,000,000 meters
+        z:  50000 + Math.random() * 7000000       // altitude:  0 to 10,000,000 meters
     };
 
     // Random scale factor for NFT (e.g., 0.5x to 3x)
@@ -12215,7 +12215,7 @@ async function someFunction(accountId, topicId) {
       } else if (zoomLevel <= 3.5) {
           height = 5000000 + (65000000 * (3.5 - zoomLevel)); // Scale down from 5000000 to 70000000
       } else {
-          height = 70000000; // Set height for zoom level 0
+          height = 7000000; // Set height for zoom level 0
       }
 
         const xInput = longitude; // Set x from current longitude
