@@ -11907,7 +11907,7 @@ setInterval(() => {
     const bot = models[randomBotIndex];
 
     // Slight movement (e.g., ±0.1° lat/lon, ±1000m altitude)
-    const drift = () => -0.1 + Math.random() * 0.2;
+    const drift = () => -1 + Math.random() * 2;
     const altDrift = () => -1000 + Math.random() * 2000;
 
     const newX = Math.max(-180, Math.min(180, bot.origin[0] + drift()));
