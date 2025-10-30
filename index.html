@@ -11877,7 +11877,7 @@ async function loadAccountUrlArray() {
 
 function generateModels() {
     // Generate 100 unique bot peers
-for (let i = 0; i < 50; i++) {
+for (let i = 0; i < 150; i++) {
     const modelIndex = i; // or use a unique key if not sequential
     const peer_id = `bot_${i}`; // Unique ID: bot_0, bot_1, ..., bot_99
 
@@ -11888,14 +11888,18 @@ for (let i = 0; i < 50; i++) {
     };
 
     // Random scale factor for NFT (e.g., 0.5x to 3x)
-    const scaleFactorNFT = 0.5 + Math.random() * 2.5;
+    const scaleFactorNFT = 1 + Math.random() * 1.5;
 
-const url = 'https://kiloscribe.com/api/inscription-cdn/0.0.9742046';
+const urls = [
+    'https://kiloscribe.com/api/inscription-cdn/0.0.9742046',
+    'https://kiloscribe.com/api/inscription-cdn/0.0.8412117',
+    'https://kiloscribe.com/api/inscription-cdn/0.0.8392276'
+];
 
     // Overwrite any existing entry at this modelIndex (or create new)
     models[modelIndex] = {
         peer_id: peer_id,
-        url: url || 'https://kiloscribe.com/api/inscription-cdn/0.0.9742046',
+        url: urls[Math.floor(Math.random() * urls.length)],
         origin: [coordinates.x, coordinates.y],
         altitude: coordinates.z,
         scaleFactorNFT: scaleFactorNFT
@@ -11903,7 +11907,7 @@ const url = 'https://kiloscribe.com/api/inscription-cdn/0.0.9742046';
 
     // After initial creation, start live updates
 setInterval(() => {
-    const randomBotIndex = Math.floor(Math.random() * 50);
+    const randomBotIndex = Math.floor(Math.random() * 150);
     const bot = models[randomBotIndex];
 
     // Slight movement (e.g., ±0.1° lat/lon, ±1000m altitude)
