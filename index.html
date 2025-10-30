@@ -11843,19 +11843,90 @@ window.dislikePolygon = async function(timestamp, topicId) {
 };
 
 
+let accountUrlArray = [];
 
+async function loadAccountUrlArray() {
+  const topicId = "0.0.9609898";
 
+  try {
+    const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+    const result = sanitizeWalletMessages(rawResult);
 
+    // Sort messages by consensus_timestamp descending (biggest first)
+    const sortedResult = result.messages.sort((a, b) => {
+      const timestampA = parseFloat(a.consensus_timestamp);
+      const timestampB = parseFloat(b.consensus_timestamp);
+      return timestampB - timestampA; // Descending order
+    });
 
+    accountUrlArray = sortedResult;
+    return accountUrlArray;
+  } catch (error) {
+    console.log("Error in loadAccountUrlArray:", error);
+    return [];
+  }
+}
 
-
-
-
-
+(async () => {
+  await loadAccountUrlArray();
+})();
 
 
     // Array of models with their respective URLs, origins, and altitudes
-    const models = [];
+    let models = [];
+
+function generateModels() {
+    // Generate 100 unique bot peers
+for (let i = 0; i < 50; i++) {
+    const modelIndex = i; // or use a unique key if not sequential
+    const peer_id = `bot_${i}`; // Unique ID: bot_0, bot_1, ..., bot_99
+
+    const coordinates = {
+        x: -180 + Math.random() * 360,     // longitude:  -180 to +180
+        y: -90 + Math.random() * 180,    // latitude: -90 to +90
+        z: Math.random() * 1000000       // altitude:  0 to 10,000,000 meters
+    };
+
+    // Random scale factor for NFT (e.g., 0.5x to 3x)
+    const scaleFactorNFT = 0.5 + Math.random() * 2.5;
+
+const url = 'https://kiloscribe.com/api/inscription-cdn/0.0.9742046';
+
+    // Overwrite any existing entry at this modelIndex (or create new)
+    models[modelIndex] = {
+        peer_id: peer_id,
+        url: url || 'https://kiloscribe.com/api/inscription-cdn/0.0.9742046',
+        origin: [coordinates.x, coordinates.y],
+        altitude: coordinates.z,
+        scaleFactorNFT: scaleFactorNFT
+    };
+
+    // After initial creation, start live updates
+setInterval(() => {
+    const randomBotIndex = Math.floor(Math.random() * 50);
+    const bot = models[randomBotIndex];
+
+    // Slight movement (e.g., ±0.1° lat/lon, ±1000m altitude)
+    const drift = () => -0.1 + Math.random() * 0.2;
+    const altDrift = () => -1000 + Math.random() * 2000;
+
+    const newX = Math.max(-180, Math.min(180, bot.origin[0] + drift()));
+    const newY = Math.max(-90, Math.min(90, bot.origin[1] + drift()));
+    const newZ = Math.max(0, Math.min(1000000, bot.altitude + altDrift()));
+
+    // Overwrite same peer with new position
+    models[randomBotIndex] = {
+        ...bot,
+        origin: [newX, newY],
+        altitude: newZ,
+        scaleFactorNFT: bot.scaleFactorNFT * (0.98 + Math.random() * 0.04) // slight scale flicker
+    };
+
+}, 10000); // every 3 seconds
+}
+}
+generateModels();
+    
 
 async function load3dModels() {
 const customLayer = {
@@ -12479,51 +12550,39 @@ function retryWebRTCConnection(peerId) {
             }
         }
     }
-                  async function loadProfileObjectUrl(payerId) {
-                  if (!payerId) {
-                  console.error("payerId is undefined");
-                  return null;
-                  }
-                  // Remove 'peer-' prefix if present
-                  const cleanPayerId = payerId.split('-')[1];
-                  const topicId = "0.0.9609898";
-                  const accountUrl = []; // Initialize an empty array to store account URLs
-                  try {
-                    const rawResult = await window.HashinalsWalletConnectSDK.getMessages(topicId);
+    function loadProfileObjectUrl(payerId) {
 
-                    const seen = new Map();
-                    const uniqueMessages = {messages:[]};
+  const payerParts = payerId.split('-');
+  if (payerParts.length < 2) {
+    console.warn("payerId format invalid (expected 'prefix-id'):", payerId);
+    return null;
+  }
 
-                    for (let index = 0; index < rawResult.messages.length; index++) {
-                      const message = rawResult.messages[index];
-                      const seqNum = message.sequence_number;
+  const cleanPayerId = payerParts[1]; // e.g., "abc123"
 
-                      if (!seen.has(seqNum)) {
-                        seen.set(seqNum, true);
-                        uniqueMessages.messages.push(message);
-                      }
-                    }
+  // Step 2: Search accountUrlArray using cleanPayerId
+  const messages = accountUrlArray.filter(message => message.payer === cleanPayerId);
 
-                    const result = sanitizeWalletMessages(uniqueMessages);
-                  // Check if result exists and has messages
-                  if (!result || !Array.isArray(result.messages) || result.messages.length === 0) {
-                    console.log("No profile object found, using defaults");
-                    return null; // Return null if no messages
-                  }
-                  // Filter messages to find those from the current user
-                  const userMessages = result.messages.filter(message => message.payer === cleanPayerId);
-                  // Get the last message from the filtered user messages
-                  const lastMessage = userMessages[userMessages.length - 1];
-                  // Check if the last message has valid data
-                  if (lastMessage && lastMessage.data && lastMessage.data.urls && lastMessage.data.urls.length > 0) {
-                    return lastMessage.data.urls[0]; // Return the first URL
-                  }
-                  return null; // Return null if no valid URL found
-                  } catch (error) {
-                  console.log("Error in loadProfileObject:", error);
-                  return null; // Return null instead of throwing error
-                  }
-                  }
+  if (!messages || messages.length === 0) {
+    console.log("No messages sent by user:", cleanPayerId);
+    return null;
+  }
+
+  // Step 3: Find the FIRST message with a valid URL
+  const firstValidMessage = messages.find(message => 
+    message.data.urls &&
+    Array.isArray(message.data.urls) &&
+    message.data.urls.length > 0
+  );
+
+  if (!firstValidMessage) {
+    console.log("No valid URL in any message from payer:", cleanPayerId);
+    return null;
+  }
+
+  // Step 4: Return the first URL from the first valid message
+  return firstValidMessage.data.urls[0];
+}
                     }
                     async function cleanup() {
         console.log('[Client] Cleaning up connections and state');
