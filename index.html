@@ -11875,7 +11875,7 @@ async function loadAccountUrlArray() {
 
 function generateModels() {
     // Generate 100 unique bot peers
-for (let i = 0; i < 150; i++) {
+for (let i = 0; i < 500; i++) {
     const modelIndex = i; // or use a unique key if not sequential
     const peer_id = `bot_${i}`; // Unique ID: bot_0, bot_1, ..., bot_99
 
@@ -11914,7 +11914,7 @@ setInterval(() => {
 
     const newX = Math.max(-180, Math.min(180, bot.origin[0] + drift()));
     const newY = Math.max(-90, Math.min(90, bot.origin[1] + drift()));
-    const newZ = Math.max(0, Math.min(1000000, bot.altitude + altDrift()));
+    const newZ = Math.max(0, Math.min(3500000, bot.altitude + altDrift()));
 
     // Overwrite same peer with new position
     models[randomBotIndex] = {
@@ -11924,7 +11924,7 @@ setInterval(() => {
         scaleFactorNFT: bot.scaleFactorNFT
     };
 
-}, 10000); // every 3 seconds
+}, 60000); // every 60 seconds
 }
 }
 generateModels();
@@ -12215,7 +12215,7 @@ async function someFunction(accountId, topicId) {
       } else if (zoomLevel <= 3.5) {
           height = 5000000 + (65000000 * (3.5 - zoomLevel)); // Scale down from 5000000 to 70000000
       } else {
-          height = 7000000; // Set height for zoom level 0
+          height = 70000000; // Set height for zoom level 0
       }
 
         const xInput = longitude; // Set x from current longitude
