@@ -1,6 +1,4 @@
-for DORA:
- 
-I’m developing a fully decentralized, open-source social media platform with limitless potential, built on the Hedera network. The app features a 3D globe interface, allowing users to interact with and write data to the Hedera network, with logic to read and display that data seamlessly.
+Developing a fully decentralized, open-source social media platform with limitless potential, built on the Hedera network. The app features a 3D globe interface, allowing users to interact with and write data to the Hedera network, with logic to read and display that data seamlessly.
 
 Key Features:
 
@@ -18,13 +16,7 @@ A heartfelt shoutout to Kantor, Patches, and all the brilliant minds advancing t
 
 Side note: It would be great to involve Pi Network in this, as they have several million registered users. They could create a token on the Hedera network and transfer their mainnet to it.
 
-old readme:
-
-Hello
-
-this is HTML code,
-curentlly in pure chaos but logic works
-check it out live on allinhbar.com
+check it out live on onlyonhbar.com
 
 script.js made by https://github.com/kantorcodes
 (script enables wallet connect via simple implementation in HTML code, checkout for more info https://github.com/hashgraph-online/hashinal-wc)
