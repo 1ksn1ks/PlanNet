@@ -3980,7 +3980,7 @@ for (const gateway of gateways) {
 }
 
 let storedMarkers = [];
-let sotredMarkersFiltered = [];
+let storedMarkersFiltered = [];
 let storedPolygons = [];
 let storedPolygonsFiltered = [];
 
@@ -4046,9 +4046,8 @@ async function handleGeoFilter() {
     fromDate = new Date(fromDateValue.slice(4, 8), fromDateValue.slice(0, 2) - 1, fromDateValue.slice(2, 4));
     toDate = new Date(toDateValue.slice(4, 8), toDateValue.slice(0, 2) - 1, toDateValue.slice(2, 4));
   }
-
   // Filter storedMarkers
-  const filteredFeatures = storedMarkers[0].filter(feature => {
+  const filteredFeatures = storedMarkers.flat().filter(feature => {
     const conditions = [];
     const featureDate = new Date(feature.created); // Assuming 'created' property exists
 
@@ -4077,7 +4076,7 @@ async function handleGeoFilter() {
   });
 
   // Filter storedPolygons
-  const filteredPolygons = storedPolygons[0].filter(polygon => {
+  const filteredPolygons = storedPolygons.flat().filter(polygon => {
     const conditions = [];
     const polygonDate = new Date(polygon.created); // Assuming 'created' property exists
 
@@ -11326,6 +11325,7 @@ if (response.messages && Array.isArray(response.messages)) {
             const dislikeCountMarker = dislikeCountMapMarker.get(timestamp) || 0;
 
                     topicGeojsonFeatures.push({
+                      topicId: topicId,
                       created: parsedMessage.created,
                       msgNumber: parsedMessage.marker.data.numberOfMarker,
                       type: "Feature",
@@ -11333,7 +11333,11 @@ if (response.messages && Array.isArray(response.messages)) {
                       properties: {
                         message:
     `
+    <div style="position: flex;">
 <div style="position: absolute; top: -0.1em; left: 0.1em; font-weight: bold;" class="number">${markernumber}</div>
+<span style="position: absolute; top: -0.1em; left: 50%; transform: translateX(-50%); font-size: 1.5vh; color: gray;
+ white-space: nowrap;">${topicId} ${loadedTopicName}</span>
+ </div>
 <div style="display: flex; align-items: center;">
   <img src="${profileUrl}" alt="Profile photo"
     style="width: 7vh; height: 7vh; margin-right: 1em; border-radius: 50%; cursor: pointer;"
@@ -11342,11 +11346,11 @@ if (response.messages && Array.isArray(response.messages)) {
 </div>
 <div style="text-align: center;">
   <div style="display: flex; align-items: center; justify-content: space-between; position: relative; margin-bottom: 1vh;">
-    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="prevMsgFromPayerMarker('${message.payer}', ${markernumber});">◀️</span>
+    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="prevMsgFromPayerMarker('${message.payer}', '${markernumber}', '${topicId}');">◀️</span>
     <div style="text-align: center; flex-grow: 1;">
       <strong class="title_color">${parsedMessage.marker.data.title}</strong>
     </div>
-    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="nextMsgFromPayerMarker('${message.payer}', ${markernumber});">▶️</span>
+    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="nextMsgFromPayerMarker('${message.payer}', '${markernumber}', '${topicId}');">▶️</span>
   </div>
   <div>
     ${isValidUrl(parsedMessage.marker.data.image) ? `<img src="${parsedMessage.marker.data.image}" style="width: 20vh; height: 20vh; display: block; margin: 0 auto;" />` : ''} 
@@ -11421,6 +11425,7 @@ if (response.messages && Array.isArray(response.messages)) {
 
 
                         topicPolygons.push({
+                          topicId: topicId,
                           created: parsedMessage.created,
                           msgNumber: parsedMessage.polygon.data.numberOfPolygon,
                           id: `
@@ -11428,8 +11433,12 @@ if (response.messages && Array.isArray(response.messages)) {
                           payer: message.payer,
                           coordinates: [coordinates],
                           description: `
-          <div style="position: absolute; top: -0.1em; left: 0.1em; font-weight: bold;" class="number">${polygonnumber}</div>
-<div style="display: flex; align-items: center;">
+    <div style="position: flex;">
+<div style="position: absolute; top: -0.1em; left: 0.1em; font-weight: bold;" class="number">${polygonnumber}</div>
+<span style="position: absolute; top: -0.1em; left: 50%; transform: translateX(-50%); font-size: 1.5vh; color: gray;
+ white-space: nowrap;">${topicId} ${loadedTopicName}</span>
+ </div>
+ <div style="display: flex; align-items: center;">
   <img src="${profileUrl}" alt="Profile photo"
     style="width: 7vh; height: 7vh; margin-right: 1em; border-radius: 50%; cursor: pointer;"
     onclick="loadTOPIC4PIC('${message.payer}');">
@@ -11437,11 +11446,11 @@ if (response.messages && Array.isArray(response.messages)) {
 </div>
 <div style="text-align: center;">
   <div style="display: flex; align-items: center; justify-content: space-between; position: relative; margin-bottom: 1vh;">
-    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="prevMsgFromPayerPolygon('${message.payer}', ${polygonnumber});">◀️</span>
+    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="prevMsgFromPayerPolygon('${message.payer}', '${polygonnumber}', '${topicId}');">◀️</span>
     <div style="text-align: center; flex-grow: 1;">
       <strong class="title_color">${parsedMessage.polygon.data.title}</strong>
     </div>
-    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="nextMsgFromPayerPolygon('${message.payer}', ${polygonnumber});">▶️</span>
+    <span style="font-size: 1.5vh; color: gray; cursor: pointer;" onclick="nextMsgFromPayerPolygon('${message.payer}', '${polygonnumber}', '${topicId}');">▶️</span>
   </div>
   <div>
     ${isValidUrl(parsedMessage.polygon.data.image) ? `<img src="${parsedMessage.polygon.data.image}" style="width: 20vh; height: 20vh; display: block; margin: 0 auto;" />` : ''} 
@@ -11490,300 +11499,348 @@ if (response.messages && Array.isArray(response.messages)) {
 
 
 
-      window.nextMsgFromPayerMarker = function(payer, markerNumber) {
-    
-    if (!storedMarkers || !payer || markerNumber == null) {
+      window.nextMsgFromPayerMarker = function(payer, markerNumber, topicId) {
+    if (!storedMarkers || !payer || markerNumber == null || !topicId) {
         console.error('Invalid input or missing storedMarkers');
         return null;
     }
 
-    // Sort by created timestamp for chronological order
-    const markers = storedMarkers.flat().sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
-    let currentIndex = -1;
+    // --------------------------------------------------------------
+    // 1. Flatten + sort all markers chronologically
+    // --------------------------------------------------------------
+    const markers = storedMarkers
+        .flat()
+        .sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
 
-    // Find the current index
+    // --------------------------------------------------------------
+    // 2. Locate the current marker
+    // --------------------------------------------------------------
+    let curIdx = -1;
     for (let i = 0; i < markers.length; i++) {
-        if (markers[i].payer === payer && markers[i].msgNumber === String(markerNumber)) {
-            currentIndex = i;
+        if (markers[i].payer === payer &&
+            markers[i].msgNumber === String(markerNumber) &&
+            markers[i].topicId === topicId) {
+            curIdx = i;
             break;
         }
     }
+    if (curIdx === -1) return null;
 
-    // Find the next marker for the same payer
-    for (let i = currentIndex + 1; i < markers.length; i++) {
-        if (markers[i].payer === payer) {
-            // Close all active popups
-            activeMarkerPopups.forEach((popup) => popup.remove());
-
-            // Create and open new popup
-            const popup = new maplibregl.Popup()
-                .setLngLat(markers[i].geometry.coordinates)
-                .setHTML(markers[i].properties.message)
-                .addTo(map);
-
-            // Add popup to activeMarkerPopups and update popIsOpen
-            activeMarkerPopups.push(popup);
-            popIsOpen = true;
-
-            // Animate map to new marker's coordinates
-            animateMapTo(map, markers[i].geometry.coordinates, null);
-
-            // Handle popup close event (consistent with updateClusters)
-            popup.on("close", () => {
-                popIsOpen = false;
-                if (currentUfoModel) {
-                    scene.add(currentUfoModel);
-                    crosshair.style.display = "block";
-                }
-            });
-
-            // Apply styles (consistent with updateClusters)
-            applyAllStyles();
-
-            // Handle UFO model visibility (consistent with updateClusters)
-            if (currentUfoModel) {
-                scene.remove(currentUfoModel);
-                crosshair.style.display = "none";
-            }
-
-            return markers[i];
+    // --------------------------------------------------------------
+    // 3. Next marker in the SAME topic
+    // --------------------------------------------------------------
+    for (let i = curIdx + 1; i < markers.length; i++) {
+        if (markers[i].payer === payer && markers[i].topicId === topicId) {
+            return showMarker(markers[i]);
         }
     }
 
-    return null;
+    // --------------------------------------------------------------
+    // 4. No more in this topic → next topic (or wrap to first)
+    // --------------------------------------------------------------
+    const firstSeen = new Map();               // topicId → earliest msgNumber
+    for (const m of markers) {
+        if (m.payer !== payer) continue;
+        if (!firstSeen.has(m.topicId)) {
+            firstSeen.set(m.topicId, m.msgNumber);
+        }
+    }
+
+    const orderedTopics = Array.from(firstSeen.entries())
+        .sort(([, a], [, b]) => new Date(a) - new Date(b))
+        .map(([t]) => t);
+
+    const curTopicPos = orderedTopics.indexOf(topicId);
+    let nextTopicPos = curTopicPos + 1;
+
+    // LOOP to first topic if we are at the end
+    if (nextTopicPos >= orderedTopics.length) nextTopicPos = 0;
+
+    const nextTopicId = orderedTopics[nextTopicPos];
+
+    // --------------------------------------------------------------
+    // 5. Return FIRST marker of that next topic
+    // --------------------------------------------------------------
+    for (const m of markers) {
+        if (m.payer === payer && m.topicId === nextTopicId) {
+            return showMarker(m);
+        }
+    }
+
+    return null;   // should never hit
 };
 
-window.nextMsgFromPayerPolygon = function(payer, polygonNumber) {
-    
-    if (!storedPolygons || !payer || polygonNumber == null) {
+/* -----------------------------------------------------------------
+   Re-usable UI helper – identical to your original popup code
+   ----------------------------------------------------------------- */
+function showMarker(m) {
+    // close old popups
+    activeMarkerPopups.forEach(p => p.remove());
+    activeMarkerPopups = [];
+
+    const popup = new maplibregl.Popup()
+        .setLngLat(m.geometry.coordinates)
+        .setHTML(m.properties.message)
+        .addTo(map);
+
+    activeMarkerPopups.push(popup);
+    popIsOpen = true;
+
+    animateMapTo(map, m.geometry.coordinates, null);
+
+    popup.on("close", () => {
+        popIsOpen = false;
+        if (currentUfoModel) {
+            scene.add(currentUfoModel);
+            crosshair.style.display = "block";
+        }
+    });
+
+    applyAllStyles();
+
+    if (currentUfoModel) {
+        scene.remove(currentUfoModel);
+        crosshair.style.display = "none";
+    }
+
+    return m;
+}
+
+window.nextMsgFromPayerPolygon = function(payer, polygonNumber, topicId) {
+    if (!storedPolygons || !payer || polygonNumber == null || !topicId) {
         console.error('Invalid input or missing storedPolygons');
         return null;
     }
-    
-    // Sort by created timestamp for chronological order
-    const polygons = storedPolygons.flat().sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
-    let currentIndex = -1;
 
-    // Find the current index
+    // 1. Flatten & sort all polygons by time
+    const polygons = storedPolygons
+        .flat()
+        .sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
+
+    // 2. Find current polygon index
+    let currentIdx = -1;
     for (let i = 0; i < polygons.length; i++) {
-        if (polygons[i].payer === payer && polygons[i].msgNumber === String(polygonNumber)) {
-            currentIndex = i;
+        if (polygons[i].payer === payer &&
+            polygons[i].msgNumber === String(polygonNumber) &&
+            polygons[i].topicId === topicId) {
+            currentIdx = i;
             break;
         }
     }
-
-    if (currentIndex === -1) {
+    if (currentIdx === -1) {
         console.log('Current polygon not found');
         return null;
     }
 
-    // Find the next polygon for the same payer
-    for (let i = currentIndex + 1; i < polygons.length; i++) {
-        if (polygons[i].payer === payer) {
-            // Close all active popups
-            activePolygonPopups.forEach(popup => popup.remove());
-
-            // Parse coordinates and compute bounds
-            const coordinates = polygons[i].coordinates[0];
-            const bounds = coordinates.reduce((b, coord) => ({
-                minLng: Math.min(b.minLng, coord[0]),
-                maxLng: Math.max(b.maxLng, coord[0]),
-                minLat: Math.min(b.minLat, coord[1]),
-                maxLat: Math.max(b.maxLat, coord[1])
-            }), {
-                minLng: Infinity,
-                maxLng: -Infinity,
-                minLat: Infinity,
-                maxLat: -Infinity
-            });
-
-            // Use center of the polygon (no `e` needed)
-            const centerLng = (bounds.minLng + bounds.maxLng) / 2;
-            const centerLat = (bounds.minLat + bounds.maxLat) / 2;
-            const targetLngLat = [centerLng, centerLat];
-
-            // Create popup at polygon center
-            const popup = new maplibregl.Popup()
-                .setLngLat(targetLngLat)
-                .setHTML(polygons[i].description)
-                .addTo(map);
-
-            // Track popup
-            activePolygonPopups.push(popup);
-            popIsOpen = true;
-
-            // Animate map to polygon center
-            animateMapTo(map, targetLngLat, null);
-
-            // Popup close handler
-            popup.on("close", () => {
-                popIsOpen = false;
-                if (currentUfoModel) {
-                    scene.add(currentUfoModel);
-                    crosshair.style.display = "block";
-                }
-            });
-
-            // Apply styles
-            applyAllStyles();
-
-            // Handle UFO model visibility
-            if (currentUfoModel) {
-                scene.remove(currentUfoModel);
-                crosshair.style.display = "none";
-            }
-
-            return polygons[i];
+    // 3. Try next polygon in SAME topic
+    for (let i = currentIdx + 1; i < polygons.length; i++) {
+        if (polygons[i].payer === payer && polygons[i].topicId === topicId) {
+            return showPolygon(polygons[i]);
         }
     }
 
-    return null;
+    // 4. No more in this topic → find next topic (or loop to first)
+    const firstSeen = new Map(); // topicId → earliest msgNumber
+    for (const p of polygons) {
+        if (p.payer !== payer) continue;
+        if (!firstSeen.has(p.topicId)) {
+            firstSeen.set(p.topicId, p.msgNumber);
+        }
+    }
+
+    const orderedTopics = Array.from(firstSeen.entries())
+        .sort(([, a], [, b]) => new Date(a) - new Date(b))
+        .map(([t]) => t);
+
+    const currentTopicIdx = orderedTopics.indexOf(topicId);
+    let nextTopicIdx = currentTopicIdx + 1;
+
+    // LOOP: if at last topic → go to first
+    if (nextTopicIdx >= orderedTopics.length) {
+        nextTopicIdx = 0; // wrap around
+    }
+
+    const nextTopicId = orderedTopics[nextTopicIdx];
+
+    // 5. Return FIRST polygon of the next topic
+    for (const p of polygons) {
+        if (p.payer === payer && p.topicId === nextTopicId) {
+            return showPolygon(p);
+        }
+    }
+
+    return null; // fallback
 };
 
-window.prevMsgFromPayerMarker = function(payer, markerNumber) {
-    
-    if (!storedMarkers || !payer || markerNumber == null) {
+/* -----------------------------------------------------------------
+   Reusable UI helper – same as before
+   ----------------------------------------------------------------- */
+function showPolygon(p) {
+    activePolygonPopups.forEach(popup => popup.remove());
+    activePolygonPopups = [];
+
+    const coordinates = p.coordinates[0];
+    const bounds = coordinates.reduce((b, coord) => ({
+        minLng: Math.min(b.minLng, coord[0]),
+        maxLng: Math.max(b.maxLng, coord[0]),
+        minLat: Math.min(b.minLat, coord[1]),
+        maxLat: Math.max(b.maxLat, coord[1])
+    }), { minLng: Infinity, maxLng: -Infinity, minLat: Infinity, maxLat: -Infinity });
+
+    const centerLng = (bounds.minLng + bounds.maxLng) / 2;
+    const centerLat = (bounds.minLat + bounds.maxLat) / 2;
+    const targetLngLat = [centerLng, centerLat];
+
+    const popup = new maplibregl.Popup()
+        .setLngLat(targetLngLat)
+        .setHTML(p.description)
+        .addTo(map);
+
+    activePolygonPopups.push(popup);
+    popIsOpen = true;
+
+    animateMapTo(map, targetLngLat, null);
+
+    popup.on("close", () => {
+        popIsOpen = false;
+        if (currentUfoModel) {
+            scene.add(currentUfoModel);
+            crosshair.style.display = "block";
+        }
+    });
+
+    applyAllStyles();
+    if (currentUfoModel) {
+        scene.remove(currentUfoModel);
+        crosshair.style.display = "none";
+    }
+
+    return p;
+}
+window.prevMsgFromPayerMarker = function(payer, markerNumber, topicId) {
+  if (!storedMarkers || !payer || markerNumber == null || !topicId) {
         console.error('Invalid input or missing storedMarkers');
         return null;
     }
 
-    // Sort by created timestamp for chronological order
-    const markers = storedMarkers.flat().sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
-    let currentIndex = -1;
+    // --------------------------------------------------------------
+    // 1. Flatten + sort all markers chronologically
+    // --------------------------------------------------------------
+    const markers = storedMarkers
+        .flat()
+        .sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
 
-    // Find the current index
+    // --------------------------------------------------------------
+    // 2. Locate the current marker
+    // --------------------------------------------------------------
+    let curIdx = -1;
     for (let i = 0; i < markers.length; i++) {
-        if (markers[i].payer === payer && markers[i].msgNumber === String(markerNumber)) {
-            currentIndex = i;
+        if (markers[i].payer === payer &&
+            markers[i].msgNumber === String(markerNumber) &&
+            markers[i].topicId === topicId) {
+            curIdx = i;
             break;
         }
     }
+    if (curIdx === -1) return null;
 
-    // Find the next marker for the same payer
-    for (let i = currentIndex - 1; i >= 0; i--) {
-        if (markers[i].payer === payer) {
-            // Close all active popups
-            activeMarkerPopups.forEach((popup) => popup.remove());
+    // 1. previous in SAME topic
+    for (let i = curIdx - 1; i >= 0; i--) {
+        if (markers[i].payer === payer && markers[i].topicId === topicId) {
+            return showMarker(markers[i]);
+        }
+    }
 
-            // Create and open new popup
-            const popup = new maplibregl.Popup()
-                .setLngLat(markers[i].geometry.coordinates)
-                .setHTML(markers[i].properties.message)
-                .addTo(map);
+    // 2. previous topic (wrap to last if first)
+    const lastSeen = new Map();   // topicId → latest msgNumber
+    for (const m of markers) {
+        if (m.payer !== payer) continue;
+        if (!lastSeen.has(m.topicId) ||
+            new Date(m.msgNumber) > new Date(lastSeen.get(m.topicId))) {
+            lastSeen.set(m.topicId, m.msgNumber);
+        }
+    }
 
-            // Add popup to activeMarkerPopups and update popIsOpen
-            activeMarkerPopups.push(popup);
-            popIsOpen = true;
+    const orderedTopics = Array.from(lastSeen.entries())
+        .sort(([, a], [, b]) => new Date(a) - new Date(b))
+        .map(([t]) => t);
 
-            // Animate map to new marker's coordinates
-            animateMapTo(map, markers[i].geometry.coordinates, null);
+    const curPos = orderedTopics.indexOf(topicId);
+    let prevPos = curPos - 1;
+    if (prevPos < 0) prevPos = orderedTopics.length - 1;
 
-            // Handle popup close event (consistent with updateClusters)
-            popup.on("close", () => {
-                popIsOpen = false;
-                if (currentUfoModel) {
-                    scene.add(currentUfoModel);
-                    crosshair.style.display = "block";
-                }
-            });
+    const prevTopicId = orderedTopics[prevPos];
 
-            // Apply styles (consistent with updateClusters)
-            applyAllStyles();
-
-            // Handle UFO model visibility (consistent with updateClusters)
-            if (currentUfoModel) {
-                scene.remove(currentUfoModel);
-                crosshair.style.display = "none";
-            }
-
-            return markers[i];
+    // 3. LAST marker of previous topic
+    for (let i = markers.length - 1; i >= 0; i--) {
+        if (markers[i].payer === payer && markers[i].topicId === prevTopicId) {
+            return showMarker(markers[i]);
         }
     }
 
     return null;
 };
 
-window.prevMsgFromPayerPolygon = function(payer, polygonNumber) {
-    
-    if (!storedPolygons || !payer || polygonNumber == null) {
+window.prevMsgFromPayerPolygon = function(payer, polygonNumber, topicId) {
+    if (!storedPolygons || !payer || polygonNumber == null || !topicId) {
         console.error('Invalid input or missing storedPolygons');
         return null;
     }
-    
-    // Sort by created timestamp for chronological order
-    const polygons = storedPolygons.flat().sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
-    let currentIndex = -1;
 
-    // Find the current index
+    // 1. Flatten & sort chronologically
+    const polygons = storedPolygons
+        .flat()
+        .sort((a, b) => new Date(a.msgNumber) - new Date(b.msgNumber));
+
+    // 2. Find current polygon index
+    let currentIdx = -1;
     for (let i = 0; i < polygons.length; i++) {
-        if (polygons[i].payer === payer && polygons[i].msgNumber === String(polygonNumber)) {
-            currentIndex = i;
+        if (polygons[i].payer === payer &&
+            polygons[i].msgNumber === String(polygonNumber) &&
+            polygons[i].topicId === topicId) {
+            currentIdx = i;
             break;
         }
     }
-
-    if (currentIndex === -1) {
+    if (currentIdx === -1) {
         console.log('Current polygon not found');
         return null;
     }
 
-    // Find the previous polygon for the same payer
-    for (let i = currentIndex - 1; i >= 0; i--) {
-        if (polygons[i].payer === payer) {
-            // Close all active popups
-            activePolygonPopups.forEach(popup => popup.remove());
+    // 3. Try previous polygon in SAME topic
+    for (let i = currentIdx - 1; i >= 0; i--) {
+        if (polygons[i].payer === payer && polygons[i].topicId === topicId) {
+            return showPolygon(polygons[i]);
+        }
+    }
 
-            // Parse coordinates and compute bounds
-            const coordinates = polygons[i].coordinates[0];
-            const bounds = coordinates.reduce((b, coord) => ({
-                minLng: Math.min(b.minLng, coord[0]),
-                maxLng: Math.max(b.maxLng, coord[0]),
-                minLat: Math.min(b.minLat, coord[1]),
-                maxLat: Math.max(b.maxLat, coord[1])
-            }), {
-                minLng: Infinity,
-                maxLng: -Infinity,
-                minLat: Infinity,
-                maxLat: -Infinity
-            });
+    // 4. No previous in this topic → go to PREVIOUS topic (or wrap to last)
+    const lastSeen = new Map(); // topicId → latest msgNumber
+    for (const p of polygons) {
+        if (p.payer !== payer) continue;
+        if (!lastSeen.has(p.topicId) || new Date(p.msgNumber) > new Date(lastSeen.get(p.topicId))) {
+            lastSeen.set(p.topicId, p.msgNumber);
+        }
+    }
 
-            // Use center of the polygon
-            const centerLng = (bounds.minLng + bounds.maxLng) / 2;
-            const centerLat = (bounds.minLat + bounds.maxLat) / 2;
-            const targetLngLat = [centerLng, centerLat];
+    const orderedTopics = Array.from(lastSeen.entries())
+        .sort(([, a], [, b]) => new Date(a) - new Date(b))
+        .map(([t]) => t);
 
-            // Create popup at polygon center
-            const popup = new maplibregl.Popup()
-                .setLngLat(targetLngLat)
-                .setHTML(polygons[i].description)
-                .addTo(map);
+    const currentTopicIdx = orderedTopics.indexOf(topicId);
+    let prevTopicIdx = currentTopicIdx - 1;
 
-            // Track popup
-            activePolygonPopups.push(popup);
-            popIsOpen = true;
+    // LOOP: if at first topic → go to last topic
+    if (prevTopicIdx < 0) {
+        prevTopicIdx = orderedTopics.length - 1;
+    }
 
-            // Animate map to polygon center
-            animateMapTo(map, targetLngLat, null);
+    const prevTopicId = orderedTopics[prevTopicIdx];
 
-            // Popup close handler
-            popup.on("close", () => {
-                popIsOpen = false;
-                if (currentUfoModel) {
-                    scene.add(currentUfoModel);
-                    crosshair.style.display = "block";
-                }
-            });
-
-            // Apply styles
-            applyAllStyles();
-
-            // Handle UFO model visibility
-            if (currentUfoModel) {
-                scene.remove(currentUfoModel);
-                crosshair.style.display = "none";
-            }
-
-            return polygons[i];
+    // 5. Return LAST polygon of the previous topic
+    for (let i = polygons.length - 1; i >= 0; i--) {
+        if (polygons[i].payer === payer && polygons[i].topicId === prevTopicId) {
+            return showPolygon(polygons[i]);
         }
     }
 
@@ -11927,7 +11984,7 @@ setInterval(() => {
 }, 300000); // every 60 seconds
 }
 }
-generateModels();
+
     
 
 async function load3dModels() {
