@@ -2708,6 +2708,7 @@ async function extractTopicId() {
     inputarea.value = '';
     inputarea.value = topicId;
     adjustTextareaHeight(inputarea);
+    toolbarload = true;
 
   initialTopicId = topicId; // Set global variable
   return initialTopicId; // Return for use in async flows
@@ -2840,7 +2841,6 @@ async function extractTopicId() {
 const ufoLoader = new THREE.GLTFLoader();
 ufoLoader.setDRACOLoader(dracoLoader);
 let currentUfoModel = null;
-let timeoutForToolbarLoad = true;
 let initialload = false;
 let toolbarload = false;
 let isLoggedIn = false;
@@ -8956,10 +8956,10 @@ function updateClusters() {
 
       el.addEventListener("click", async (e) => {
         e.stopPropagation();
-        const expansionZoom = await index.getClusterExpansionZoom(cluster.id) + 0.1;
-        animateMapTo(map, cluster.geometry.coordinates, expansionZoom);
         activePolygonPopups.forEach((popup) => popup.remove());
         activeMarkerPopups.forEach((popup) => popup.remove());
+        const expansionZoom = await index.getClusterExpansionZoom(cluster.id) + 0.1;
+        animateMapTo(map, cluster.geometry.coordinates, expansionZoom);
       });
     } else {
       try {
@@ -8984,7 +8984,6 @@ function updateClusters() {
 
     if (!cluster.properties.cluster) {
       const popup = new maplibregl.Popup().setHTML(cluster.properties.message);
-      activeMarkerPopups.push(popup);
 
       popup.on("close", () => {
         popIsOpen = false;
@@ -8998,6 +8997,7 @@ function updateClusters() {
         e.stopPropagation();
         activePolygonPopups.forEach((popup) => popup.remove());
         activeMarkerPopups.forEach((popup) => popup.remove());
+        activeMarkerPopups.push(popup);
         CloseALL();
         animateMapTo(map, cluster.geometry.coordinates, null);
         popup.setLngLat(cluster.geometry.coordinates).addTo(map);
@@ -11577,7 +11577,6 @@ function showMarker(m) {
     // close old popups
     activeMarkerPopups.forEach(p => p.remove());
     activeMarkerPopups = [];
-
     const popup = new maplibregl.Popup()
         .setLngLat(m.geometry.coordinates)
         .setHTML(m.properties.message)
@@ -11984,7 +11983,7 @@ setInterval(() => {
 }, 300000); // every 60 seconds
 }
 }
-generateModels();
+// generateModels();
     
 
 async function load3dModels() {
